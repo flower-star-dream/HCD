@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>top.flowerstardream.hcd</groupId>
+    <artifactId>trainSeat-parent</artifactId>
+    <version>release-1.0.0</version>
+    <packaging>pom</packaging>
+
+    <name>trainSeat-parent</name>
+    <description>座位服务父模块</description>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <modules>
+        <module>trainSeat-ao</module>
+        <module>trainSeat-api</module>
+        <module>trainSeat-biz</module>
+        <module>trainSeat-bo</module>
+        <module>trainSeat-constant</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>top.flowerstardream.hcd</groupId>
+                <artifactId>hcd-tools</artifactId>
+                <version>release-1.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>top.flowerstardream.hcd</groupId>
+                <artifactId>trainSeat-ao</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>top.flowerstardream.hcd</groupId>
+                <artifactId>trainSeat-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>top.flowerstardream.hcd</groupId>
+                <artifactId>trainSeat-biz</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>top.flowerstardream.hcd</groupId>
+                <artifactId>trainSeat-bo</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>top.flowerstardream.hcd</groupId>
+                <artifactId>trainSeat-constant</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+</project>

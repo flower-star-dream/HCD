@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    volumes:
+      - ./hcd-mgmt/dist:/usr/share/nginx/html/hcd-mgmt
+      - ./hcd-applet/dist/build/h5:/usr/share/nginx/html/hcd-applet
+      - ./nginx/logs:/var/log/nginx
+    depends_on:
+      - backend
+    networks:
+      - hcd-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  backend:
+    image: openjdk:11-jre-slim
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./backend/target/hcd-backend.jar:/app.jar
+    command: ["java", "-jar", "/app.jar"]
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    networks:
+      - hcd-network
+    restart: unless-stopped
+
+networks:
+  hcd-network:
+    driver: bridge
+
+volumes:
+  nginx_logs:
+    driver: local

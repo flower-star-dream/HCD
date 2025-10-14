@@ -1,0 +1,429 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>top.flowerstardream.hcd</groupId>
+    <artifactId>hcd-backend</artifactId>
+    <version>release-1.0.0</version>
+    <packaging>pom</packaging>
+    <name>HCD Backend</name>
+    <description>HCD微服务后端项目</description>
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <revision>release-1.0.0</revision>
+        <maven.flatten.version>1.5.0</maven.flatten.version>
+        <spring-boot.version>3.2.7</spring-boot.version>
+        <spring-context.version>6.2.7</spring-context.version>
+        <spring-beans.version>6.2.10</spring-beans.version>
+        <spring-security.version>6.3.10</spring-security.version>
+        <spring-web.version>6.1.12</spring-web.version>
+        <spring-cloud.version>2023.0.0</spring-cloud.version>
+        <mysql.version>8.0.33</mysql.version>
+        <alibaba-cloud.version>2023.0.0.0-RC1</alibaba-cloud.version>
+        <mybatis-plus.version>3.5.5</mybatis-plus.version>
+        <lombok.version>1.18.30</lombok.version>
+        <logback.version>1.5.19</logback.version>
+        <netty.version>4.1.118.Final</netty.version>
+        <knife4j.version>4.3.0</knife4j.version>
+        <pagehelper.version>1.4.6</pagehelper.version>
+        <jwt.version>0.11.5</jwt.version>
+        <fastjson2.version>2.0.49</fastjson2.version>
+        <hutool.version>5.8.40</hutool.version>
+        <commons-lang3.version>3.18.0</commons-lang3.version>
+        <minio.version>8.5.10</minio.version>
+    </properties>
+
+    <modules>
+        <module>hcd-tools</module>
+        <module>user-parent</module>
+<!--        <module>trainSeat-parent</module>-->
+<!--        <module>ticket-parent</module>-->
+<!--        <module>payNotify-parent</module>-->
+<!--        <module>system-parent</module>-->
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Spring Boot -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${spring-context.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
+                <version>${spring-beans.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-crypto</artifactId>
+                <version>${spring-security.version}</version>
+            </dependency>
+
+
+
+            <!-- Spring Cloud -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- Alibaba Cloud -->
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+                <version>${alibaba-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql.version}</version>
+            </dependency>
+
+            <!-- MyBatis Plus -->
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-boot-starter</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+
+            <!-- Lombok -->
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+            </dependency>
+
+            <!-- 修复 Logback 漏洞 -->
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version> <!-- 或更高已知安全版本 -->
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>${logback.version}</version> <!-- 或更高已知安全版本 -->
+            </dependency>
+
+            <!-- 修复 Netty 漏洞 -->
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-common</artifactId>
+                <version>${netty.version}</version> <!-- 或更高已知安全版本 -->
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-handler</artifactId>
+                <version>${netty.version}</version> <!-- 或更高已知安全版本 -->
+            </dependency>
+
+            <!-- Knife4j (Swagger) -->
+            <dependency>
+                <groupId>com.github.xiaoymin</groupId>
+                <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+                <version>${knife4j.version}</version>
+                <exclusions>
+                    <!-- 排除易受攻击的 spring-web 和 spring-webmvc -->
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-web</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-webmvc</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <!-- 显式引入安全版本的 spring-web 和 spring-webmvc -->
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-web</artifactId>
+                <version>${spring-web.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-webmvc</artifactId>
+                <version>${spring-web.version}</version>
+            </dependency>
+
+            <!-- PageHelper -->
+            <dependency>
+                <groupId>com.github.pagehelper</groupId>
+                <artifactId>pagehelper-spring-boot-starter</artifactId>
+                <version>${pagehelper.version}</version>
+            </dependency>
+
+            <!-- JWT -->
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-api</artifactId>
+                <version>${jwt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-impl</artifactId>
+                <version>${jwt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-jackson</artifactId>
+                <version>${jwt.version}</version>
+            </dependency>
+
+            <!-- WebSocket -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-websocket</artifactId>
+            </dependency>
+
+            <!-- AOP -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-aop</artifactId>
+            </dependency>
+
+            <!-- Common Dependencies -->
+            <dependency>
+                <groupId>com.alibaba.fastjson2</groupId>
+                <artifactId>fastjson2</artifactId>
+                <version>${fastjson2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-all</artifactId>
+                <version>${hutool.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.minio</groupId>
+                <artifactId>minio</artifactId>
+                <version>${minio.version}</version>
+            </dependency>
+
+            <!-- HCD Tools -->
+            <dependency>
+                <groupId>top.flowerstardream.hcd</groupId>
+                <artifactId>hcd-tools</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <!-- User Service -->
+            <dependency>
+                <groupId>top.flowerstardream.hcd</groupId>
+                <artifactId>user-ao</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>top.flowerstardream.hcd</groupId>
+                <artifactId>user-api</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>top.flowerstardream.hcd</groupId>
+                <artifactId>user-biz</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>top.flowerstardream.hcd</groupId>
+                <artifactId>user-bo</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>top.flowerstardream.hcd</groupId>
+                <artifactId>user-boot</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>top.flowerstardream.hcd</groupId>
+                <artifactId>user-constant</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+<!--            &lt;!&ndash; Train Seat Service &ndash;&gt;-->
+<!--            <dependency>-->
+<!--                <groupId>top.flowerstardream.hcd</groupId>-->
+<!--                <artifactId>trainSeat-ao</artifactId>-->
+<!--                <version>${revision}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>top.flowerstardream.hcd</groupId>-->
+<!--                <artifactId>trainSeat-api</artifactId>-->
+<!--                <version>${revision}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>top.flowerstardream.hcd</groupId>-->
+<!--                <artifactId>trainSeat-biz</artifactId>-->
+<!--                <version>${revision}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>top.flowerstardream.hcd</groupId>-->
+<!--                <artifactId>trainSeat-bo</artifactId>-->
+<!--                <version>${revision}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>top.flowerstardream.hcd</groupId>-->
+<!--                <artifactId>trainSeat-constant</artifactId>-->
+<!--                <version>${revision}</version>-->
+<!--            </dependency>-->
+
+<!--            &lt;!&ndash; Ticket Service &ndash;&gt;-->
+<!--            <dependency>-->
+<!--                <groupId>top.flowerstardream.hcd</groupId>-->
+<!--                <artifactId>ticket-ao</artifactId>-->
+<!--                <version>${revision}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>top.flowerstardream.hcd</groupId>-->
+<!--                <artifactId>ticket-api</artifactId>-->
+<!--                <version>${revision}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>top.flowerstardream.hcd</groupId>-->
+<!--                <artifactId>ticket-biz</artifactId>-->
+<!--                <version>${revision}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>top.flowerstardream.hcd</groupId>-->
+<!--                <artifactId>ticket-bo</artifactId>-->
+<!--                <version>${revision}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>top.flowerstardream.hcd</groupId>-->
+<!--                <artifactId>ticket-constant</artifactId>-->
+<!--                <version>${revision}</version>-->
+<!--            </dependency>-->
+
+<!--            &lt;!&ndash; Pay Notify Service &ndash;&gt;-->
+<!--            <dependency>-->
+<!--                <groupId>top.flowerstardream.hcd</groupId>-->
+<!--                <artifactId>payNotify-ao</artifactId>-->
+<!--                <version>${revision}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>top.flowerstardream.hcd</groupId>-->
+<!--                <artifactId>payNotify-api</artifactId>-->
+<!--                <version>${revision}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>top.flowerstardream.hcd</groupId>-->
+<!--                <artifactId>payNotify-biz</artifactId>-->
+<!--                <version>${revision}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>top.flowerstardream.hcd</groupId>-->
+<!--                <artifactId>payNotify-bo</artifactId>-->
+<!--                <version>${revision}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>top.flowerstardream.hcd</groupId>-->
+<!--                <artifactId>payNotify-constant</artifactId>-->
+<!--                <version>${revision}</version>-->
+<!--            </dependency>-->
+
+<!--            &lt;!&ndash; System Service &ndash;&gt;-->
+<!--            <dependency>-->
+<!--                <groupId>top.flowerstardream.hcd</groupId>-->
+<!--                <artifactId>system-ao</artifactId>-->
+<!--                <version>${revision}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>top.flowerstardream.hcd</groupId>-->
+<!--                <artifactId>system-api</artifactId>-->
+<!--                <version>${revision}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>top.flowerstardream.hcd</groupId>-->
+<!--                <artifactId>system-biz</artifactId>-->
+<!--                <version>${revision}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>top.flowerstardream.hcd</groupId>-->
+<!--                <artifactId>system-bo</artifactId>-->
+<!--                <version>${revision}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>top.flowerstardream.hcd</groupId>-->
+<!--                <artifactId>system-constant</artifactId>-->
+<!--                <version>${revision}</version>-->
+<!--            </dependency>-->
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot.version}</version>
+            </plugin>
+            <plugin>
+                <!-- 插件的 GroupId，标识插件所属的组织 -->
+                <groupId>org.codehaus.mojo</groupId>
+                <!-- 插件的 ArtifactId，标识插件的名称 -->
+                <artifactId>flatten-maven-plugin</artifactId>
+                <!-- 插件的版本号，这里通过变量引用上面定义的版本号 -->
+                <version>${maven.flatten.version}</version>
+                <configuration>
+                    <!-- 配置扁平化后的 POM 文件的名称 -->
+                    <flattenedPomFilename>pom-xml-flattened</flattenedPomFilename>
+                    <!-- 是否更新原始 POM 文件 -->
+                    <updatePomFile>true</updatePomFile>
+                    <!-- 指定扁平化模式，resolveCiFriendliesOnly 表示仅解析 CI 友好的占位符 -->
+                    <flattenMode>resolveCiFriendliesOnly</flattenMode>
+                </configuration>
+                <executions>
+                    <!-- 定义插件的执行配置 -->
+                    <execution>
+                        <!-- 执行的唯一标识 -->
+                        <id>flatten</id>
+                        <!-- 指定插件绑定的生命周期阶段 -->
+                        <phase>process-resources</phase>
+                        <!-- 定义执行的目标 -->
+                        <goals>
+                            <!-- 执行扁平化操作 -->
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <!-- 定义清理阶段的执行配置 -->
+                    <execution>
+                        <!-- 清理阶段的唯一标识 -->
+                        <id>flatten.clean</id>
+                        <!-- 指定清理阶段绑定的生命周期阶段 -->
+                        <phase>clean</phase>
+                        <!-- 定义清理阶段执行的目标 -->
+                        <goals>
+                            <!-- 执行清理操作 -->
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
