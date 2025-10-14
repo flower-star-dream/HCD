@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>top.flowerstardream.hcd</groupId>
+    <artifactId>payNotify-parent</artifactId>
+    <version>release-1.0.0</version>
+    <packaging>pom</packaging>
+
+    <name>payNotify-parent</name>
+    <description>支付通知服务父模块</description>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <modules>
+        <module>payNotify-ao</module>
+        <module>payNotify-api</module>
+        <module>payNotify-biz</module>
+        <module>payNotify-bo</module>
+        <module>payNotify-constant</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>top.flowerstardream.hcd</groupId>
+                <artifactId>hcd-tools</artifactId>
+                <version>release-1.0.0</version>
+            </dependency>
+            <dependency>
+                <groupId>top.flowerstardream.hcd</groupId>
+                <artifactId>payNotify-ao</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>top.flowerstardream.hcd</groupId>
+                <artifactId>payNotify-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>top.flowerstardream.hcd</groupId>
+                <artifactId>payNotify-biz</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>top.flowerstardream.hcd</groupId>
+                <artifactId>payNotify-bo</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>top.flowerstardream.hcd</groupId>
+                <artifactId>payNotify-constant</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+</project>

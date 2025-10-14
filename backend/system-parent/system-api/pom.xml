@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>top.flowerstardream.hcd</groupId>
+        <artifactId>system-parent</artifactId>
+        <version>release-1.0.0</version>
+    </parent>
+
+    <artifactId>system-api</artifactId>
+    <packaging>jar</packaging>
+
+    <name>system-api</name>
+    <description>系统管理服务API模块 - 存放接口定义</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>top.flowerstardream.hcd</groupId>
+            <artifactId>system-ao</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>top.flowerstardream.hcd</groupId>
+            <artifactId>system-bo</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>top.flowerstardream.hcd</groupId>
+            <artifactId>hcd-tools</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-openfeign-core</artifactId>
+            <version>4.1.0</version>
+        </dependency>
+    </dependencies>
+
+</project>

@@ -1,0 +1,87 @@
+# HCD 微服务配置文件
+
+# 公共配置
+spring:
+  profiles:
+    active: dev
+  application:
+    name: hcd-backend
+
+# 数据源配置
+  datasource:
+    url: jdbc:mysql://localhost:3306/hcd?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8
+    username: root
+    password: 1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+# JPA配置
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+
+# Redis配置
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password:
+      database: 0
+      timeout: 5000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
+
+# Nacos配置
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8845
+        namespace: hcd
+      config:
+        server-addr: localhost:8845
+        namespace: hcd
+        file-extension: yml
+
+# RabbitMQ配置
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: admin
+    password: admin
+    virtual-host: hcd
+    listener:
+      simple:
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 1000ms
+
+# Elasticsearch配置
+  elasticsearch:
+    uris: http://localhost:9200
+    username: elastic
+    password: changeme
+
+# MinIO配置
+minio:
+  endpoint: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket-name: hcd-files
+
+
+# 日志配置
+logging:
+  level:
+    top.flower.star.dream.hcd: debug
+    org.springframework.web: debug
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n'
+    file: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n'
+  file:
+    name: logs/hcd.log
