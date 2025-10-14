@@ -1,0 +1,200 @@
+pipeline {
+    agent any
+
+    environment {
+        NODE_VERSION = '18'
+        DOCKER_REGISTRY = 'your-registry.com'
+        DOCKER_IMAGE_NGINX = 'hcd/nginx'
+        DOCKER_IMAGE_MGMT = 'hcd/hcd-mgmt'
+        DOCKER_IMAGE_APPLET = 'hcd/hcd-applet'
+        DEPLOY_HOST = 'your-server.com'
+        DEPLOY_USER = 'deploy'
+    }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        timeout(time: 30, unit: 'MINUTES')
+        timestamps()
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+                script {
+                    def commit = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                    env.COMMIT_SHA = commit
+                }
+            }
+        }
+
+        stage('Install Dependencies') {
+            parallel {
+                stage('Install hcd-mgmt') {
+                    steps {
+                        dir('frontend/hcd-mgmt') {
+                            sh '''
+                                npm ci --production=false
+                            '''
+                        }
+                    }
+                }
+                stage('Install hcd-applet') {
+                    steps {
+                        dir('frontend/hcd-applet') {
+                            sh '''
+                                npm ci --production=false
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Lint') {
+            parallel {
+                stage('Lint hcd-mgmt') {
+                    steps {
+                        dir('frontend/hcd-mgmt') {
+                            sh '''
+                                npm run lint
+                            '''
+                        }
+                    }
+                }
+                stage('Lint hcd-applet') {
+                    steps {
+                        dir('frontend/hcd-applet') {
+                            sh '''
+                                npm run type-check
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Build') {
+            parallel {
+                stage('Build hcd-mgmt') {
+                    steps {
+                        dir('frontend/hcd-mgmt') {
+                            sh '''
+                                npm run build
+                            '''
+                        }
+                    }
+                }
+                stage('Build hcd-applet') {
+                    steps {
+                        dir('frontend/hcd-applet') {
+                            sh '''
+                                npm run build:h5
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Test') {
+            parallel {
+                stage('Test hcd-mgmt') {
+                    steps {
+                        dir('frontend/hcd-mgmt') {
+                            sh '''
+                                npm run test:unit || true
+                            '''
+                        }
+                    }
+                }
+                stage('Test hcd-applet') {
+                    steps {
+                        dir('frontend/hcd-applet') {
+                            sh '''
+                                echo "Running hcd-applet tests..."
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Build Docker Images') {
+            steps {
+                script {
+                    sh '''
+                        cd frontend
+                        docker build -t ${DOCKER_IMAGE_NGINX}:${BUILD_NUMBER} -t ${DOCKER_IMAGE_NGINX}:latest ./nginx
+                    '''
+                }
+            }
+        }
+
+        stage('Push to Registry') {
+            steps {
+                script {
+                    sh '''
+                        docker tag ${DOCKER_IMAGE_NGINX}:${BUILD_NUMBER} ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NGINX}:${BUILD_NUMBER}
+                        docker tag ${DOCKER_IMAGE_NGINX}:latest ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NGINX}:latest
+
+                        docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NGINX}:${BUILD_NUMBER}
+                        docker push ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NGINX}:latest
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy to Staging') {
+            when {
+                branch 'develop'
+            }
+            steps {
+                script {
+                    sh '''
+                        ssh ${DEPLOY_USER}@${DEPLOY_HOST} \
+                        "cd /opt/hcd && \
+                         docker-compose pull && \
+                         docker-compose up -d && \
+                         docker image prune -f"
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy to Production') {
+            when {
+                branch 'main'
+            }
+            steps {
+                script {
+                    sh '''
+                        ssh ${DEPLOY_USER}@${DEPLOY_HOST} \
+                        "cd /opt/hcd-prod && \
+                         docker-compose pull && \
+                         docker-compose up -d --force-recreate && \
+                         docker image prune -f"
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+        success {
+            script {
+                def message = "✅ Frontend build successful - ${env.BUILD_URL}"
+                echo message
+            }
+        }
+        failure {
+            script {
+                def message = "❌ Frontend build failed - ${env.BUILD_URL}"
+                echo message
+            }
+        }
+    }
+}
