@@ -20,7 +20,6 @@
     <name>user-bo</name>
     <description>用户服务BO模块 - 存放实体对象</description>
     <dependencies>
-
     </dependencies>
 
 </project>

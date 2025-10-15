@@ -27,58 +27,10 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <revision>release-1.0.0</revision>
   </properties>
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>top.flowerstardream.hcd</groupId>
-        <artifactId>user-ao</artifactId>
-        <version>release-1.0.0</version>
-      </dependency>
-      <dependency>
-        <groupId>top.flowerstardream.hcd</groupId>
-        <artifactId>user-api</artifactId>
-        <version>release-1.0.0</version>
-      </dependency>
-      <dependency>
-        <groupId>top.flowerstardream.hcd</groupId>
-        <artifactId>user-biz</artifactId>
-        <version>release-1.0.0</version>
-      </dependency>
-      <dependency>
-        <groupId>top.flowerstardream.hcd</groupId>
-        <artifactId>user-bo</artifactId>
-        <version>release-1.0.0</version>
-      </dependency>
-      <dependency>
-        <groupId>top.flowerstardream.hcd</groupId>
-        <artifactId>user-boot</artifactId>
-        <version>release-1.0.0</version>
-      </dependency>
-      <dependency>
-        <groupId>top.flowerstardream.hcd</groupId>
-        <artifactId>user-constant</artifactId>
-        <version>release-1.0.0</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
   <dependencies>
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-autoconfigure</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-context</artifactId>
-      <version>${spring-context.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-beans</artifactId>
-      <version>${spring-beans.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-tx</artifactId>
+      <groupId>top.flowerstardream.hcd</groupId>
+      <artifactId>hcd-base</artifactId>
     </dependency>
   </dependencies>
   <build>
