@@ -16,12 +16,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <revision>release-1.0.0</revision>
         <maven.flatten.version>1.5.0</maven.flatten.version>
-        <spring-boot.version>3.2.7</spring-boot.version>
+        <spring-boot.version>3.3.6</spring-boot.version>
         <spring-context.version>6.2.7</spring-context.version>
         <spring-beans.version>6.2.10</spring-beans.version>
         <spring-security.version>6.3.10</spring-security.version>
-        <spring-web.version>6.1.12</spring-web.version>
+        <spring-web.version>6.1.17</spring-web.version>
         <spring-cloud.version>2023.0.0</spring-cloud.version>
+        <tomcat.version>10.1.31</tomcat.version>
         <mysql.version>8.0.33</mysql.version>
         <alibaba-cloud.version>2023.0.0.0-RC1</alibaba-cloud.version>
         <mybatis-plus.version>3.5.5</mybatis-plus.version>
@@ -40,7 +41,8 @@
     <modules>
         <module>hcd-tools</module>
         <module>user-parent</module>
-<!--        <module>trainSeat-parent</module>-->
+        <module>hcd-base</module>
+        <!--        <module>trainSeat-parent</module>-->
 <!--        <module>ticket-parent</module>-->
 <!--        <module>payNotify-parent</module>-->
 <!--        <module>system-parent</module>-->
@@ -70,6 +72,12 @@
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-crypto</artifactId>
                 <version>${spring-security.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-core</artifactId>
+                <version>${tomcat.version}</version> <!-- 使用已修复漏洞的安全版本 -->
             </dependency>
 
 
@@ -231,6 +239,11 @@
                 <artifactId>hcd-tools</artifactId>
                 <version>${revision}</version>
             </dependency>
+            <dependency>
+                <groupId>top.flowerstardream.hcd</groupId>
+                <artifactId>hcd-base</artifactId>
+                <version>${revision}</version>
+            </dependency>
 
             <!-- User Service -->
             <dependency>
@@ -380,6 +393,22 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
             </plugin>
             <plugin>
                 <!-- 插件的 GroupId，标识插件所属的组织 -->
