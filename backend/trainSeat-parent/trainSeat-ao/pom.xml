@@ -8,20 +8,21 @@
     <parent>
         <groupId>top.flowerstardream.hcd</groupId>
         <artifactId>trainSeat-parent</artifactId>
-        <version>release-1.0.0</version>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
-
     <artifactId>trainSeat-ao</artifactId>
-    <packaging>jar</packaging>
-
+    <version>${revision}</version>
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
     <name>trainSeat-ao</name>
-    <description>座位服务AO模块 - 存放DTO对象</description>
-
+    <description>列车资源调配AO模块 - 存放DTO对象</description>
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-validation</artifactId>
-        </dependency>
+
     </dependencies>
+
 
 </project>

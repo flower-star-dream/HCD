@@ -8,16 +8,24 @@
     <parent>
         <groupId>top.flowerstardream.hcd</groupId>
         <artifactId>ticket-parent</artifactId>
-        <version>release-1.0.0</version>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
-
     <artifactId>ticket-biz</artifactId>
-    <packaging>jar</packaging>
-
+    <version>${revision}</version>
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
     <name>ticket-biz</name>
-    <description>票务服务业务模块 - 存放业务逻辑代码</description>
-
+    <description>票务模块 - 存放业务逻辑代码</description>
     <dependencies>
+        <dependency>
+            <groupId>top.flowerstardream.hcd</groupId>
+            <artifactId>ticket-ao</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>top.flowerstardream.hcd</groupId>
             <artifactId>ticket-api</artifactId>
@@ -25,23 +33,29 @@
         <dependency>
             <groupId>top.flowerstardream.hcd</groupId>
             <artifactId>ticket-bo</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>top.flowerstardream.hcd</groupId>
+            <artifactId>ticket-constant</artifactId>
         </dependency>
         <dependency>
             <groupId>top.flowerstardream.hcd</groupId>
             <artifactId>hcd-tools</artifactId>
+        </dependency>
+
+        <!-- Common Dependencies -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
-        <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.33</version>
         </dependency>
         <dependency>
             <groupId>com.alibaba.cloud</groupId>

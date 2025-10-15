@@ -14,41 +14,53 @@
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
         </processorPath>
+        <module name="system-ao" />
         <module name="user-boot" />
-        <module name="user-api" />
-        <module name="user-bo" />
-        <module name="hcd-tools" />
-        <module name="hcd-base" />
+        <module name="ticket-constant" />
+        <module name="trainSeat-api" />
+        <module name="trainSeat-ao" />
+        <module name="payNotify-constant" />
         <module name="user-ao" />
-        <module name="user-constant" />
+        <module name="system-biz" />
+        <module name="trainSeat-biz" />
+        <module name="payNotify-ao" />
+        <module name="ticket-ao" />
+        <module name="user-api" />
+        <module name="payNotify-api" />
+        <module name="hcd-base" />
+        <module name="payNotify-biz" />
         <module name="user-biz" />
+        <module name="ticket-api" />
+        <module name="trainSeat-bo" />
+        <module name="hcd-tools" />
+        <module name="ticket-biz" />
+        <module name="user-constant" />
+        <module name="system-constant" />
+        <module name="payNotify-bo" />
+        <module name="ticket-bo" />
+        <module name="user-bo" />
+        <module name="trainSeat-constant" />
+      </profile>
+      <profile name="Annotation profile for system-api" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
+        </processorPath>
+        <module name="system-api" />
+      </profile>
+      <profile name="Annotation profile for system-bo" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
+        </processorPath>
+        <module name="system-bo" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="payNotify-ao" target="17" />
-      <module name="payNotify-api" target="17" />
-      <module name="payNotify-biz" target="17" />
-      <module name="payNotify-bo" target="17" />
-      <module name="payNotify-constant" target="17" />
-      <module name="payNotify-parent" target="17" />
-      <module name="system-ao" target="17" />
-      <module name="system-api" target="17" />
-      <module name="system-biz" target="17" />
-      <module name="system-bo" target="17" />
-      <module name="system-constant" target="17" />
-      <module name="system-parent" target="17" />
-      <module name="ticket-ao" target="17" />
-      <module name="ticket-api" target="17" />
-      <module name="ticket-biz" target="17" />
-      <module name="ticket-bo" target="17" />
-      <module name="ticket-constant" target="17" />
-      <module name="ticket-parent" target="17" />
-      <module name="trainSeat-ao" target="1.5" />
-      <module name="trainSeat-api" target="1.5" />
-      <module name="trainSeat-biz" target="1.5" />
-      <module name="trainSeat-constant" target="1.5" />
-      <module name="trainSeat-parent" target="17" />
-    </bytecodeTargetLevel>
   </component>
 </project>

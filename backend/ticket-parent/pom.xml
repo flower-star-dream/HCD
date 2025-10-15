@@ -2,21 +2,26 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>top.flowerstardream.hcd</groupId>
-    <artifactId>ticket-parent</artifactId>
-    <version>release-1.0.0</version>
-    <packaging>pom</packaging>
+    <parent>
+        <groupId>top.flowerstardream.hcd</groupId>
+        <artifactId>hcd-backend</artifactId>
+        <version>release-1.0.0</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
 
+    <artifactId>ticket-parent</artifactId>
+    <version>${revision}</version>
+    <packaging>pom</packaging>
     <name>ticket-parent</name>
-    <description>票务服务父模块</description>
+    <description>票务</description>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <revision>release-1.0.0</revision>
     </properties>
 
     <modules>
@@ -27,39 +32,20 @@
         <module>ticket-constant</module>
     </modules>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>top.flowerstardream.hcd</groupId>
-                <artifactId>hcd-tools</artifactId>
-                <version>release-1.0.0</version>
-            </dependency>
-            <dependency>
-                <groupId>top.flowerstardream.hcd</groupId>
-                <artifactId>ticket-ao</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>top.flowerstardream.hcd</groupId>
-                <artifactId>ticket-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>top.flowerstardream.hcd</groupId>
-                <artifactId>ticket-biz</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>top.flowerstardream.hcd</groupId>
-                <artifactId>ticket-bo</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>top.flowerstardream.hcd</groupId>
-                <artifactId>ticket-constant</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>top.flowerstardream.hcd</groupId>
+            <artifactId>hcd-base</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

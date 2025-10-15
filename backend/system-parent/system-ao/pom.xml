@@ -7,28 +7,20 @@
     <parent>
         <groupId>top.flowerstardream.hcd</groupId>
         <artifactId>system-parent</artifactId>
-        <version>release-1.0.0</version>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
-
     <artifactId>system-ao</artifactId>
-    <packaging>jar</packaging>
-
+    <version>${revision}</version>
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
     <name>system-ao</name>
-    <description>系统管理服务AO模块 - 存放DTO对象</description>
-
+    <description>系统AO模块 - 存放DTO对象</description>
     <dependencies>
-        <dependency>
-            <groupId>top.flowerstardream.hcd</groupId>
-            <artifactId>system-constant</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-validation</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-        </dependency>
+
     </dependencies>
 
 </project>
