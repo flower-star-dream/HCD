@@ -7,32 +7,30 @@
     <parent>
         <groupId>top.flowerstardream.hcd</groupId>
         <artifactId>system-parent</artifactId>
-        <version>release-1.0.0</version>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>system-api</artifactId>
-    <packaging>jar</packaging>
-
+    <version>${revision}</version>
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
     <name>system-api</name>
-    <description>系统管理服务API模块 - 存放接口定义</description>
+    <description>系统API模块 - 存放接口定义</description>
 
     <dependencies>
         <dependency>
             <groupId>top.flowerstardream.hcd</groupId>
-            <artifactId>system-ao</artifactId>
+            <artifactId>user-ao</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>top.flowerstardream.hcd</groupId>
-            <artifactId>system-bo</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>top.flowerstardream.hcd</groupId>
-            <artifactId>hcd-tools</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-openfeign-core</artifactId>
-            <version>4.1.0</version>
+            <artifactId>user-bo</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
