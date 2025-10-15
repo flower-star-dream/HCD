@@ -7,19 +7,20 @@
 
     <parent>
         <groupId>top.flowerstardream.hcd</groupId>
-        <artifactId>payNotify-parent</artifactId>
+        <artifactId>trainSeat-parent</artifactId>
         <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-
+    <artifactId>trainSeat-bo</artifactId>
+    <version>${revision}</version>
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    <artifactId>payNotify-constant</artifactId>
-    <name>payNotify-constant</name>
-    <description>订单处理常量模块 - 存放枚举类</description>
-    <version>${revision}</version>
+    <name>trainSeat-bo</name>
+    <description>列车资源调配BO模块 - 存放实体对象</description>
+    <dependencies>
+    </dependencies>
 
 </project>

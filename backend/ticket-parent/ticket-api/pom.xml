@@ -7,32 +7,29 @@
     <parent>
         <groupId>top.flowerstardream.hcd</groupId>
         <artifactId>ticket-parent</artifactId>
-        <version>release-1.0.0</version>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
-
     <artifactId>ticket-api</artifactId>
-    <packaging>jar</packaging>
-
+    <version>${revision}</version>
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
     <name>ticket-api</name>
-    <description>票务服务API模块 - 存放接口定义</description>
+    <description>票务API模块 - 存放接口定义</description>
 
     <dependencies>
         <dependency>
             <groupId>top.flowerstardream.hcd</groupId>
             <artifactId>ticket-ao</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>top.flowerstardream.hcd</groupId>
             <artifactId>ticket-bo</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>top.flowerstardream.hcd</groupId>
-            <artifactId>hcd-tools</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-openfeign-core</artifactId>
-            <version>4.1.0</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
