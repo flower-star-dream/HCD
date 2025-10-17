@@ -2,25 +2,25 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>top.flowerstardream.hcd</groupId>
-        <artifactId>payNotify-parent</artifactId>
+        <artifactId>order-parent</artifactId>
         <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>payNotify-bo</artifactId>
+    <artifactId>order-ao</artifactId>
     <version>${revision}</version>
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    <name>payNotify-bo</name>
-    <description>订单处理BO模块 - 存放实体对象</description>
+    <name>order-ao</name>
+    <description>订单处理AO模块 - 存放DTO对象</description>
     <dependencies>
+
     </dependencies>
 
 </project>

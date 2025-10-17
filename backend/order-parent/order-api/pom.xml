@@ -6,21 +6,31 @@
 
     <parent>
         <groupId>top.flowerstardream.hcd</groupId>
-        <artifactId>payNotify-parent</artifactId>
+        <artifactId>order-parent</artifactId>
         <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>payNotify-ao</artifactId>
+    <artifactId>order-api</artifactId>
     <version>${revision}</version>
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    <name>payNotify-ao</name>
-    <description>订单处理AO模块 - 存放DTO对象</description>
-    <dependencies>
+    <name>order-api</name>
+    <description>用户服务API模块 - 存放接口定义</description>
 
+    <dependencies>
+        <dependency>
+            <groupId>top.flowerstardream.hcd</groupId>
+            <artifactId>order-ao</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>top.flowerstardream.hcd</groupId>
+            <artifactId>order-bo</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
 </project>
