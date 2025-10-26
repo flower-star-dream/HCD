@@ -36,10 +36,10 @@ public class UserEO extends BaseEO {
     @TableField("real_name")
     private String realName;
 
+    @TableField("card_type")
+    private String cardType;
+
     @TableField("id_card")
     private String idCard;
-
-    @TableField("status")
-    private Integer status;
 
 }

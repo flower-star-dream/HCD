@@ -14,16 +14,16 @@
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
         </processorPath>
         <module name="system-ao" />
         <module name="user-boot" />
+        <module name="system-api" />
         <module name="ticket-constant" />
         <module name="trainSeat-api" />
         <module name="trainSeat-ao" />
         <module name="payNotify-constant" />
-        <module name="user-ao" />
         <module name="system-biz" />
+        <module name="user-ao" />
         <module name="trainSeat-biz" />
         <module name="payNotify-ao" />
         <module name="ticket-ao" />
@@ -35,31 +35,14 @@
         <module name="ticket-api" />
         <module name="trainSeat-bo" />
         <module name="hcd-tools" />
-        <module name="ticket-biz" />
+        <module name="system-bo" />
         <module name="user-constant" />
+        <module name="ticket-biz" />
         <module name="system-constant" />
         <module name="payNotify-bo" />
         <module name="ticket-bo" />
         <module name="user-bo" />
         <module name="trainSeat-constant" />
-      </profile>
-      <profile name="Annotation profile for system-api" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
-        </processorPath>
-        <module name="system-api" />
-      </profile>
-      <profile name="Annotation profile for system-bo" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
-        </processorPath>
-        <module name="system-bo" />
       </profile>
     </annotationProcessing>
   </component>

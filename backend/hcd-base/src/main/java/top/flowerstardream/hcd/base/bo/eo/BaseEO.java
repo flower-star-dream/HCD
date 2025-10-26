@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
@@ -13,15 +14,15 @@ import java.time.LocalDateTime;
  * @Date: 2025/10/15/11:03
  * @Description: 基础实体类
  */
-public class BaseEO {
+public class BaseEO implements Serializable {
     @TableId(value = "id", type = IdType.ASSIGN_UUID)
     protected Long id;
-    @TableField("createTime")
+    @TableField("create_time")
     protected LocalDateTime createTime;
-    @TableField("updateTime")
+    @TableField("update_time")
     protected LocalDateTime updateTime;
-    @TableField("createPerson")
+    @TableField("create_person")
     protected String createPerson;
-    @TableField("updatePerson")
+    @TableField("update_person")
     protected String updatePerson;
 }

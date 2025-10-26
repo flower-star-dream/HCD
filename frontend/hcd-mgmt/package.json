@@ -1,7 +1,7 @@
 {
   "name": "hcd-mgmt",
   "private": true,
-  "version": "0.0.0",
+  "version": "18.20.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -56,5 +56,17 @@
     "webpack-dev-server": "^4.15.1",
     "rimraf": "^5.0.5",
     "serve": "^14.2.1"
-  }
+  },
+  "description": "hcd-mgmt",
+  "main": "webpack.common.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/flower-star-dream/HCD.git"
+  },
+  "author": "花海",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/flower-star-dream/HCD/issues"
+  },
+  "homepage": "https://github.com/flower-star-dream/HCD#readme"
 }
