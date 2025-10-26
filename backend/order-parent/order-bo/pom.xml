@@ -2,35 +2,25 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>top.flowerstardream.hcd</groupId>
-        <artifactId>payNotify-parent</artifactId>
+        <artifactId>order-parent</artifactId>
         <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>payNotify-api</artifactId>
+    <artifactId>order-bo</artifactId>
     <version>${revision}</version>
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    <name>payNotify-api</name>
-    <description>用户服务API模块 - 存放接口定义</description>
-
+    <name>order-bo</name>
+    <description>订单处理BO模块 - 存放实体对象</description>
     <dependencies>
-        <dependency>
-            <groupId>top.flowerstardream.hcd</groupId>
-            <artifactId>payNotify-ao</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>top.flowerstardream.hcd</groupId>
-            <artifactId>payNotify-bo</artifactId>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
 
 </project>

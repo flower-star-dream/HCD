@@ -7,7 +7,7 @@
 
     <parent>
         <groupId>top.flowerstardream.hcd</groupId>
-        <artifactId>payNotify-parent</artifactId>
+        <artifactId>order-parent</artifactId>
         <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
@@ -17,8 +17,8 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    <artifactId>payNotify-constant</artifactId>
-    <name>payNotify-constant</name>
+    <artifactId>order-constant</artifactId>
+    <name>order-constant</name>
     <description>订单处理常量模块 - 存放枚举类</description>
     <version>${revision}</version>
 

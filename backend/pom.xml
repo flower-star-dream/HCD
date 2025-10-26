@@ -44,7 +44,7 @@
         <module>hcd-base</module>
         <module>trainSeat-parent</module>
         <module>ticket-parent</module>
-        <module>payNotify-parent</module>
+        <module>order-parent</module>
         <module>system-parent</module>
     </modules>
 
@@ -331,30 +331,30 @@
                 <version>${revision}</version>
             </dependency>
 
-<!--            &lt;!&ndash; Pay Notify Service &ndash;&gt;-->
+<!--            &lt;!&ndash; Order Service &ndash;&gt;-->
             <dependency>
                 <groupId>top.flowerstardream.hcd</groupId>
-                <artifactId>payNotify-ao</artifactId>
+                <artifactId>order-ao</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
                 <groupId>top.flowerstardream.hcd</groupId>
-                <artifactId>payNotify-api</artifactId>
+                <artifactId>order-api</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
                 <groupId>top.flowerstardream.hcd</groupId>
-                <artifactId>payNotify-biz</artifactId>
+                <artifactId>order-biz</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
                 <groupId>top.flowerstardream.hcd</groupId>
-                <artifactId>payNotify-bo</artifactId>
+                <artifactId>order-bo</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
                 <groupId>top.flowerstardream.hcd</groupId>
-                <artifactId>payNotify-constant</artifactId>
+                <artifactId>order-constant</artifactId>
                 <version>${revision}</version>
             </dependency>
 

@@ -7,37 +7,37 @@
 
     <parent>
         <groupId>top.flowerstardream.hcd</groupId>
-        <artifactId>payNotify-parent</artifactId>
+        <artifactId>order-parent</artifactId>
         <version>${revision}</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>payNotify-biz</artifactId>
+    <artifactId>order-biz</artifactId>
     <version>${revision}</version>
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    <name>payNotify-biz</name>
+    <name>order-biz</name>
     <description>用户服务业务模块 - 存放业务逻辑代码</description>
     <dependencies>
         <dependency>
             <groupId>top.flowerstardream.hcd</groupId>
-            <artifactId>payNotify-ao</artifactId>
+            <artifactId>order-ao</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>top.flowerstardream.hcd</groupId>
-            <artifactId>payNotify-api</artifactId>
+            <artifactId>order-api</artifactId>
         </dependency>
         <dependency>
             <groupId>top.flowerstardream.hcd</groupId>
-            <artifactId>payNotify-bo</artifactId>
+            <artifactId>order-bo</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>top.flowerstardream.hcd</groupId>
-            <artifactId>payNotify-constant</artifactId>
+            <artifactId>order-constant</artifactId>
         </dependency>
         <dependency>
             <groupId>top.flowerstardream.hcd</groupId>
