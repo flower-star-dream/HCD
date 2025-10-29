@@ -3,6 +3,7 @@ package top.flowerstardream.hcd.base.bo.eo;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
  * @Date: 2025/10/15/11:03
  * @Description: 基础实体类
  */
+@Data
 public class BaseEO implements Serializable {
     @TableId(value = "id", type = IdType.ASSIGN_UUID)
     protected Long id;

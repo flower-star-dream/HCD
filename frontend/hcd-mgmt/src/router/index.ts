@@ -14,30 +14,30 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/pages/Dashboard/index.vue'),
         meta: { title: '仪表盘', icon: 'Odometer' }
       },
-      {
-        path: '/train',
-        name: 'Train',
-        component: () => import('@/pages/Train/index.vue'),
-        meta: { title: '车次管理', icon: 'Train' }
-      },
-      {
-        path: '/order',
-        name: 'Order',
-        component: () => import('@/pages/Order/index.vue'),
-        meta: { title: '订单管理', icon: 'Tickets' }
-      },
-      {
-        path: '/user',
-        name: 'User',
-        component: () => import('@/pages/User/index.vue'),
-        meta: { title: '用户管理', icon: 'User' }
-      },
-      {
-        path: '/station',
-        name: 'Station',
-        component: () => import('@/pages/Station/index.vue'),
-        meta: { title: '站点管理', icon: 'Location' }
-      }
+      // {
+      //   path: '/train',
+      //   name: 'Train',
+      //   component: () => import('@/pages/Train/index.vue'),
+      //   meta: { title: '车次管理', icon: 'Train' }
+      // },
+      // {
+      //   path: '/order',
+      //   name: 'Order',
+      //   component: () => import('@/pages/Order/index.vue'),
+      //   meta: { title: '订单管理', icon: 'Tickets' }
+      // },
+      // {
+      //   path: '/user',
+      //   name: 'User',
+      //   component: () => import('@/pages/User/index.vue'),
+      //   meta: { title: '用户管理', icon: 'User' }
+      // },
+      // {
+      //   path: '/station',
+      //   name: 'Station',
+      //   component: () => import('@/pages/Station/index.vue'),
+      //   meta: { title: '站点管理', icon: 'Location' }
+      // }
     ]
   },
   {

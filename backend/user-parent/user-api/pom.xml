@@ -31,6 +31,10 @@
             <artifactId>user-bo</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>top.flowerstardream.hcd</groupId>
+            <artifactId>user-biz</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

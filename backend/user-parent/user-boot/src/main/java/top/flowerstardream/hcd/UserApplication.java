@@ -1,5 +1,6 @@
 package top.flowerstardream.hcd;
 
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
@@ -19,9 +20,10 @@ import lombok.extern.slf4j.Slf4j;
 @EnableScheduling //开启注解方式的定时任务
 @EnableCaching //开启注解方式的缓存管理
 @Slf4j
-public class App {
+@MapperScan("top.flowerstardream.hcd.user.biz.mapper")
+public class UserApplication {
     public static void main(String[] args) {
-        SpringApplication.run(App.class, args);
-        log.info("server started");
+        SpringApplication.run(UserApplication.class, args);
+        log.info("user server started");
     }
 }
