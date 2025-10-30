@@ -1,0 +1,23 @@
+# Maven 编译生成文件
+/backend/**/target/maven-status/
+/backend/**/target/classes/
+
+# Maven flatten 插件生成文件
+/backend/**/pom-xml-flattened
+
+# 忽略所有 target 目录下的编译输出
+/backend/**/target/
+/backend/*.iml
+/backend/*.class
+/backend/*Test.java
+/backend/**/test/
+/backend/.idea/
+
+
+# 忽略所有 node_modules 目录下的编译输出
+frontend/**/node_modules/
+frontend/**/package-lock.json
+backend/.idea/compiler.xml
+
+.claude
+package-lock.json

@@ -5,18 +5,24 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>top.flowerstardream.hcd</groupId>
-    <artifactId>system-parent</artifactId>
-    <version>release-1.0.0</version>
-    <packaging>pom</packaging>
+    <parent>
+        <groupId>top.flowerstardream.hcd</groupId>
+        <artifactId>hcd-backend</artifactId>
+        <version>release-1.0.0</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
 
+    <artifactId>system-parent</artifactId>
+    <version>${revision}</version>
+    <packaging>pom</packaging>
     <name>system-parent</name>
-    <description>系统管理服务父模块</description>
+    <description>系统</description>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <revision>release-1.0.0</revision>
     </properties>
 
     <modules>
@@ -27,39 +33,20 @@
         <module>system-constant</module>
     </modules>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>top.flowerstardream.hcd</groupId>
-                <artifactId>hcd-tools</artifactId>
-                <version>release-1.0.0</version>
-            </dependency>
-            <dependency>
-                <groupId>top.flowerstardream.hcd</groupId>
-                <artifactId>system-ao</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>top.flowerstardream.hcd</groupId>
-                <artifactId>system-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>top.flowerstardream.hcd</groupId>
-                <artifactId>system-biz</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>top.flowerstardream.hcd</groupId>
-                <artifactId>system-bo</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>top.flowerstardream.hcd</groupId>
-                <artifactId>system-constant</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>top.flowerstardream.hcd</groupId>
+            <artifactId>hcd-base</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

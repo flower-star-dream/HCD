@@ -8,13 +8,17 @@
     <parent>
         <groupId>top.flowerstardream.hcd</groupId>
         <artifactId>system-parent</artifactId>
-        <version>release-1.0.0</version>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
-
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
     <artifactId>system-constant</artifactId>
-    <packaging>jar</packaging>
-
     <name>system-constant</name>
-    <description>系统管理服务常量模块 - 存放枚举类</description>
+    <description>系统常量模块 - 存放枚举类</description>
+    <version>${revision}</version>
 
 </project>

@@ -6,47 +6,43 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import top.flowerstardream.hcd.base.bo.eo.BaseEO;
 
 import java.time.LocalDateTime;
 
 /**
- * 用户实体对象
  *
  * @author 花海
  * @date 2025-10-14
+ * @Description: 用户实体对象
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @TableName("hcd_user")
-public class UserEO {
+public class UserEO extends BaseEO {
 
-    @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
-
+    // 用户名
     @TableField("username")
     private String username;
 
+    // 邮箱
     @TableField("email")
     private String email;
 
+    // 手机号
     @TableField("phone")
     private String phone;
 
-    @TableField("password")
-    private String password;
-
+    // 真实姓名
     @TableField("real_name")
     private String realName;
 
+    // 证件类型
+    @TableField("card_type")
+    private String cardType;
+
+    // 证件号码
     @TableField("id_card")
     private String idCard;
 
-    @TableField("status")
-    private Integer status;
-
-    @TableField("create_time")
-    private LocalDateTime createTime;
-
-    @TableField("update_time")
-    private LocalDateTime updateTime;
 }

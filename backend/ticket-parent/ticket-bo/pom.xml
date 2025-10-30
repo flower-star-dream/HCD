@@ -8,30 +8,19 @@
     <parent>
         <groupId>top.flowerstardream.hcd</groupId>
         <artifactId>ticket-parent</artifactId>
-        <version>release-1.0.0</version>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
-
     <artifactId>ticket-bo</artifactId>
-    <packaging>jar</packaging>
-
-    <name>ticket-bo</name>
-    <description>票务服务BO模块 - 存放实体对象</description>
-
+    <version>${revision}</version>
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    <name>trainSeat-bo</name>
+    <description>票务BO模块 - 存放实体对象</description>
     <dependencies>
-        <dependency>
-            <groupId>top.flowerstardream.hcd</groupId>
-            <artifactId>ticket-constant</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.persistence</groupId>
-            <artifactId>jakarta.persistence-api</artifactId>
-            <version>3.1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate.orm</groupId>
-            <artifactId>hibernate-core</artifactId>
-            <version>6.4.0.Final</version>
-        </dependency>
     </dependencies>
 
 </project>
