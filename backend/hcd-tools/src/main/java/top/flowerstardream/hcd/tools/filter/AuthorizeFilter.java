@@ -22,6 +22,12 @@ import top.flowerstardream.hcd.tools.constant.JwtClaimsConstant;
 import top.flowerstardream.hcd.tools.properties.JwtProperties;
 import top.flowerstardream.hcd.tools.utils.JwtUtil;
 
+/**
+ * @Author: 花海
+ * @Date: 2025/10/26/21:05
+ * @Description: 鉴权过滤器
+ */
+
 @Component
 @Slf4j
 public class AuthorizeFilter extends AbstractGatewayFilterFactory<AuthorizeFilter.Config> implements Ordered, GlobalFilter {
@@ -36,6 +42,22 @@ public class AuthorizeFilter extends AbstractGatewayFilterFactory<AuthorizeFilte
     @Resource
     private JwtProperties jwtProperties;
 
+    private boolean pathChick(String path){
+        log.info("path:{}",path);
+        if (path.contains("/login") ||
+                path.contains("/swagger-ui") ||
+                path.contains("/v3/api-docs") ||
+                path.contains("/webjars") ||
+                path.contains("/swagger-resources") ||
+                path.contains("/doc.html") ||
+                path.contains("/favicon.ico") ||
+                path.contains("/actuator") ||
+                path.contains("/knife4j")) {
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         //1.获取request和response对象
@@ -44,14 +66,7 @@ public class AuthorizeFilter extends AbstractGatewayFilterFactory<AuthorizeFilte
 
         //2.判断是否是登录或swagger/knife4j相关路径
         String path = request.getURI().getPath();
-        if(path.contains("/login") ||
-           path.contains("/swagger-ui") ||
-           path.contains("/v3/api-docs") ||
-           path.contains("/webjars") ||
-           path.contains("/swagger-resources") ||
-           path.contains("/doc.html") ||
-           path.contains("/knife4j")){
-            //放行
+        if (pathChick(path)) {
             return chain.filter(exchange);
         }
 
@@ -119,13 +134,7 @@ public class AuthorizeFilter extends AbstractGatewayFilterFactory<AuthorizeFilte
 
             // 2.判断是否是登录或swagger/knife4j相关路径
             String path = request.getPath().toString();
-            if (path.contains("/login") ||
-                path.contains("/swagger-ui") ||
-                path.contains("/v3/api-docs") ||
-                path.contains("/webjars") ||
-                path.contains("/swagger-resources") ||
-                path.contains("/doc.html") ||
-                path.contains("/knife4j")) {
+            if (pathChick(path)) {
                 return chain.filter(exchange);
             }
             String token = request.getHeaders().getFirst(HEADER_TOKEN);

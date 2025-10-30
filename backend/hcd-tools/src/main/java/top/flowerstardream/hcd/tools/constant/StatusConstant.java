@@ -1,7 +1,9 @@
 package top.flowerstardream.hcd.tools.constant;
 
 /**
- * 状态常量，启用或者禁用
+ * @Author: 花海
+ * @Date: 2025/10/26
+ * @Description: 状态常量，启用或者禁用
  */
 public class StatusConstant {
 
