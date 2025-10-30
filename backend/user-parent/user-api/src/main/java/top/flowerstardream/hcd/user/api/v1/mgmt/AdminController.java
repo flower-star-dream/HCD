@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
+import reactor.core.publisher.Mono;
 import top.flowerstardream.hcd.tools.result.Result;
 import top.flowerstardream.hcd.user.ao.req.LoginREQ;
 import top.flowerstardream.hcd.user.ao.res.LoginRES;
@@ -35,10 +36,10 @@ public class AdminController {
      */
     @PostMapping("/login")
     @Operation(summary = "管理员登录", description = "管理员登录")
-    public Result<LoginRES> login(@RequestBody LoginREQ loginREQ) {
+    public Mono<Result<LoginRES>> login(@RequestBody LoginREQ loginREQ) {
         log.info("管理员登录：{}", loginREQ);
         LoginRES loginRES = IAdminService.login(loginREQ);
-        return Result.successResult(loginRES);
+        return Mono.just(Result.successResult(loginRES));
     }
 
     /**
@@ -48,8 +49,8 @@ public class AdminController {
      */
     @PostMapping("/logout")
     @Operation(summary = "管理员登出", description = "管理员登出")
-    public Result<String> logout() {
-        return Result.successResult();
+    public Mono<Result<String>> logout() {
+        return Mono.just(Result.successResult());
     }
 
 
