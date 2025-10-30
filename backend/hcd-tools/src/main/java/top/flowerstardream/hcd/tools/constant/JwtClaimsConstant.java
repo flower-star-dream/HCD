@@ -1,5 +1,10 @@
 package top.flowerstardream.hcd.tools.constant;
 
+/**
+ * @Author: 花海
+ * @Date: 2025/10/26/22:01
+ * @Description: JWT claims常量
+ */
 public class JwtClaimsConstant {
 
     public static final String ADMIN_ID = "adminId";

@@ -1,4 +1,4 @@
-package top.flowerstardream.hcd.user.api.v1.admin;
+package top.flowerstardream.hcd.user.api.v1.mgmt;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,7 +19,7 @@ import top.flowerstardream.hcd.user.biz.service.IAdminService;
  * @Description: 后管管理员接口
  */
 @RestController
-@RequestMapping("/api/v1/user/admin")
+@RequestMapping("/api/v1/mgmt/user")
 @Tag(name = "B端管理员相关接口", description = "B端管理员相关接口")
 @Slf4j
 public class AdminController {
@@ -34,7 +34,7 @@ public class AdminController {
      * @return
      */
     @PostMapping("/login")
-    @Operation(summary = "管理员登录")
+    @Operation(summary = "管理员登录", description = "管理员登录")
     public Result<LoginRES> login(@RequestBody LoginREQ loginREQ) {
         log.info("管理员登录：{}", loginREQ);
         LoginRES loginRES = IAdminService.login(loginREQ);
@@ -47,7 +47,7 @@ public class AdminController {
      * @return
      */
     @PostMapping("/logout")
-    @Operation(summary = "管理员登出")
+    @Operation(summary = "管理员登出", description = "管理员登出")
     public Result<String> logout() {
         return Result.successResult();
     }

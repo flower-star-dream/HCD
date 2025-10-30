@@ -24,12 +24,12 @@
         <tomcat.version>11.0.10</tomcat.version>
         <mysql.version>8.0.33</mysql.version>
         <alibaba-cloud.version>2023.0.0.0-RC1</alibaba-cloud.version>
-        <springdoc.version>2.0.4</springdoc.version>
+        <springdoc.version>2.3.0</springdoc.version>
         <mybatis-plus.version>3.5.5</mybatis-plus.version>
         <lombok.version>1.18.30</lombok.version>
         <logback.version>1.4.11</logback.version>
         <netty.version>4.1.118.Final</netty.version>
-        <knife4j.version>4.3.0</knife4j.version>
+        <knife4j.version>4.5.0</knife4j.version>
         <pagehelper.version>1.4.6</pagehelper.version>
         <jwt.version>0.11.5</jwt.version>
         <fastjson2.version>2.0.49</fastjson2.version>
@@ -96,17 +96,6 @@
             </dependency>
 
             <dependency>
-                <groupId>org.springdoc</groupId>
-                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-                <version>${springdoc.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springdoc</groupId>
-                <artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
-                <version>${springdoc.version}</version>
-            </dependency>
-
-            <dependency>
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
                 <version>${mysql.version}</version>
@@ -152,20 +141,16 @@
 
             <!-- Knife4j (Swagger) -->
             <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
+                <version>${springdoc.version}</version>
+            </dependency>
+
+            <!-- 3. 如需 Knife4j 美化 UI（可选） -->
+            <dependency>
                 <groupId>com.github.xiaoymin</groupId>
-                <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+                <artifactId>knife4j-openapi3-ui</artifactId>
                 <version>${knife4j.version}</version>
-                <exclusions>
-                    <!-- 排除易受攻击的 spring-web 和 spring-webmvc -->
-                    <exclusion>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-web</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.springframework</groupId>
-                        <artifactId>spring-webmvc</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <!-- PageHelper -->
