@@ -13,8 +13,8 @@ public interface IAdminService {
     /**
      * 登录
      *
-     * @param loginRES
+     * @param loginREQ
      * @return 登录成功后的管理员信息
      */
-    LoginRES login(LoginREQ loginRES);
+    LoginRES login(LoginREQ loginREQ);
 }

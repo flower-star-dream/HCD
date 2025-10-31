@@ -101,7 +101,7 @@ public class JwtUtil {
      */
     public static SecretKey generalKey(String secretKey) {
         byte[] encodedKey = Base64.getEncoder().encode(secretKey.getBytes());
-        return new SecretKeySpec(encodedKey, 0, encodedKey.length, "AES");
+        return new SecretKeySpec(encodedKey, "HmacSHA512");
     }
 
 }

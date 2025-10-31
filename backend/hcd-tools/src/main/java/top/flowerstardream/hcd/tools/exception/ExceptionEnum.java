@@ -15,7 +15,7 @@ public enum ExceptionEnum {
     ERROR(500, "操作失败"),
     PARAM_ERROR(400, "参数错误"),
     UNAUTHORIZED(401, "未认证"),
-    FORBIDDEN(403, "无权限"),
+    FORBIDDEN(403, "当前用户无权限"),
     NOT_FOUND(404, "资源不存在"),
     METHOD_NOT_ALLOWED(405, "方法不允许"),
     CONFLICT(409, "资源冲突"),
@@ -27,12 +27,11 @@ public enum ExceptionEnum {
     TICKET_BUSINESS_EXCEPTION(30000, "车票业务异常"),
     ORDER_BUSINESS_EXCEPTION(40000, "订单业务异常"),
     SYSTEM_BUSINESS_EXCEPTION(50000, "系统业务异常"),
-    USER_NOT_FOUND(10001, "用户不存在"),
-    USER_PASSWORD_ERROR(10002, "用户密码错误"),
-    USER_NOT_LOGIN(10003, "用户未登录"),
-    USER_NOT_PERMISSION(10004, "用户无权限"),
-    USER_NOT_AUTHENTICATED(10005, "用户未认证"),
-    USER_NOT_EXIST(10007, "用户不存在");
+    SQL_EXCEPTION(60000, "SQL异常"),
+    CLOCK_ROLLED_BACK(60001, "时钟回拨，拒绝生成 ID"),
+    WORKER_ID_OUT_OF_BOUNDS(60002, "workerId 越界"),
+    USER_NOT_EXIST(10001, "用户不存在"),
+    USER_PASSWORD_ERROR(10002, "用户名或密码错误");
 
     private final Integer code;
     private final String message;
