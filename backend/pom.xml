@@ -27,6 +27,7 @@
         <springdoc.version>2.3.0</springdoc.version>
         <mybatis-plus.version>3.5.5</mybatis-plus.version>
         <mybatis-spring.version>3.0.3</mybatis-spring.version>
+        <rocketmq.version>5.1.4</rocketmq.version>
         <lombok.version>1.18.30</lombok.version>
         <logback.version>1.4.11</logback.version>
         <netty.version>4.1.118.Final</netty.version>
@@ -130,6 +131,19 @@
                 <artifactId>mybatis-spring</artifactId>
                 <version>${mybatis-spring.version}</version>
             </dependency>
+
+            <!-- RocketMQ -->
+            <dependency>
+                <groupId>org.apache.rocketmq</groupId>
+                <artifactId>rocketmq-client</artifactId>
+                <version>${rocketmq.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.rocketmq</groupId>
+                <artifactId>rocketmq-acl</artifactId>
+                <version>${rocketmq.version}</version>
+            </dependency>
+
 
             <!-- Lombok -->
             <dependency>
