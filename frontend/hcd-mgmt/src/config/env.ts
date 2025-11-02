@@ -110,5 +110,5 @@ export class EnvConfig {
 
   has(key: string): boolean {
     return key in this.config
-n  }
+  }
 }

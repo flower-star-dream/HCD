@@ -12,6 +12,11 @@ export const useAppStore = defineStore('app', () => {
   const sidebarCollapsed = ref(false)
   const menuList = ref<MenuItem[]>([
     {
+      path: '/home',
+      title: '首页',
+      icon: 'House'
+    },
+    {
       path: '/dashboard',
       title: '仪表盘',
       icon: 'Odometer'
@@ -19,7 +24,7 @@ export const useAppStore = defineStore('app', () => {
     {
       path: '/train',
       title: '车次管理',
-      icon: 'Train'
+      icon: 'TrainIcon'
     },
     {
       path: '/order',
@@ -35,6 +40,11 @@ export const useAppStore = defineStore('app', () => {
       path: '/station',
       title: '站点管理',
       icon: 'Location'
+    },
+    {
+      path: '/system',
+      title: '系统配置',
+      icon: 'Setting'
     }
   ])
 

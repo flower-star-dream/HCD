@@ -4,6 +4,13 @@ export interface LoginForm {
   password: string
 }
 
+// 登录响应数据结构
+export interface LoginResponse {
+  token: string
+  id: number
+  username: string
+}
+
 export interface UserInfo {
   id: number
   username: string

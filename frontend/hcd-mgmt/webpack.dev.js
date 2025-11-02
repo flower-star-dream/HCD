@@ -14,8 +14,8 @@ export default merge(common, {
     proxy: {
       '/api': {
         target: 'http://localhost:8080',
-        changeOrigin: true,
-        pathRewrite: { '^/api': '' },
+        changeOrigin: true
+        // 移除pathRewrite，保持/api前缀以匹配网关路由规则
       },
     },
   },
