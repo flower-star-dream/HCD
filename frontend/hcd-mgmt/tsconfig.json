@@ -5,6 +5,7 @@
     "moduleResolution": "node",
     "strict": true,
     "jsx": "preserve",
+    "allowJs": true,
     "sourceMap": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
@@ -13,7 +14,7 @@
     "paths": {
       "@/*": ["src/*"]
     },
-    "types": ["vite/client", "./shime-vue"]
+    "types": ["vite/client", "./shime-vue", "node"]
   },
   "include": ["src/**/*", "src/types/**/*.ts"],
   "exclude": ["node_modules"]

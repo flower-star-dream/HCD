@@ -1,12 +1,12 @@
 <template>
-  <view class="login-container">
-    <view class="login-form">
-      <view class="login-header">
-        <view class="logo">
+  <div class="login-container">
+    <div class="login-form">
+      <div class="login-header">
+        <div class="logo">
           <!-- <img src="/vite.svg" alt="logo" /> -->
           <h2>火车订票系统后台管理</h2>
-        </view>
-      </view>
+        </div>
+      </div>
 
       <el-form
         ref="loginFormRef"
@@ -46,8 +46,8 @@
           </el-button>
         </el-form-item>
       </el-form>
-    </view>
-  </view>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -75,7 +75,7 @@ const loginRules: FormRules = {
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, max: 20, message: '长度在 6 到 20 个字符', trigger: 'blur' }
+    { min: 5, max: 20, message: '长度在 5 到 20 个字符', trigger: 'blur' }
   ]
 }
 

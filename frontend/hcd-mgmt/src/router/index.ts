@@ -5,37 +5,43 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     name: 'Layout',
-    component: () => import('@/pages/Layout.vue'),
-    redirect: '/dashboard',
+    component: () => import('@/views/Layout.vue'),
+    redirect: '/home',
     children: [
       {
-        path: '/dashboard',
-        name: 'Dashboard',
-        component: () => import('@/pages/Dashboard/index.vue'),
-        meta: { title: '仪表盘', icon: 'Odometer' }
+        path: '/home',
+        name: 'Home',
+        component: () => import('@/views/Home/Home.vue'),
+        meta: { title: '首页', icon: 'Home' }
       },
+      // {
+      //   path: '/dashboard',
+      //   name: 'Dashboard',
+      //   component: () => import('@/views/Dashboard/index.vue'),
+      //   meta: { title: '仪表盘', icon: 'Odometer' }
+      // },
       // {
       //   path: '/train',
       //   name: 'Train',
-      //   component: () => import('@/pages/Train/index.vue'),
+      //   component: () => import('@/views/Train/index.vue'),
       //   meta: { title: '车次管理', icon: 'Train' }
       // },
       // {
       //   path: '/order',
       //   name: 'Order',
-      //   component: () => import('@/pages/Order/index.vue'),
+      //   component: () => import('@/views/Order/index.vue'),
       //   meta: { title: '订单管理', icon: 'Tickets' }
       // },
-      // {
-      //   path: '/user',
-      //   name: 'User',
-      //   component: () => import('@/pages/User/index.vue'),
-      //   meta: { title: '用户管理', icon: 'User' }
-      // },
+      {
+        path: '/user',
+        name: 'User',
+        component: () => import('@/views/User/User-view.vue'),
+        meta: { title: '用户管理', icon: 'User' }
+      },
       // {
       //   path: '/station',
       //   name: 'Station',
-      //   component: () => import('@/pages/Station/index.vue'),
+      //   component: () => import('@/views/Station/index.vue'),
       //   meta: { title: '站点管理', icon: 'Location' }
       // }
     ]
@@ -43,13 +49,13 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/login',
     name: 'Login',
-    component: () => import('@/pages/Login.vue'),
+    component: () => import('@/views/Login.vue'),
     meta: { title: '登录' }
   },
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
-    component: () => import('@/pages/404.vue'),
+    component: () => import('@/views/404.vue'),
     meta: { title: '404' }
   }
 ]

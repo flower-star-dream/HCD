@@ -57,14 +57,36 @@ public class AuthorizeFilter extends AbstractGatewayFilterFactory<AuthorizeFilte
         }
         return false;
     }
+    
+    /**
+     * 添加CORS响应头
+     * @param response ServerHttpResponse对象
+     */
+    private void addCorsHeaders(ServerHttpResponse response) {
+        response.getHeaders().add("Access-Control-Allow-Origin", "*");
+        response.getHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
+        response.getHeaders().add("Access-Control-Allow-Headers", "*");
+        response.getHeaders().add("Access-Control-Allow-Credentials", "true");
+        response.getHeaders().add("Access-Control-Max-Age", "86400");
+        response.getHeaders().add("Access-Control-Expose-Headers", "Authorization, Content-Disposition, biz_side");
+    }
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         //1.获取request和response对象
         ServerHttpRequest request = exchange.getRequest();
         ServerHttpResponse response = exchange.getResponse();
+        
+        // 添加CORS响应头到所有响应
+        addCorsHeaders(response);
+        
+        //2.判断是否是预检请求
+        if (request.getMethod().name().equals("OPTIONS")) {
+            response.setStatusCode(HttpStatus.OK);
+            return response.setComplete();
+        }
 
-        //2.判断是否是登录或swagger/knife4j相关路径
+        //3.判断是否是登录或swagger/knife4j相关路径
         String path = request.getURI().getPath();
         if (pathChick(path)) {
             return chain.filter(exchange);
@@ -181,6 +203,9 @@ public class AuthorizeFilter extends AbstractGatewayFilterFactory<AuthorizeFilte
     }
 
     private Mono<Void> unauthorizedResponse(ServerWebExchange exchange) {
+        // 添加CORS响应头到错误响应
+        addCorsHeaders(exchange.getResponse());
+        
         byte[] bytes = "Unauthorized".getBytes();
         DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(bytes);
         exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
