@@ -35,10 +35,8 @@ public class AdminController {
      */
     @PostMapping("/login")
     @Operation(summary = "管理员登录", description = "管理员登录")
-    public Result<LoginRES> login(@RequestBody LoginREQ loginREQ) {
         log.info("管理员登录：{}", loginREQ);
         LoginRES loginRES = IAdminService.login(loginREQ);
-        return Result.successResult(loginRES);
     }
 
     /**
@@ -48,8 +46,6 @@ public class AdminController {
      */
     @PostMapping("/logout")
     @Operation(summary = "管理员登出", description = "管理员登出")
-    public Result<String> logout() {
-        return Result.successResult();
     }
 
 

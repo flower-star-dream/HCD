@@ -1,10 +1,16 @@
 package top.flowerstardream.hcd.tools.config;
 
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
+import top.flowerstardream.hcd.tools.properties.ThreadPoolProperties;
 
+import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
@@ -16,22 +22,52 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Configuration
 public class ThreadPoolConfig {
 
+    @Resource
+    private ThreadPoolProperties threadPoolProperties;
+
+
+    /**
+     * 核心业务调度器 - 用于CPU密集型任务
+     */
+    @Bean("businessScheduler")
+    public Scheduler businessScheduler() {
+        ThreadPoolTaskExecutor executor = businessExecutor();
+        log.info("核心业务调度器初始化完成，线程数: core={}, max={}", 
+                 executor.getCorePoolSize(), executor.getMaxPoolSize());
+        return Schedulers.fromExecutor(executor);
+    }
+
+    /**
+     * 通用任务调度器 - 用于IO密集型任务
+     */
+    @Bean("commonScheduler")
+    public Scheduler commonScheduler() {
+        ThreadPoolTaskExecutor executor = commonExecutor();
+        log.info("通用任务调度器初始化完成，线程数: core={}, max={}", 
+                 executor.getCorePoolSize(), executor.getMaxPoolSize());
+        return Schedulers.fromExecutor(executor);
+    }
+
+    /**
+     * 异步消息处理调度器
+     */
+    @Bean("messageScheduler")
+    public Scheduler messageScheduler() {
+        ThreadPoolTaskExecutor executor = messageExecutor();
+        log.info("异步消息处理调度器初始化完成，线程数: core={}, max={}", 
+                 executor.getCorePoolSize(), executor.getMaxPoolSize());
+        return Schedulers.fromExecutor(executor);
+    }
+
     /**
      * 核心业务线程池
      */
     @Bean("businessExecutor")
     public ThreadPoolTaskExecutor businessExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(10);
-        executor.setMaxPoolSize(50);
-        executor.setQueueCapacity(200);
-        executor.setKeepAliveSeconds(60);
-        executor.setThreadNamePrefix("business-");
-        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
-        executor.setWaitForTasksToCompleteOnShutdown(true);
-        executor.setAwaitTerminationSeconds(60);
+        ThreadPoolProperties.ThreadPoolConfig businessConfig = threadPoolProperties.getBusiness();
+        ThreadPoolTaskExecutor executor = initThreadPoolTaskExecutor(businessConfig);
         executor.initialize();
-        log.info("核心业务线程池初始化完成");
+        log.info("核心业务线程池初始化完成，配置: {}", businessConfig);
         return executor;
     }
 
@@ -40,17 +76,10 @@ public class ThreadPoolConfig {
      */
     @Bean("commonExecutor")
     public ThreadPoolTaskExecutor commonExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(5);
-        executor.setMaxPoolSize(20);
-        executor.setQueueCapacity(100);
-        executor.setKeepAliveSeconds(30);
-        executor.setThreadNamePrefix("common-");
-        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.DiscardPolicy());
-        executor.setWaitForTasksToCompleteOnShutdown(true);
-        executor.setAwaitTerminationSeconds(30);
+        ThreadPoolProperties.ThreadPoolConfig commonConfig = threadPoolProperties.getCommon();
+        ThreadPoolTaskExecutor executor = initThreadPoolTaskExecutor(commonConfig);
         executor.initialize();
-        log.info("通用任务线程池初始化完成");
+        log.info("通用任务线程池初始化完成，配置: {}", commonConfig);
         return executor;
     }
 
@@ -59,17 +88,39 @@ public class ThreadPoolConfig {
      */
     @Bean("messageExecutor")
     public ThreadPoolTaskExecutor messageExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(8);
-        executor.setMaxPoolSize(30);
-        executor.setQueueCapacity(500);
-        executor.setKeepAliveSeconds(30);
-        executor.setThreadNamePrefix("message-");
-        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.DiscardOldestPolicy());
-        executor.setWaitForTasksToCompleteOnShutdown(true);
-        executor.setAwaitTerminationSeconds(30);
+        ThreadPoolProperties.ThreadPoolConfig messageConfig = threadPoolProperties.getMessage();
+        ThreadPoolTaskExecutor executor = initThreadPoolTaskExecutor(messageConfig);
         executor.initialize();
-        log.info("异步消息处理线程池初始化完成");
+        log.info("异步消息处理线程池初始化完成，配置: {}", messageConfig);
         return executor;
     }
+
+    private ThreadPoolTaskExecutor initThreadPoolTaskExecutor(ThreadPoolProperties.ThreadPoolConfig config) {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(config.getCorePoolSize());
+        executor.setMaxPoolSize(config.getMaxPoolSize());
+        executor.setQueueCapacity(config.getQueueCapacity());
+        executor.setKeepAliveSeconds(config.getKeepAliveSeconds());
+        executor.setThreadNamePrefix(config.getThreadNamePrefix());
+        executor.setRejectedExecutionHandler(createRejectedExecutionHandler(config.getRejectedExecutionHandler()));
+        executor.setWaitForTasksToCompleteOnShutdown(config.isWaitForTasksToCompleteOnShutdown());
+        executor.setAwaitTerminationSeconds(config.getAwaitTerminationSeconds());
+        return executor;
+    }
+
+    private RejectedExecutionHandler createRejectedExecutionHandler(String policyName) {
+        RejectedExecutionHandler handler = switch (policyName) {
+            case "CallerRunsPolicy" -> new ThreadPoolExecutor.CallerRunsPolicy();
+            case "AbortPolicy" -> new ThreadPoolExecutor.AbortPolicy();
+            case "DiscardPolicy" -> new ThreadPoolExecutor.DiscardPolicy();
+            case "DiscardOldestPolicy" -> new ThreadPoolExecutor.DiscardOldestPolicy();
+            default -> {
+                log.warn("未知的拒绝策略: {}，使用默认策略 CallerRunsPolicy", policyName);
+                yield new ThreadPoolExecutor.CallerRunsPolicy();
+            }
+        };
+        log.debug("创建拒绝策略: {}", policyName);
+        return handler;
+    }
+
 }
