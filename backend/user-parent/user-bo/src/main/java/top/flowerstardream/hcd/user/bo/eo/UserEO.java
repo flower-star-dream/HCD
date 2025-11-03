@@ -25,6 +25,10 @@ public class UserEO extends BaseEO {
     @TableField("username")
     private String username;
 
+    // 头像
+    @TableField("avatar")
+    private String avatar;
+
     // 邮箱
     @TableField("email")
     private String email;

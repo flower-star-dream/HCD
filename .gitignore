@@ -21,3 +21,4 @@ backend/.idea/compiler.xml
 
 .claude
 package-lock.json
+frontend/hcd-mgmt/pnpm-lock.yaml

@@ -57,28 +57,12 @@ public class AuthorizeFilter extends AbstractGatewayFilterFactory<AuthorizeFilte
         }
         return false;
     }
-    
-    /**
-     * 添加CORS响应头
-     * @param response ServerHttpResponse对象
-     */
-    private void addCorsHeaders(ServerHttpResponse response) {
-        response.getHeaders().add("Access-Control-Allow-Origin", "*");
-        response.getHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
-        response.getHeaders().add("Access-Control-Allow-Headers", "*");
-        response.getHeaders().add("Access-Control-Allow-Credentials", "true");
-        response.getHeaders().add("Access-Control-Max-Age", "86400");
-        response.getHeaders().add("Access-Control-Expose-Headers", "Authorization, Content-Disposition, biz_side");
-    }
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         //1.获取request和response对象
         ServerHttpRequest request = exchange.getRequest();
         ServerHttpResponse response = exchange.getResponse();
-        
-        // 添加CORS响应头到所有响应
-        addCorsHeaders(response);
         
         //2.判断是否是预检请求
         if (request.getMethod().name().equals("OPTIONS")) {
@@ -96,10 +80,14 @@ public class AuthorizeFilter extends AbstractGatewayFilterFactory<AuthorizeFilte
         //3.获取token
         String token = request.getHeaders().getFirst(HEADER_TOKEN);
 
-        //4.判断token是否存在
+        //4.判断token是否存在，并移除Bearer前缀（如果有）
         if(StringUtils.isBlank(token)){
             response.setStatusCode(HttpStatus.UNAUTHORIZED);
             return response.setComplete();
+        }
+        // 移除Bearer前缀（如果存在）
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
         }
 
         //5.判断biz_side属于哪一个端
@@ -126,15 +114,25 @@ public class AuthorizeFilter extends AbstractGatewayFilterFactory<AuthorizeFilte
 
         //6.判断token是否有效
         try {
+            log.info("开始验证token，bizSide: {}, token长度: {}", bizSide, token.length());
             Claims claimsBody = JwtUtil.getClaimsBody(secretKey, token);
-            //是否是过期
-            int result = JwtUtil.verifyToken(claimsBody, refreshTime);
-            if(result == 1 || result  == 2){
+            if (claimsBody == null) {
+                log.error("token解析失败，无法获取claims");
                 response.setStatusCode(HttpStatus.UNAUTHORIZED);
                 return response.setComplete();
             }
+            log.info("token解析成功，获取到claims");
+            //是否是过期
+            int result = JwtUtil.verifyToken(claimsBody, refreshTime);
+            log.info("token验证结果: {}", result);
+            if(result == 1 || result  == 2){
+                log.error("token验证失败，结果码: {}", result);
+                response.setStatusCode(HttpStatus.UNAUTHORIZED);
+                return response.setComplete();
+            }
+            log.info("token验证成功，允许访问");
         }catch (Exception e){
-            log.error("token无效:",e);
+            log.error("token验证过程中发生异常:", e);
             response.setStatusCode(HttpStatus.UNAUTHORIZED);
             return response.setComplete();
         }
@@ -160,6 +158,16 @@ public class AuthorizeFilter extends AbstractGatewayFilterFactory<AuthorizeFilte
                 return chain.filter(exchange);
             }
             String token = request.getHeaders().getFirst(HEADER_TOKEN);
+            
+            // 判断token是否存在，并移除Bearer前缀（如果有）
+            if(StringUtils.isBlank(token)){
+                response.setStatusCode(HttpStatus.UNAUTHORIZED);
+                return response.setComplete();
+            }
+            // 移除Bearer前缀（如果存在）
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
 
             //3.判断biz_side属于哪一个端
             String bizSide = request.getHeaders().getFirst(HEADER_BIZ_SIDE);
@@ -182,9 +190,12 @@ public class AuthorizeFilter extends AbstractGatewayFilterFactory<AuthorizeFilte
 
             //4.获取claims
             Claims claimsBody = JwtUtil.getClaimsBody(secretKey, token);
-            String permissionLevel;
+            String permissionLevel = null;
             if (claimsBody != null) {
-                permissionLevel = (claimsBody.get(JwtClaimsConstant.PERMISSION_LEVEL)).toString();
+                Object permissionObj = claimsBody.get(JwtClaimsConstant.PERMISSION_LEVEL);
+                if (permissionObj != null) {
+                    permissionLevel = permissionObj.toString();
+                }
             } else {
                 response.setStatusCode(HttpStatus.UNAUTHORIZED);
                 return response.setComplete();
@@ -203,9 +214,6 @@ public class AuthorizeFilter extends AbstractGatewayFilterFactory<AuthorizeFilte
     }
 
     private Mono<Void> unauthorizedResponse(ServerWebExchange exchange) {
-        // 添加CORS响应头到错误响应
-        addCorsHeaders(exchange.getResponse());
-        
         byte[] bytes = "Unauthorized".getBytes();
         DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(bytes);
         exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
@@ -214,10 +222,10 @@ public class AuthorizeFilter extends AbstractGatewayFilterFactory<AuthorizeFilte
 
     /**
      * 优先级设置  值越小  优先级越高
-     * @return
+     * @return -101设置先于security 执行
      */
     @Override
     public int getOrder() {
-        return 0;
+        return -101;
     }
 }

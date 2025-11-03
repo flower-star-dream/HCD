@@ -3,6 +3,7 @@ import { createPinia } from 'pinia'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+import { createPersistedState } from 'pinia-persistedstate-plugin'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import './styles/global.scss'
 import * as components from './components/index'
@@ -22,7 +23,10 @@ for (const [key, component] of Object.entries(components)) {
   app.component(key, component)
 }
 
-app.use(createPinia())
+const pinia = createPinia();
+const persist = createPersistedState();
+pinia.use(persist)
+app.use(pinia)
 app.use(router)
 app.use(ElementPlus, { locale: zhCn })
 

@@ -4,7 +4,7 @@
       <el-aside :width="sidebarCollapsed ? '64px' : '200px'" class="sidebar">
         <div class="sidebar-header">
           <div class="logo">
-            <!-- <img src="/vite.svg" alt="logo" /> -->
+            <img :src="`${ossUrl}/assets/hcd/logo.png`" alt="logo" />
             <span v-if="!sidebarCollapsed">火车订票系统</span>
           </div>
         </div>
@@ -69,10 +69,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, defineAsyncComponent, resolveComponent } from 'vue'
+import { computed, onMounted, defineAsyncComponent, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { useUserStore, useAppStore } from '@/stores'
+import { useUserStore, useAppStore, ossUrl } from '@/stores'
+import { getUserInfoService } from '@/api/user'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -81,6 +82,9 @@ const appStore = useAppStore()
 const userInfo = computed(() => userStore.userInfo)
 const sidebarCollapsed = computed(() => appStore.sidebarCollapsed)
 const menuList = computed(() => appStore.menuList)
+
+// 定义一个标志变量，用于标记是否是第一次加载
+const isFirstLoad = ref(true);
 
 const isCustomIcon = (icon: any) => {
   // 动态加载 components 目录下的同名组件，文件不存在时返回 icon
@@ -120,8 +124,18 @@ const handleLogout = () => {
   })
 }
 
-onMounted(() => {
-  // 获取用户信息
+onMounted(async () => {
+    // 确保userInfo和id都存在时才获取用户详情
+    try {
+      if (isFirstLoad.value) {
+        let res = await getUserInfoService(userStore.userInfo?.id)
+        userStore.setUserInfo(res)
+        isFirstLoad.value = false
+      }
+    } catch (error) {
+        console.error('获取用户信息失败:', error)
+        ElMessage.error('获取用户信息失败，请重新登录')
+    }
 })
 </script>
 
