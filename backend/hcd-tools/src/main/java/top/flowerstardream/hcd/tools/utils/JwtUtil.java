@@ -45,13 +45,15 @@ public class JwtUtil {
     /**
      * 从JWT令牌中提取载荷(Payload)信息
      * 
+     * @param secretKey 密钥
      * @param token JWT令牌
-     * @return 声明信息，如果令牌过期则返回null
+     * @return 声明信息，如果令牌无效或过期则返回null
      */
     public static Claims getClaimsBody(String secretKey, String token) {
         try {
             return getJws(secretKey, token).getBody();
-        }catch (ExpiredJwtException e){
+        }catch (Exception e){
+            // 捕获所有JWT相关异常，包括过期、签名错误、格式错误等
             return null;
         }
     }

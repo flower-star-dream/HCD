@@ -43,7 +43,7 @@ const serviceConfig = {
  */
 const defaultConfig: Config = {
   baseUrl: 'http://localhost:8080',
-  ossUrl: 'http://localhost:9001',
+  ossUrl: 'http://localhost:9000/hcd',
   apiPrefix: '/api/v1/mgmt',
   timeout: 10000,
   mock: false,

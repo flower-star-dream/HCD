@@ -58,3 +58,5 @@ export const useAppStore = defineStore('app', () => {
     toggleSidebar
   }
 })
+
+export default useAppStore

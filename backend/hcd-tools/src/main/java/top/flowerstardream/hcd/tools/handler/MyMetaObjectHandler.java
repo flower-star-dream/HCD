@@ -6,6 +6,8 @@ import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.stereotype.Component;
 import top.flowerstardream.hcd.tools.interfaces.IdGenerator;
 
+import java.time.LocalDateTime;
+
 /**
  * @Author: 花海
  * @Date: 2025/10/31/19:00
@@ -17,6 +19,10 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
 
     private final IdGenerator idGenerator;
     private final String idFieldName = "id";
+    private final String createTimeFieldName = "createTime";
+    private final String updateTimeFieldName = "updateTime";
+    private final String createPersonFieldName = "createPerson";
+    private final String updatePersonFieldName = "updatePerson";
 
     @Override
     public void insertFill(MetaObject metaObject) {
@@ -29,6 +35,14 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
                 String id = idGenerator.generateId().toString();
                 this.strictInsertFill(metaObject, idFieldName, String.class, id);
             }
+        }
+        this.strictInsertFill(metaObject, createTimeFieldName, LocalDateTime.class, LocalDateTime.now());
+        this.strictInsertFill(metaObject, updateTimeFieldName, LocalDateTime.class, LocalDateTime.now());
+        if (metaObject.getValue(createPersonFieldName) == null) {
+            this.strictInsertFill(metaObject, createPersonFieldName, String.class, "system");
+        }
+        if (metaObject.getValue(updatePersonFieldName) == null) {
+            this.strictInsertFill(metaObject, updatePersonFieldName, String.class, "system");
         }
     }
 
@@ -46,6 +60,9 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
 
     @Override
     public void updateFill(MetaObject metaObject) {
-        // 更新时无需处理
+        this.strictUpdateFill(metaObject, updateTimeFieldName, LocalDateTime.class, LocalDateTime.now());
+        if (metaObject.getValue(updatePersonFieldName) == null) {
+            this.strictUpdateFill(metaObject, updatePersonFieldName, String.class, "system");
+        }
     }
 }

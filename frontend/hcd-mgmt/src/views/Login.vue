@@ -18,7 +18,7 @@
         <el-form-item prop="username">
           <el-input
             v-model="loginForm.username"
-            placeholder="请输入用户名"
+            placeholder="请输入用户名/手机号"
             prefix-icon="User"
           />
         </el-form-item>
@@ -64,14 +64,43 @@ const loginFormRef = ref<FormInstance>()
 const loading = ref(false)
 
 const loginForm = reactive({
-  username: 'admin',
-  password: 'admin'
+  username: '',
+  phone: '',
+  password: ''
 })
+
+// 手机号验证规则
+const validatePhone = (rule: any, value: string, callback: any) => {
+  // 简单的手机号正则验证
+  const phoneRegex = /^1[3-9]\d{9}$/;
+  // 如果输入内容符合手机号格式，通过验证
+  if (value && phoneRegex.test(value)) {
+    callback();
+  } else {
+    // 如果不符合手机号格式，让用户名验证规则继续验证
+    callback(new Error('手机号格式不正确，请重新输入'));
+  }
+};
+
+// 用户名验证规则
+const validateUsername = (rule: any, value: string, callback: any) => {
+  // 简单的手机号正则验证
+  const phoneRegex = /^1[3-9]\d{9}$/;
+  // 如果输入内容符合手机号格式，不进行用户名验证
+  if (value && phoneRegex.test(value)) {
+    callback();
+  } else if (value && (value.length < 3 || value.length > 20)) {
+    callback(new Error('用户名长度在 3 到 20 个字符'));
+  } else {
+    callback();
+  }
+};
 
 const loginRules: FormRules = {
   username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }
+    { required: true, message: '请输入用户名/手机号', trigger: 'blur' },
+    // 使用自定义验证规则，支持用户名或手机号格式
+    { validator: validateUsername || validatePhone, trigger: 'blur' }
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
@@ -86,7 +115,17 @@ const handleLogin = async () => {
     if (valid) {
       loading.value = true
       try {
-        await userStore.loginAction(loginForm)
+        // 判断输入是否为手机号格式
+        const isPhone = /^1[3-9]\d{9}$/.test(loginForm.username)
+        
+        // 根据输入类型构建不同的登录参数，只传递必要字段
+        const loginParams = {
+          password: loginForm.password,
+          // 如果是手机号，只传递phone字段；否则只传递username字段
+          ...(isPhone ? { phone: loginForm.username, username: ''} : { username: loginForm.username, phone: '' })
+        }
+        
+        await userStore.loginAction(loginParams)
         ElMessage.success('登录成功')
         router.push('/')
       } catch (error: any) {

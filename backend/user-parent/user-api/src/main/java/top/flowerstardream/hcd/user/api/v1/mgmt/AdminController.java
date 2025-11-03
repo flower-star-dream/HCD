@@ -4,15 +4,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import top.flowerstardream.hcd.tools.result.Result;
 import top.flowerstardream.hcd.user.ao.req.LoginREQ;
 import top.flowerstardream.hcd.user.ao.res.LoginRES;
 import top.flowerstardream.hcd.user.biz.service.IAdminService;
+import top.flowerstardream.hcd.user.bo.eo.AdminEO;
 
 /**
  * @Author: 花海
@@ -40,6 +38,18 @@ public class AdminController {
         log.info("管理员登录：{}", loginREQ);
         LoginRES loginRES = IAdminService.login(loginREQ);
         return Mono.just(Result.successResult(loginRES));
+    }
+
+    /**
+     * 获取当前登录用户信息
+     *
+     * @return
+     */
+    @GetMapping("/info/{id}")
+    @Operation(summary = "获取当前登录用户信息", description = "获取当前登录用户信息")
+    public Mono<Result<AdminEO>> getInfo(@PathVariable("id") Long id) {
+        AdminEO adminEO = IAdminService.getInfo(id);
+        return Mono.just(Result.successResult(adminEO));
     }
 
     /**

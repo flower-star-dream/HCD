@@ -2,6 +2,7 @@ package top.flowerstardream.hcd.user.biz.service;
 
 import top.flowerstardream.hcd.user.ao.req.LoginREQ;
 import top.flowerstardream.hcd.user.ao.res.LoginRES;
+import top.flowerstardream.hcd.user.bo.eo.AdminEO;
 
 /**
  * @Author: 花海
@@ -17,4 +18,11 @@ public interface IAdminService {
      * @return 登录成功后的管理员信息
      */
     LoginRES login(LoginREQ loginREQ);
+
+    /**
+     * 获取当前登录用户信息
+     * @param id 用户id
+     * @return 当前登录用户信息
+     */
+    AdminEO getInfo(Long id);
 }

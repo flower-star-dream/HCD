@@ -35,7 +35,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: '/user',
         name: 'User',
-        component: () => import('@/views/User/User-view.vue'),
+        component: () => import('@/views/User/User-view/User-view.vue'),
         meta: { title: '用户管理', icon: 'User' }
       },
       // {
@@ -43,7 +43,13 @@ const routes: RouteRecordRaw[] = [
       //   name: 'Station',
       //   component: () => import('@/views/Station/index.vue'),
       //   meta: { title: '站点管理', icon: 'Location' }
-      // }
+      // },
+      {
+        path: '/profile',
+        name: 'Profile',
+        component: () => import('@/views/User/User-info/User-info-view.vue'),
+        meta: { title: '个人信息', icon: 'User' }
+      }
     ]
   },
   {

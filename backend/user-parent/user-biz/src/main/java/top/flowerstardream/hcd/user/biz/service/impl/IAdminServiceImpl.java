@@ -52,7 +52,6 @@ public class IAdminServiceImpl extends ServiceImpl<AdminMapper, AdminEO> impleme
         //2 比对密码
         String password = loginREQ.getPassword();
         String pwd = DigestUtils.md5DigestAsHex(password.getBytes());
-        System.out.println(pwd);
         if(!pwd.equals(admin.getPassword())){
             USER_PASSWORD_ERROR.throwException();
         }
@@ -69,5 +68,10 @@ public class IAdminServiceImpl extends ServiceImpl<AdminMapper, AdminEO> impleme
                 .username(admin.getUsername())
                 .token(token)
                 .build();
+    }
+
+    @Override
+    public AdminEO getInfo(Long id) {
+        return getById(id);
     }
 }
