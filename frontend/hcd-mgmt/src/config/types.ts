@@ -1,3 +1,15 @@
+<<<<<<< HEAD
+=======
+// 服务模块配置类型
+export interface ServiceConfig {
+  user: string
+  trainSeat: string
+  ticket: string
+  order: string
+  system: string
+}
+
+>>>>>>> 7194a667e73e05f6f820be501adf75d935dc6a3c
 // 环境配置类型定义
 export interface Config {
   baseUrl: string
@@ -7,6 +19,10 @@ export interface Config {
   mock: boolean
   debug: boolean
   title: string
+<<<<<<< HEAD
+=======
+  services: ServiceConfig
+>>>>>>> 7194a667e73e05f6f820be501adf75d935dc6a3c
 }
 
 // API响应类型

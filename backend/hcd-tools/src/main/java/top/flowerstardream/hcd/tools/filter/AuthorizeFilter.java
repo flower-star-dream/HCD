@@ -57,14 +57,44 @@ public class AuthorizeFilter extends AbstractGatewayFilterFactory<AuthorizeFilte
         }
         return false;
     }
+<<<<<<< HEAD
+=======
+    
+    /**
+     * 添加CORS响应头
+     * @param response ServerHttpResponse对象
+     */
+    private void addCorsHeaders(ServerHttpResponse response) {
+        response.getHeaders().add("Access-Control-Allow-Origin", "*");
+        response.getHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
+        response.getHeaders().add("Access-Control-Allow-Headers", "*");
+        response.getHeaders().add("Access-Control-Allow-Credentials", "true");
+        response.getHeaders().add("Access-Control-Max-Age", "86400");
+        response.getHeaders().add("Access-Control-Expose-Headers", "Authorization, Content-Disposition, biz_side");
+    }
+>>>>>>> 7194a667e73e05f6f820be501adf75d935dc6a3c
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         //1.获取request和response对象
         ServerHttpRequest request = exchange.getRequest();
         ServerHttpResponse response = exchange.getResponse();
+<<<<<<< HEAD
 
         //2.判断是否是登录或swagger/knife4j相关路径
+=======
+        
+        // 添加CORS响应头到所有响应
+        addCorsHeaders(response);
+        
+        //2.判断是否是预检请求
+        if (request.getMethod().name().equals("OPTIONS")) {
+            response.setStatusCode(HttpStatus.OK);
+            return response.setComplete();
+        }
+
+        //3.判断是否是登录或swagger/knife4j相关路径
+>>>>>>> 7194a667e73e05f6f820be501adf75d935dc6a3c
         String path = request.getURI().getPath();
         if (pathChick(path)) {
             return chain.filter(exchange);
@@ -181,6 +211,12 @@ public class AuthorizeFilter extends AbstractGatewayFilterFactory<AuthorizeFilte
     }
 
     private Mono<Void> unauthorizedResponse(ServerWebExchange exchange) {
+<<<<<<< HEAD
+=======
+        // 添加CORS响应头到错误响应
+        addCorsHeaders(exchange.getResponse());
+        
+>>>>>>> 7194a667e73e05f6f820be501adf75d935dc6a3c
         byte[] bytes = "Unauthorized".getBytes();
         DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(bytes);
         exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);

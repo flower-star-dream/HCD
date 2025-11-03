@@ -5,6 +5,10 @@
     "moduleResolution": "node",
     "strict": true,
     "jsx": "preserve",
+<<<<<<< HEAD
+=======
+    "allowJs": true,
+>>>>>>> 7194a667e73e05f6f820be501adf75d935dc6a3c
     "sourceMap": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
@@ -13,7 +17,11 @@
     "paths": {
       "@/*": ["src/*"]
     },
+<<<<<<< HEAD
     "types": ["vite/client", "./shime-vue"]
+=======
+    "types": ["vite/client", "./shime-vue", "node"]
+>>>>>>> 7194a667e73e05f6f820be501adf75d935dc6a3c
   },
   "include": ["src/**/*", "src/types/**/*.ts"],
   "exclude": ["node_modules"]

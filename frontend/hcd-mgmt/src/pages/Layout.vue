@@ -4,7 +4,7 @@
       <el-aside :width="sidebarCollapsed ? '64px' : '200px'" class="sidebar">
         <div class="sidebar-header">
           <div class="logo">
-            <img src="/vite.svg" alt="logo" />
+            <!-- <img src="/vite.svg" alt="logo" /> -->
             <span v-if="!sidebarCollapsed">火车订票系统</span>
           </div>
         </div>
@@ -23,9 +23,9 @@
             :key="item.path"
             :index="item.path"
           >
-            <el-icon>
-              <component :is="item.icon" />
-            </el-icon>
+              <el-icon>
+                <component :is="isCustomIcon(item.icon)" />
+              </el-icon>
             <template #title>{{ item.title }}</template>
           </el-menu-item>
         </el-menu>
@@ -69,7 +69,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, defineAsyncComponent, resolveComponent } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useUserStore, useAppStore } from '@/stores'
@@ -81,6 +81,15 @@ const appStore = useAppStore()
 const userInfo = computed(() => userStore.userInfo)
 const sidebarCollapsed = computed(() => appStore.sidebarCollapsed)
 const menuList = computed(() => appStore.menuList)
+
+const isCustomIcon = (icon: any) => {
+  // 动态加载 components 目录下的同名组件，文件不存在时返回 icon
+  if (icon.endsWith('Icon')) {
+    // 组件存在
+    return defineAsyncComponent(() =>import(`@/components/${icon}/${icon}.vue`))
+  }
+  return icon
+}
 
 const toggleSidebar = () => {
   appStore.toggleSidebar()

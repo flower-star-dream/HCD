@@ -9,10 +9,22 @@ export const useUserStore = defineStore('user', () => {
 
   const loginAction = async (loginForm: LoginForm) => {
     try {
+      // 根据后端返回的LoginRES结构，直接从response中获取token
+      // 因为request.ts的响应拦截器已经返回了data部分
       const response = await login(loginForm)
-      token.value = response.data.token
-      userInfo.value = response.data.user
-      localStorage.setItem('token', response.data.token)
+      token.value = response.token
+      // 设置用户信息，提供完整的UserInfo类型属性
+      userInfo.value = {
+        id: response.id,
+        username: response.username,
+        nickname: '', // 提供默认值
+        email: '', // 提供默认值
+        phone: '', // 提供默认值
+        avatar: '', // 提供默认值
+        roles: [], // 提供默认值
+        permissions: [] // 提供默认值
+      }
+      localStorage.setItem('token', response.token)
       return response
     } catch (error) {
       throw error

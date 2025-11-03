@@ -28,7 +28,11 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '')
+        // 保持/api前缀以匹配网关路由规则
+        // 确保所有/api开头的请求都被正确代理
+        secure: false, // 允许使用http协议
+        // 添加重写规则，确保路径正确匹配
+        rewrite: (path) => path // 保持原路径不变
       }
     }
   }

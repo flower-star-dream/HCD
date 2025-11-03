@@ -1,8 +1,15 @@
 <template>
+<<<<<<< HEAD:frontend/hcd-mgmt/src/pages/Login.vue
   <view class="login-container">
     <view class="login-form">
       <view class="login-header">
         <view class="logo">
+=======
+  <div class="login-container">
+    <div class="login-form">
+      <div class="login-header">
+        <div class="logo">
+>>>>>>> 7194a667e73e05f6f820be501adf75d935dc6a3c:frontend/hcd-mgmt/src/views/Login.vue
           <!-- <img src="/vite.svg" alt="logo" /> -->
           <h2>火车订票系统后台管理</h2>
         </view>
@@ -75,7 +82,7 @@ const loginRules: FormRules = {
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, max: 20, message: '长度在 6 到 20 个字符', trigger: 'blur' }
+    { min: 5, max: 20, message: '长度在 5 到 20 个字符', trigger: 'blur' }
   ]
 }
 

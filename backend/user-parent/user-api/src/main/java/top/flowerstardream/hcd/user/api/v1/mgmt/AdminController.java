@@ -8,6 +8,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
+<<<<<<< HEAD
+=======
+import reactor.core.publisher.Mono;
+>>>>>>> 7194a667e73e05f6f820be501adf75d935dc6a3c
 import top.flowerstardream.hcd.tools.result.Result;
 import top.flowerstardream.hcd.user.ao.req.LoginREQ;
 import top.flowerstardream.hcd.user.ao.res.LoginRES;
@@ -35,8 +39,15 @@ public class AdminController {
      */
     @PostMapping("/login")
     @Operation(summary = "管理员登录", description = "管理员登录")
+<<<<<<< HEAD
         log.info("管理员登录：{}", loginREQ);
         LoginRES loginRES = IAdminService.login(loginREQ);
+=======
+    public Mono<Result<LoginRES>> login(@RequestBody LoginREQ loginREQ) {
+        log.info("管理员登录：{}", loginREQ);
+        LoginRES loginRES = IAdminService.login(loginREQ);
+        return Mono.just(Result.successResult(loginRES));
+>>>>>>> 7194a667e73e05f6f820be501adf75d935dc6a3c
     }
 
     /**
@@ -46,6 +57,11 @@ public class AdminController {
      */
     @PostMapping("/logout")
     @Operation(summary = "管理员登出", description = "管理员登出")
+<<<<<<< HEAD
+=======
+    public Mono<Result<String>> logout() {
+        return Mono.just(Result.successResult());
+>>>>>>> 7194a667e73e05f6f820be501adf75d935dc6a3c
     }
 
 

@@ -5,6 +5,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     name: 'Layout',
+<<<<<<< HEAD
     component: () => import('@/pages/Layout.vue'),
     redirect: '/dashboard',
     children: [
@@ -18,11 +19,33 @@ const routes: RouteRecordRaw[] = [
       //   path: '/train',
       //   name: 'Train',
       //   component: () => import('@/pages/Train/index.vue'),
+=======
+    component: () => import('@/views/Layout.vue'),
+    redirect: '/home',
+    children: [
+      {
+        path: '/home',
+        name: 'Home',
+        component: () => import('@/views/Home/Home.vue'),
+        meta: { title: '首页', icon: 'Home' }
+      },
+      // {
+      //   path: '/dashboard',
+      //   name: 'Dashboard',
+      //   component: () => import('@/views/Dashboard/index.vue'),
+      //   meta: { title: '仪表盘', icon: 'Odometer' }
+      // },
+      // {
+      //   path: '/train',
+      //   name: 'Train',
+      //   component: () => import('@/views/Train/index.vue'),
+>>>>>>> 7194a667e73e05f6f820be501adf75d935dc6a3c
       //   meta: { title: '车次管理', icon: 'Train' }
       // },
       // {
       //   path: '/order',
       //   name: 'Order',
+<<<<<<< HEAD
       //   component: () => import('@/pages/Order/index.vue'),
       //   meta: { title: '订单管理', icon: 'Tickets' }
       // },
@@ -36,6 +59,21 @@ const routes: RouteRecordRaw[] = [
       //   path: '/station',
       //   name: 'Station',
       //   component: () => import('@/pages/Station/index.vue'),
+=======
+      //   component: () => import('@/views/Order/index.vue'),
+      //   meta: { title: '订单管理', icon: 'Tickets' }
+      // },
+      {
+        path: '/user',
+        name: 'User',
+        component: () => import('@/views/User/User-view.vue'),
+        meta: { title: '用户管理', icon: 'User' }
+      },
+      // {
+      //   path: '/station',
+      //   name: 'Station',
+      //   component: () => import('@/views/Station/index.vue'),
+>>>>>>> 7194a667e73e05f6f820be501adf75d935dc6a3c
       //   meta: { title: '站点管理', icon: 'Location' }
       // }
     ]
