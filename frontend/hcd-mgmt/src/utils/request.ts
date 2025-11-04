@@ -17,7 +17,10 @@ const requestInterceptor = (config: InternalAxiosRequestConfig) => {
   const token = localStorage.getItem('token')
   if (token) {
     config.headers = config.headers || {}
+    // 添加Bearer前缀，确保token格式正确
     config.headers.Authorization = `Bearer ${token}`
+    // 添加必需的biz_side头部，设置为admin，使用小写格式以匹配后端期望
+    config.headers.biz_side = 'admin'
   }
   return config
 }

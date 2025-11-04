@@ -1,8 +1,4 @@
-import { createPinia } from 'pinia'
-
-const pinia = createPinia()
-
-export default pinia
-
+import { config } from '@/config'
+export const ossUrl = config.ossUrl
 export * from './user'
 export * from './app'

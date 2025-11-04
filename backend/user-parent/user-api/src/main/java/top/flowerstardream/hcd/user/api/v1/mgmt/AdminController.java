@@ -4,18 +4,23 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+<<<<<<< HEAD
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 <<<<<<< HEAD
 =======
+=======
+import org.springframework.web.bind.annotation.*;
+>>>>>>> 9fb4611a07b37bc85dd8a4de132ccf1f427368ce
 import reactor.core.publisher.Mono;
 >>>>>>> 7194a667e73e05f6f820be501adf75d935dc6a3c
 import top.flowerstardream.hcd.tools.result.Result;
 import top.flowerstardream.hcd.user.ao.req.LoginREQ;
 import top.flowerstardream.hcd.user.ao.res.LoginRES;
 import top.flowerstardream.hcd.user.biz.service.IAdminService;
+import top.flowerstardream.hcd.user.bo.eo.AdminEO;
 
 /**
  * @Author: 花海
@@ -48,6 +53,18 @@ public class AdminController {
         LoginRES loginRES = IAdminService.login(loginREQ);
         return Mono.just(Result.successResult(loginRES));
 >>>>>>> 7194a667e73e05f6f820be501adf75d935dc6a3c
+    }
+
+    /**
+     * 获取当前登录用户信息
+     *
+     * @return
+     */
+    @GetMapping("/info/{id}")
+    @Operation(summary = "获取当前登录用户信息", description = "获取当前登录用户信息")
+    public Mono<Result<AdminEO>> getInfo(@PathVariable("id") Long id) {
+        AdminEO adminEO = IAdminService.getInfo(id);
+        return Mono.just(Result.successResult(adminEO));
     }
 
     /**

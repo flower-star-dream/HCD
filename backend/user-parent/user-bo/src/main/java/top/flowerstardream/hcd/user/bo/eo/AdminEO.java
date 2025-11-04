@@ -2,6 +2,7 @@ package top.flowerstardream.hcd.user.bo.eo;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import top.flowerstardream.hcd.base.bo.eo.BaseEO;
@@ -20,6 +21,14 @@ public class AdminEO extends BaseEO {
     @TableField("username")
     private String username ;
 
+    // 昵称
+    @TableField("nickname")
+    private String nickname ;
+
+    // 头像
+    @TableField("avatar")
+    private String avatar ;
+
     // 权限等级
     @TableField("permission_level")
     private String permissionLevel ;
@@ -30,6 +39,7 @@ public class AdminEO extends BaseEO {
 
     // 密码
     @TableField("password")
+    @JsonIgnore
     private String password ;
 
     // 所属站点

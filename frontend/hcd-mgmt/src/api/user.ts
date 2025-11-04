@@ -1,5 +1,6 @@
 import { userRequest } from '@/utils/request'
-import type { LoginForm, UserInfo, ApiResponse, PageQuery, PageResult, LoginResponse } from '@/types'
+import type {  ApiResponse, PageQuery, PageResult } from '@/types'
+import type { LoginForm, UserInfo, LoginResponse} from '@/types/user'
 
 /**
  * 用户登录
@@ -14,8 +15,17 @@ export const login = (data: LoginForm): Promise<LoginResponse> => {
  * 获取当前用户信息
  * @returns 用户信息
  */
-export const getUserInfo = (): Promise<UserInfo> => {
-  return userRequest.get('/info')
+export const getUserInfoService = (userId: any): Promise<UserInfo> => {
+  return userRequest.get(`/info/${userId}`)
+}
+
+/**
+ * 更新用户信息
+ * @param data 用户信息
+ * @returns 更新响应
+ */
+export const updateUserInfoService = (data: Partial<UserInfo>): Promise<ApiResponse> => {
+  return userRequest.put('/update/info', data)
 }
 
 /**
@@ -23,7 +33,7 @@ export const getUserInfo = (): Promise<UserInfo> => {
  * @param params 分页查询参数
  * @returns 用户分页列表
  */
-export const getUserList = (params: PageQuery): Promise<PageResult<UserInfo>> => {
+export const getUserListService = (params: PageQuery): Promise<PageResult<UserInfo>> => {
   return userRequest.get('/list', { params })
 }
 
@@ -32,7 +42,7 @@ export const getUserList = (params: PageQuery): Promise<PageResult<UserInfo>> =>
  * @param data 用户信息
  * @returns 创建响应
  */
-export const createUser = (data: Partial<UserInfo>): Promise<ApiResponse> => {
+export const createUserService = (data: Partial<UserInfo>): Promise<ApiResponse> => {
   return userRequest.post('/create', data)
 }
 
@@ -42,7 +52,7 @@ export const createUser = (data: Partial<UserInfo>): Promise<ApiResponse> => {
  * @param data 用户信息
  * @returns 更新响应
  */
-export const updateUser = (id: number, data: Partial<UserInfo>): Promise<ApiResponse> => {
+export const updateUserService = (id: number, data: Partial<UserInfo>): Promise<ApiResponse> => {
   return userRequest.put(`/update/${id}`, data)
 }
 
@@ -51,6 +61,6 @@ export const updateUser = (id: number, data: Partial<UserInfo>): Promise<ApiResp
  * @param id 用户ID
  * @returns 删除响应
  */
-export const deleteUser = (id: number): Promise<ApiResponse> => {
+export const deleteUserService = (id: number): Promise<ApiResponse> => {
   return userRequest.delete(`/delete/${id}`)
 }

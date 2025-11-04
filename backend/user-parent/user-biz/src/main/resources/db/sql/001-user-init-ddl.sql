@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS `hcd_user` (
   `update_time` datetime NOT NULL COMMENT '更新时间',
   `create_person` varchar(30) NOT NULL COMMENT '创建人',
   `update_person` varchar(30) NOT NULL COMMENT '更新者',
+  `avatar` varchar(200) DEFAULT NULL COMMENT '头像url',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='hcd_用户';
 
@@ -24,5 +25,7 @@ CREATE TABLE IF NOT EXISTS `hcd_admin` (
   `update_time` datetime NOT NULL COMMENT '更新时间',
   `create_person` varchar(30) NOT NULL COMMENT '创建人',
   `update_person` varchar(30) NOT NULL COMMENT '更新者',
+  `avatar` varchar(200) DEFAULT NULL COMMENT '头像url',
+  `nickname` varchar(30) NOT NULL COMMENT '昵称',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='hcd_管理员';
