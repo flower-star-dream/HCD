@@ -15,8 +15,8 @@ export const login = (data: LoginForm): Promise<LoginResponse> => {
  * 获取当前用户信息
  * @returns 用户信息
  */
-export const getUserInfoService = (userId: any): Promise<UserInfo> => {
-  return userRequest.get(`/info/${userId}`)
+export const getUserInfoService = (): Promise<UserInfo> => {
+  return userRequest.get(`/info`)
 }
 
 /**

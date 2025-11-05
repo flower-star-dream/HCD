@@ -1,4 +1,4 @@
-package top.flowerstardream.hcd.tools.config;
+package top.flowerstardream.hcd.hcdgateway.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,15 +19,15 @@ public class SecurityConfig {
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         return http
                 // 1. 关闭 CSRF
-                .csrf(csrf -> csrf.disable())
-                // 2. 全部放行——JWT 校验由 Gateway 的 AuthorizeFilter 做
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                // 2. 全部放行——JWT 校验由 Gateway 的 HcdGlobalFilter 做
                 .authorizeExchange(ex -> ex.anyExchange().permitAll())
                 // 3. 保留跨域
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 // 4. 禁用 Security 自带的登录/登出/缓存过滤器
-                .httpBasic(h -> h.disable())
-                .formLogin(f -> f.disable())
-                .requestCache(c -> c.disable())
+                .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
+                .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
+                .requestCache(ServerHttpSecurity.RequestCacheSpec::disable)
                 .build();
     }
 

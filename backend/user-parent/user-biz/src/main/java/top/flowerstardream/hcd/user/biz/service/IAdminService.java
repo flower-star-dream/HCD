@@ -21,8 +21,14 @@ public interface IAdminService {
 
     /**
      * 获取当前登录用户信息
-     * @param id 用户id
+     * @param id
      * @return 当前登录用户信息
      */
     AdminEO getInfo(Long id);
+
+    /**
+     * 登出
+     * @param token
+     */
+    void logout(String token);
 }

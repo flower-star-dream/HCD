@@ -27,9 +27,14 @@ public enum ExceptionEnum {
     TICKET_BUSINESS_EXCEPTION(30000, "车票业务异常"),
     ORDER_BUSINESS_EXCEPTION(40000, "订单业务异常"),
     SYSTEM_BUSINESS_EXCEPTION(50000, "系统业务异常"),
-    SQL_EXCEPTION(60000, "SQL异常"),
+    DATABASE_EXCEPTION(60000, "数据库异常"),
     CLOCK_ROLLED_BACK(60001, "时钟回拨，拒绝生成 ID"),
     WORKER_ID_OUT_OF_BOUNDS(60002, "workerId 越界"),
+    FILE_SYSTEM_EXCEPTION(70000, "文件系统异常"),
+    FAILED_FILE_UPLOAD(70001, "文件上传失败"),
+    FAILED_FILE_DOWNLOAD(70002, "文件下载失败"),
+    FAILED_FILE_DELETE(70003, "文件删除失败"),
+    THE_CONTENT_OF_THE_FILE_IS_EMPTY(70004, "文件内容为空"),
     USER_NOT_EXIST(10001, "用户不存在"),
     USER_PASSWORD_ERROR(10002, "用户名或密码错误");
 

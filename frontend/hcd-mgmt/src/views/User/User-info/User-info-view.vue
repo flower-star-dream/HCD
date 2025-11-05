@@ -17,7 +17,7 @@
                             class="avatar-uploader" 
                             :show-file-list="false" 
                             :auto-upload="true"
-                            action="/api/upload" 
+                            action="/api/v1/common/user/upload" 
                             name="file"
                             :headers="{ 'Authorization': userStore.token, 'biz_side': 'admin' }"
                             :on-success="uploadSuccess"
