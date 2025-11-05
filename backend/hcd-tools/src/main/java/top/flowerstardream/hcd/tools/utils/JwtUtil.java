@@ -84,7 +84,7 @@ public class JwtUtil {
                 return 1; // 已过期
             }
             // 判断是否需要自动刷新TOKEN
-            if((expiration.getTime()-System.currentTimeMillis())>refreshTime*1000){
+            if((expiration.getTime()-System.currentTimeMillis())> refreshTime*1000){
                 return -1;
             }else {
                 return 0;

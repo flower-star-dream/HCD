@@ -4,13 +4,21 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.SignalType;
+import reactor.util.context.Context;
 import top.flowerstardream.hcd.tools.result.Result;
+import top.flowerstardream.hcd.tools.utils.ReactiveUserContext;
 import top.flowerstardream.hcd.user.ao.req.LoginREQ;
 import top.flowerstardream.hcd.user.ao.res.LoginRES;
 import top.flowerstardream.hcd.user.biz.service.IAdminService;
 import top.flowerstardream.hcd.user.bo.eo.AdminEO;
+
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 /**
  * @Author: 花海
@@ -52,6 +60,7 @@ public class AdminController {
         return Mono.just(Result.successResult(adminEO));
     }
 
+
     /**
      * 退出
      *
@@ -59,9 +68,13 @@ public class AdminController {
      */
     @PostMapping("/logout")
     @Operation(summary = "管理员登出", description = "管理员登出")
-    public Mono<Result<String>> logout() {
-        return Mono.just(Result.successResult());
+    public Mono<Result<Void>> logout() {
+        log.info("管理员登出");
+        return ReactiveUserContext.getToken()
+          .flatMap(token -> {
+              IAdminService.logout(token);
+              return Mono.just(Result.successResult());
+          });
     }
-
 
 }
