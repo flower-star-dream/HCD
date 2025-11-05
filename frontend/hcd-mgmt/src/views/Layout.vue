@@ -128,7 +128,7 @@ onMounted(async () => {
     // 确保userInfo和id都存在时才获取用户详情
     try {
       if (isFirstLoad.value) {
-        let res = await getUserInfoService()
+        let res = await getUserInfoService(userStore.userInfo?.id)
         userStore.setUserInfo(res)
         isFirstLoad.value = false
       }
