@@ -3,8 +3,11 @@ package top.flowerstardream.hcd.user.bo.eo;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import top.flowerstardream.hcd.base.bo.eo.BaseEO;
 
 /**
@@ -13,7 +16,9 @@ import top.flowerstardream.hcd.base.bo.eo.BaseEO;
  * @Description: 管理员实体对象
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
+@SuperBuilder
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @TableName("hcd_admin")
 public class AdminEO extends BaseEO {
 
@@ -45,4 +50,7 @@ public class AdminEO extends BaseEO {
     // 所属站点
     @TableField("affiliated_site")
     private String affiliatedSite ;
+
+    @TableField("status")
+    private Integer status ;
 }

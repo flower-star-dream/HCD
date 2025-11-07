@@ -1,5 +1,6 @@
 package top.flowerstardream.hcd.user.biz.service;
 
+import top.flowerstardream.hcd.user.ao.req.AdminInfoREQ;
 import top.flowerstardream.hcd.user.ao.req.LoginREQ;
 import top.flowerstardream.hcd.user.ao.res.LoginRES;
 import top.flowerstardream.hcd.user.bo.eo.AdminEO;
@@ -21,14 +22,25 @@ public interface IAdminService {
 
     /**
      * 获取当前登录用户信息
-     * @param id
      * @return 当前登录用户信息
      */
-    AdminEO getInfo(Long id);
+    AdminEO getInfo();
 
     /**
      * 登出
-     * @param token
      */
-    void logout(String token);
+    void logout();
+
+    /**
+     * 启用或禁用管理员账号
+     * @param status
+     * @param id
+     */
+    void startOrStop(Integer status, Long id);
+
+    /**
+     * 更新当前登录用户信息
+     * @param adminInfoREQ
+     */
+    void updateInfo(AdminInfoREQ adminInfoREQ);
 }

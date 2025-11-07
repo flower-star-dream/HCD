@@ -6,7 +6,6 @@ import io.minio.PutObjectArgs;
 import io.minio.RemoveObjectArgs;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
@@ -18,8 +17,6 @@ import top.flowerstardream.hcd.tools.service.FileStorageService;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import static top.flowerstardream.hcd.tools.exception.ExceptionEnum.FAILED_FILE_UPLOAD;
 

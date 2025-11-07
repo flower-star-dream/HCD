@@ -23,4 +23,10 @@ export interface UserInfo {
   permissionLevel: string
 }
 
+// 重置密码表单数据结构
+export interface ResetPasswordForm {
+  oldPassword: string
+  newPassword: string
+  confirmPassword: string
+}
 

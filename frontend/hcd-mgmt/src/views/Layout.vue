@@ -17,17 +17,44 @@
           background-color="#304156"
           text-color="#bfcbd9"
           active-text-color="#409EFF"
+          unique-opened
         >
-          <el-menu-item
-            v-for="item in menuList"
-            :key="item.path"
-            :index="item.path"
-          >
+          <!-- 菜单列表 - 按原始顺序渲染 -->
+          <template v-for="item in menuList" :key="item.path">
+            <!-- 带children的菜单项 -->
+            <el-sub-menu
+              v-if="item.children?.length && item.children.length > 0"
+              :index="item.path"
+            >
+              <template #title>
+                <el-icon>
+                  <component :is="isCustomIcon(item.icon)" />
+                </el-icon>
+                <span>{{ item.title }}</span>
+              </template>
+              <el-menu-item
+                v-for="child in item.children"
+                :key="child.path"
+                :index="child.path"
+              >
+                <el-icon v-if="child.icon">
+                  <component :is="isCustomIcon(child.icon)" />
+                </el-icon>
+                <span>{{ child.title }}</span>
+              </el-menu-item>
+            </el-sub-menu>
+            
+            <!-- 无子菜单的菜单项 -->
+            <el-menu-item
+              v-else
+              :index="item.path"
+            >
               <el-icon>
                 <component :is="isCustomIcon(item.icon)" />
               </el-icon>
-            <template #title>{{ item.title }}</template>
-          </el-menu-item>
+              <span>{{ item.title }}</span>
+            </el-menu-item>
+          </template>
         </el-menu>
       </el-aside>
 
@@ -128,7 +155,7 @@ onMounted(async () => {
     // 确保userInfo和id都存在时才获取用户详情
     try {
       if (isFirstLoad.value) {
-        let res = await getUserInfoService(userStore.userInfo?.id)
+        let res = await getUserInfoService()
         userStore.setUserInfo(res)
         isFirstLoad.value = false
       }

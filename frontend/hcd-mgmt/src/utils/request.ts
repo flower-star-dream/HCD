@@ -7,13 +7,15 @@ import config from '@/config'
 import type { InternalAxiosRequestConfig } from 'axios'
 
 const requestInterceptor = (config: InternalAxiosRequestConfig) => {
+  config.headers = config.headers || {}
+  // 无论是否登录，都添加biz_side请求头
+  // 添加必需的biz_side头部，设置为admin，使用小写格式以匹配后端期望
+  config.headers.biz_side = 'admin'
+  // 如果有token，则添加Authorization头部
   const token = localStorage.getItem('token')
   if (token) {
-    config.headers = config.headers || {}
     // 添加Bearer前缀，确保token格式正确
     config.headers.Authorization = `Bearer ${token}`
-    // 添加必需的biz_side头部，设置为admin，使用小写格式以匹配后端期望
-    config.headers.biz_side = 'admin'
   }
   return config
 }

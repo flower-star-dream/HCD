@@ -4,8 +4,10 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.SuperBuilder;
 import top.flowerstardream.hcd.base.bo.eo.BaseEO;
 
 import java.time.LocalDateTime;
@@ -17,7 +19,8 @@ import java.time.LocalDateTime;
  * @Description: 用户实体对象
  */
 @Data
-@EqualsAndHashCode(callSuper = false)
+@SuperBuilder
+@EqualsAndHashCode(callSuper = true)
 @TableName("hcd_user")
 public class UserEO extends BaseEO {
 
@@ -37,16 +40,12 @@ public class UserEO extends BaseEO {
     @TableField("phone")
     private String phone;
 
-    // 真实姓名
-    @TableField("real_name")
-    private String realName;
+    // 乘车人id
+    @TableField("passenger_id")
+    private long passengerId ;
 
-    // 证件类型
-    @TableField("card_type")
-    private String cardType;
-
-    // 证件号码
-    @TableField("id_card")
-    private String idCard;
+    // 状态
+    @TableField("status")
+    private Integer status ;
 
 }

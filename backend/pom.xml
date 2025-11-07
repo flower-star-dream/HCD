@@ -170,16 +170,16 @@
             </dependency>
 
             <!-- 修复 Netty 漏洞 -->
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-common</artifactId>
-                <version>${netty.version}</version> <!-- 或更高已知安全版本 -->
-            </dependency>
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-handler</artifactId>
-                <version>${netty.version}</version> <!-- 或更高已知安全版本 -->
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>io.netty</groupId>-->
+<!--                <artifactId>netty-common</artifactId>-->
+<!--                <version>${netty.version}</version> &lt;!&ndash; 或更高已知安全版本 &ndash;&gt;-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>io.netty</groupId>-->
+<!--                <artifactId>netty-handler</artifactId>-->
+<!--                <version>${netty.version}</version> &lt;!&ndash; 或更高已知安全版本 &ndash;&gt;-->
+<!--            </dependency>-->
             <dependency>
                 <groupId>io.grpc</groupId>
                 <artifactId>grpc-netty</artifactId>
@@ -199,17 +199,22 @@
 
             <!-- Knife4j (Swagger) -->
             <dependency>
-                <groupId>org.springdoc</groupId>
-                <artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
-                <version>${springdoc.version}</version>
-            </dependency>
-
-            <!-- 3. 如需 Knife4j 美化 UI（可选） -->
-            <dependency>
                 <groupId>com.github.xiaoymin</groupId>
-                <artifactId>knife4j-openapi3-ui</artifactId>
+                <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
                 <version>${knife4j.version}</version>
             </dependency>
+<!--            <dependency>-->
+<!--                <groupId>org.springdoc</groupId>-->
+<!--                <artifactId>springdoc-openapi-starter-webflux-ui</artifactId>-->
+<!--                <version>${springdoc.version}</version>-->
+<!--            </dependency>-->
+
+            <!-- 3. 如需 Knife4j 美化 UI（可选） -->
+<!--            <dependency>-->
+<!--                <groupId>com.github.xiaoymin</groupId>-->
+<!--                <artifactId>knife4j-openapi3-ui</artifactId>-->
+<!--                <version>${knife4j.version}</version>-->
+<!--            </dependency>-->
 
             <dependency>
                 <groupId>com.github.xiaoymin</groupId>

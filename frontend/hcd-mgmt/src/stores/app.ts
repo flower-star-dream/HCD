@@ -34,7 +34,13 @@ export const useAppStore = defineStore('app', () => {
     {
       path: '/user',
       title: '用户管理',
-      icon: 'User'
+      icon: 'User',
+      children: [
+        {
+          path: '/user/list',
+          title: '用户列表'
+        }
+      ]
     },
     {
       path: '/station',
