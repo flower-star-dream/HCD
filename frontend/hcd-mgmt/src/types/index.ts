@@ -21,4 +21,10 @@ export interface ApiResponse<T = any> {
   data: T
 }
 
+// 启用或禁用表单数据结构
+export interface StartOrStopForm {
+  id: string
+  status: number
+}
+
 export * from './user'

@@ -1,16 +1,15 @@
 CREATE TABLE IF NOT EXISTS `hcd_user` (
   `id` bigint NOT NULL COMMENT '用户id',
   `username` varchar(30) NOT NULL COMMENT '用户名',
+  `avatar` varchar(200) DEFAULT NULL COMMENT '头像url',
   `email` varchar(100) DEFAULT NULL COMMENT '邮箱',
   `phone` varchar(11) NOT NULL COMMENT '手机号',
-  `real_name` varchar(100) NOT NULL COMMENT '真实姓名',
-  `card_type` varchar(10) DEFAULT NULL COMMENT '证件类型',
-  `id_card` varchar(19) NOT NULL COMMENT '身份证',
+  `passenger_id` bigint DEFAULT NULL COMMENT '乘车人id',
+  `status` int NOT NULL COMMENT '状态',
   `create_time` datetime NOT NULL COMMENT '创建时间',
   `update_time` datetime NOT NULL COMMENT '更新时间',
   `create_person` varchar(30) NOT NULL COMMENT '创建人',
   `update_person` varchar(30) NOT NULL COMMENT '更新者',
-  `avatar` varchar(200) DEFAULT NULL COMMENT '头像url',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='hcd_用户';
 
@@ -26,6 +25,19 @@ CREATE TABLE IF NOT EXISTS `hcd_admin` (
   `create_person` varchar(30) NOT NULL COMMENT '创建人',
   `update_person` varchar(30) NOT NULL COMMENT '更新者',
   `avatar` varchar(200) DEFAULT NULL COMMENT '头像url',
-  `nickname` varchar(30) NOT NULL COMMENT '昵称',
+  `nickname` varchar(30) DEFAULT NULL COMMENT '昵称',
+  `status` int NOT NULL COMMENT '状态',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='hcd_管理员';
+
+CREATE TABLE IF NOT EXISTS `hcd_passenger` (
+  `id` bigint NOT NULL COMMENT '乘车人id',
+  `real_name` varchar(100) NOT NULL COMMENT '真实姓名',
+  `card_type` varchar(10) NOT NULL COMMENT '证件类型',
+  `id_card` varchar(19) NOT NULL COMMENT '身份证',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `update_time` datetime NOT NULL COMMENT '更新时间',
+  `create_person` varchar(30) NOT NULL COMMENT '创建人',
+  `update_person` varchar(30) NOT NULL COMMENT '更新者',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='hcd_乘车人';

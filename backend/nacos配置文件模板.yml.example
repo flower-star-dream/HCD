@@ -178,11 +178,11 @@ hcd:
       rejected-execution-handler: "DiscardOldestPolicy"
       wait-for-tasks-to-complete-on-shutdown: true
       await-termination-seconds: 30
-    id-generator:
-      twepoch: 1672531200000
-      worker-id: 0
-      worker-id-bits: 10
-      sequence-bits: 12
+  id-generator:
+    twepoch: 1672531200000
+    worker-id: 0
+    worker-id-bits: 10
+    sequence-bits: 12
 
 #hcd-user:
 spring:

@@ -3,7 +3,6 @@ package top.flowerstardream.hcd.tools.config;
 import io.minio.MinioClient;
 import jakarta.annotation.Resource;
 import lombok.Data;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;

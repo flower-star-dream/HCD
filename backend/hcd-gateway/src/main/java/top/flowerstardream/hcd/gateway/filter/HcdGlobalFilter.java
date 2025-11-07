@@ -1,5 +1,6 @@
-package top.flowerstardream.hcd.hcdgateway.filter;
+package top.flowerstardream.hcd.gateway.filter;
 
+import cn.hutool.core.lang.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -12,7 +13,6 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-import reactor.util.context.Context;
 import top.flowerstardream.hcd.tools.properties.MyGatewayProperties;
 import top.flowerstardream.hcd.tools.properties.JwtProperties;
 import top.flowerstardream.hcd.tools.result.Result;
@@ -35,6 +35,8 @@ public class HcdGlobalFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        String traceId = UUID.randomUUID().toString();
+        log.info("【网关】生成 traceId={}", traceId);
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getURI().getPath();
 
@@ -67,19 +69,18 @@ public class HcdGlobalFilter implements GlobalFilter, Ordered {
                     Result.successResult(403, error));
         }
 
-        // 4. 向下游透传必要头
-//        ServerHttpRequest newReq = exchange.getRequest().mutate()
-//                .header("X-User-Id", String.valueOf(vr.getUserId()))
-//                .header("X-Biz-Side", vr.getSide().name())
-//                .build();
-//        return Mono.defer(() -> chain.filter(exchange.mutate().request(newReq).build()))
-//                    .contextWrite(Context.of("userId", vr.getUserId()));
+        // 4. 向下游业务服务传 traceId
+//        return chain.filter(
+//                exchange.mutate()
+//                        .request(r -> r.header("X-Trace-Id", traceId))
+//                        .build()
+//        );
         return chain.filter(exchange);
     }
 
     @Override
     public int getOrder() {
-        return -999;
+        return 0;
     }
 }
 

@@ -35,8 +35,15 @@ const routes: RouteRecordRaw[] = [
       {
         path: '/user',
         name: 'User',
-        component: () => import('@/views/User/User-view/User-view.vue'),
-        meta: { title: '用户管理', icon: 'User' }
+        meta: { title: '用户管理', icon: 'User' },
+        children: [
+          {
+            path: '/user/list',
+            name: 'UserList',
+            component: () => import('@/views/User/User-list/User-list-view.vue'),
+            meta: { title: '用户列表' }
+          }
+        ]
       },
       // {
       //   path: '/station',

@@ -1,13 +1,12 @@
 import { userRequest } from '@/utils/request'
-import type {  ApiResponse, PageQuery, PageResult } from '@/types'
-import type { LoginForm, UserInfo, LoginResponse} from '@/types/user'
+import type * as T from '@/types'
 
 /**
  * 用户登录
  * @param data 登录表单数据
  * @returns 登录响应
  */
-export const login = (data: LoginForm): Promise<LoginResponse> => {
+export const login = (data: T.LoginForm): Promise<T.LoginResponse> => {
   return userRequest.post('/login', data)
 }
 
@@ -15,8 +14,8 @@ export const login = (data: LoginForm): Promise<LoginResponse> => {
  * 获取当前用户信息
  * @returns 用户信息
  */
-export const getUserInfoService = (userId: any): Promise<UserInfo> => {
-  return userRequest.get(`/info/${userId}`)
+export const getUserInfoService = (): Promise<T.UserInfo> => {
+  return userRequest.get(`/info`)
 }
 
 /**
@@ -24,8 +23,8 @@ export const getUserInfoService = (userId: any): Promise<UserInfo> => {
  * @param data 用户信息
  * @returns 更新响应
  */
-export const updateUserInfoService = (data: Partial<UserInfo>): Promise<ApiResponse> => {
-  return userRequest.put('/update/info', data)
+export const updateUserInfoService = (data: Partial<T.UserInfo>): Promise<T.ApiResponse> => {
+  return userRequest.put('/info', data)
 }
 
 /**
@@ -33,7 +32,7 @@ export const updateUserInfoService = (data: Partial<UserInfo>): Promise<ApiRespo
  * @param params 分页查询参数
  * @returns 用户分页列表
  */
-export const getUserListService = (params: PageQuery): Promise<PageResult<UserInfo>> => {
+export const getUserListService = (params: T.PageQuery): Promise<T.PageResult<T.UserInfo>> => {
   return userRequest.get('/list', { params })
 }
 
@@ -42,8 +41,8 @@ export const getUserListService = (params: PageQuery): Promise<PageResult<UserIn
  * @param data 用户信息
  * @returns 创建响应
  */
-export const createUserService = (data: Partial<UserInfo>): Promise<ApiResponse> => {
-  return userRequest.post('/create', data)
+export const createUserService = (data: Partial<T.UserInfo>): Promise<T.ApiResponse> => {
+  return userRequest.post('/', data)
 }
 
 /**
@@ -52,8 +51,8 @@ export const createUserService = (data: Partial<UserInfo>): Promise<ApiResponse>
  * @param data 用户信息
  * @returns 更新响应
  */
-export const updateUserService = (id: number, data: Partial<UserInfo>): Promise<ApiResponse> => {
-  return userRequest.put(`/update/${id}`, data)
+export const updateUserService = (id: number, data: Partial<T.UserInfo>): Promise<T.ApiResponse> => {
+  return userRequest.put(`/${id}`, data)
 }
 
 /**
@@ -61,6 +60,26 @@ export const updateUserService = (id: number, data: Partial<UserInfo>): Promise<
  * @param id 用户ID
  * @returns 删除响应
  */
-export const deleteUserService = (id: number): Promise<ApiResponse> => {
-  return userRequest.delete(`/delete/${id}`)
+export const deleteUserService = (id: number): Promise<T.ApiResponse> => {
+  return userRequest.delete(`/${id}`)
 }
+
+/** 
+ * 重置用户密码
+ * @param data 重置密码表单数据
+ * @returns 重置响应
+ */
+export const resetPasswordService = (data: T.ResetPasswordForm): Promise<T.ApiResponse> => {
+  return userRequest.post('/resetPwd', data)
+}
+
+/** 
+ * 修改账号状态
+ * @param id 用户ID
+ * @param data 状态表单数据
+ * @returns 状态响应
+ */
+// 启用或禁用员工账号
+export const startOrStopService = (data: T.StartOrStopForm): Promise<T.ApiResponse> => {
+  return userRequest.post(`/status`, data);
+};

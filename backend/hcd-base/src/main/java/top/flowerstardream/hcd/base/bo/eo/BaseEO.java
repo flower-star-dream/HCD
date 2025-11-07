@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -16,6 +18,8 @@ import java.time.LocalDateTime;
  * @Description: 基础实体类
  */
 @Data
+@SuperBuilder
+@NoArgsConstructor
 public class BaseEO implements Serializable {
     @TableId(value = "id", type = IdType.ASSIGN_UUID)
     protected Long id;

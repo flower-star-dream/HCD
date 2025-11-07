@@ -5,13 +5,18 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.MDC;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+import top.flowerstardream.hcd.tools.context.RequestContext;
 import top.flowerstardream.hcd.tools.properties.JwtProperties;
 import top.flowerstardream.hcd.tools.properties.MyGatewayProperties;
 import top.flowerstardream.hcd.tools.utils.JwtUtil;
+import top.flowerstardream.hcd.tools.utils.TtlContextHolder;
+import top.flowerstardream.hcd.user.ao.req.AdminInfoREQ;
 import top.flowerstardream.hcd.user.ao.req.LoginREQ;
 import top.flowerstardream.hcd.user.ao.res.LoginRES;
 import top.flowerstardream.hcd.user.biz.mapper.AdminMapper;
@@ -79,9 +84,7 @@ public class IAdminServiceImpl extends ServiceImpl<AdminMapper, AdminEO> impleme
         //4 保存token至redis
         ValueOperations<String, String> operations = stringRedisTemplate.opsForValue();
         String redisKey = gatewayProp.getRedisTokenPrefix() + token;
-        log.info("保存token至redis，key: {}", redisKey);
         operations.set(redisKey, token, jwtProperties.getAdminTtl(), TimeUnit.SECONDS);
-        log.info("token保存成功");
 
         //5 封装数据
         return LoginRES.builder()
@@ -92,17 +95,55 @@ public class IAdminServiceImpl extends ServiceImpl<AdminMapper, AdminEO> impleme
     }
 
     @Override
-    public AdminEO getInfo(Long id) {
+    public AdminEO getInfo() {
+        RequestContext ctx = TtlContextHolder.get();
+        Long id = ctx.getTenantId();
         log.info("获取当前登录用户信息：{}", id);
         return getById(id);
     }
 
     @Override
-    public void logout(String token) {
+    public void logout() {
+        RequestContext ctx = TtlContextHolder.get();
+        String token = ctx.getToken();
         String redisKey = gatewayProp.getRedisTokenPrefix() + token;
         String redisToken = stringRedisTemplate.opsForValue().get(redisKey);
         if (redisToken != null) {
             stringRedisTemplate.delete(redisKey);
         }
+    }
+
+    /**
+     * 启用或禁用管理员账号
+     *
+     * @param status
+     * @param id
+     */
+    @Override
+    public void startOrStop(Integer status, Long id) {
+        AdminEO admin = AdminEO.builder()
+                .id(id)
+                .status(status)
+                .build();
+        updateById(admin);
+    }
+
+    /**
+     * 更新当前登录用户信息
+     *
+     * @param adminInfoREQ
+     */
+    @Override
+    public void updateInfo(AdminInfoREQ adminInfoREQ) {
+        AdminEO admin = AdminEO.builder()
+                .id(adminInfoREQ.getId())
+                .username(adminInfoREQ.getUsername())
+                .nickname(adminInfoREQ.getNickname())
+                .phone(adminInfoREQ.getPhone())
+                .avatar(adminInfoREQ.getAvatar())
+                .affiliatedSite(adminInfoREQ.getAffiliatedSite())
+                .permissionLevel(adminInfoREQ.getPermissionLevel())
+                .build();
+        updateById(admin);
     }
 }

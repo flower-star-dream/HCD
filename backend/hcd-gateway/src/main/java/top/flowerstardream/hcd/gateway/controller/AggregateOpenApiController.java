@@ -1,4 +1,4 @@
-package top.flowerstardream.hcd.hcdgateway.controller;
+package top.flowerstardream.hcd.gateway.controller;
 
 import cn.hutool.json.JSONObject;
 import lombok.RequiredArgsConstructor;
