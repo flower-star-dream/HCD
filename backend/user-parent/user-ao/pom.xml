@@ -21,6 +21,10 @@
     <description>用户服务AO模块 - 存放DTO对象</description>
     <dependencies>
 
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

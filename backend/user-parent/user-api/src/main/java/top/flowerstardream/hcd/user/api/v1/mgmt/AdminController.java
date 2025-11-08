@@ -4,11 +4,18 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+
 import org.springframework.web.bind.annotation.*;
-import top.flowerstardream.hcd.base.ao.req.StartOrStopREQ;
+
+import reactor.core.publisher.Mono;
+
 import top.flowerstardream.hcd.tools.result.Result;
 import top.flowerstardream.hcd.user.ao.req.LoginREQ;
-import top.flowerstardream.hcd.user.ao.req.AdminInfoREQ;
 import top.flowerstardream.hcd.user.ao.res.LoginRES;
 import top.flowerstardream.hcd.user.biz.service.IAdminService;
 import top.flowerstardream.hcd.user.bo.eo.AdminEO;
@@ -35,50 +42,28 @@ public class AdminController {
      */
     @PostMapping("/login")
     @Operation(summary = "管理员登录", description = "管理员登录")
-    public Result<LoginRES> login(@RequestBody LoginREQ loginREQ) {
+<<<<<<< HEAD
         log.info("管理员登录：{}", loginREQ);
         LoginRES loginRES = IAdminService.login(loginREQ);
-        return Result.successResult(loginRES);
+=======
+    public Mono<Result<LoginRES>> login(@RequestBody LoginREQ loginREQ) {
+        log.info("管理员登录：{}", loginREQ);
+        LoginRES loginRES = IAdminService.login(loginREQ);
+        return Mono.just(Result.successResult(loginRES));
+>>>>>>> 7194a667e73e05f6f820be501adf75d935dc6a3c
     }
 
     /**
-     * 获取当前登录管理员信息
+     * 获取当前登录用户信息
      *
      * @return
      */
-    @GetMapping("/info")
-    @Operation(summary = "获取当前登录管理员信息", description = "获取当前登录管理员信息")
-    public Result<AdminEO> getInfo() {
-        log.info("获取当前登录管理员信息");
-        AdminEO adminEO = IAdminService.getInfo();
-        return Result.successResult(adminEO);
+    @GetMapping("/info/{id}")
+    @Operation(summary = "获取当前登录用户信息", description = "获取当前登录用户信息")
+    public Mono<Result<AdminEO>> getInfo(@PathVariable("id") Long id) {
+        AdminEO adminEO = IAdminService.getInfo(id);
+        return Mono.just(Result.successResult(adminEO));
     }
-
-    /**
-     * 更新当前登录管理员信息
-     *
-     * @return
-     */
-    @PutMapping("/info")
-    @Operation(summary = "更新当前登录管理员信息", description = "更新当前登录管理员信息")
-    public Result<AdminEO> updateInfo(@RequestBody AdminInfoREQ adminInfoREQ) {
-        IAdminService.updateInfo(adminInfoREQ);
-        return Result.successResult();
-    }
-
-    /**
-     * 启用禁用管理员账号
-     * @param startOrStopREQ
-     * @return
-     */
-    @PostMapping("/status")
-    @Operation(summary = "启用禁用管理员账号", description = "启用禁用管理员账号")
-    public Result<String> startOrStop(@RequestBody StartOrStopREQ startOrStopREQ){
-        log.info("启用禁用管理员账号：{}，{}", startOrStopREQ.getStatus(), startOrStopREQ.getId());
-        IAdminService.startOrStop(startOrStopREQ.getStatus(), startOrStopREQ.getId());
-        return Result.successResult();
-    }
-
 
     /**
      * 退出
@@ -87,10 +72,12 @@ public class AdminController {
      */
     @PostMapping("/logout")
     @Operation(summary = "管理员登出", description = "管理员登出")
-    public Result<Void> logout() {
-        log.info("管理员登出");
-        IAdminService.logout();
-        return Result.successResult();
+<<<<<<< HEAD
+=======
+    public Mono<Result<String>> logout() {
+        return Mono.just(Result.successResult());
+>>>>>>> 7194a667e73e05f6f820be501adf75d935dc6a3c
     }
+
 
 }

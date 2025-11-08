@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/hcd-tools/hcd-tools.iml" filepath="$PROJECT_DIR$/hcd-tools/hcd-tools.iml" />
+      <module fileurl="file://$PROJECT_DIR$/user-parent/user-ao/user-ao.iml" filepath="$PROJECT_DIR$/user-parent/user-ao/user-ao.iml" />
+      <module fileurl="file://$PROJECT_DIR$/user-parent/user-biz/user-biz.iml" filepath="$PROJECT_DIR$/user-parent/user-biz/user-biz.iml" />
+      <module fileurl="file://$PROJECT_DIR$/user-parent/user-bo/user-bo.iml" filepath="$PROJECT_DIR$/user-parent/user-bo/user-bo.iml" />
+    </modules>
+  </component>
+</project>
