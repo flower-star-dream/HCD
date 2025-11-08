@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 /**
  * @Author: 花海
  * @Date: 2025/11/04/17:21
- * @Description:
+ * @Description: 网关响应写入工具类
  */
 public final class ResponseWriter {
     private static final ObjectMapper MAPPER = new ObjectMapper();

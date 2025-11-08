@@ -32,7 +32,7 @@ export const updateUserInfoService = (data: Partial<T.UserInfo>): Promise<T.ApiR
  * @param params 分页查询参数
  * @returns 用户分页列表
  */
-export const getUserListService = (params: T.PageQuery): Promise<T.PageResult<T.UserInfo>> => {
+export const getUserListService = (params: T.PageQuery): Promise<T.PageResult<T.UserList>> => {
   return userRequest.get('/list', { params })
 }
 
@@ -41,7 +41,7 @@ export const getUserListService = (params: T.PageQuery): Promise<T.PageResult<T.
  * @param data 用户信息
  * @returns 创建响应
  */
-export const createUserService = (data: Partial<T.UserInfo>): Promise<T.ApiResponse> => {
+export const createUserService = (data: Partial<T.User>): Promise<T.ApiResponse> => {
   return userRequest.post('/', data)
 }
 
@@ -51,17 +51,17 @@ export const createUserService = (data: Partial<T.UserInfo>): Promise<T.ApiRespo
  * @param data 用户信息
  * @returns 更新响应
  */
-export const updateUserService = (id: number, data: Partial<T.UserInfo>): Promise<T.ApiResponse> => {
-  return userRequest.put(`/${id}`, data)
+export const updateUserService = (data: Partial<T.User>): Promise<T.ApiResponse> => {
+  return userRequest.put(`/`, data)
 }
 
 /**
  * 删除用户
- * @param id 用户ID
+ * @param ids 用户ID列表
  * @returns 删除响应
  */
-export const deleteUserService = (id: number): Promise<T.ApiResponse> => {
-  return userRequest.delete(`/${id}`)
+export const deleteUserService = (ids: string[]): Promise<T.ApiResponse> => {
+  return userRequest.delete(`/${ids}`)
 }
 
 /** 

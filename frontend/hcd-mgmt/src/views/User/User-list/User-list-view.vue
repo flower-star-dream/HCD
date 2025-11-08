@@ -33,8 +33,8 @@
 
     <!-- 自定义状态列 -->
     <template #column-status="{ row }">
-      <el-tag :type="row.status === 'enabled' ? 'success' : 'danger'" size="small">
-        {{ row.status === 'enabled' ? '已启用' : '已禁用' }}
+      <el-tag :type="getStatusTagType(row.status)" size="small">
+        {{ getStatusText(row.status) }}
       </el-tag>
     </template>
 
@@ -46,7 +46,7 @@
     <!-- 自定义操作列 -->
     <template #column-action="{ row }">
       <el-button type="primary" text size="small" @click="handleEdit(row)">编辑</el-button>
-      <el-button type="primary" text size="small" @click="handleStatusChange(row)">{{ row.status === 'disabled' ? '启用' : '禁用' }}</el-button>
+      <el-button type="primary" text size="small" @click="handleStatusChange(row)" :disabled="disabledStatusChange(row)">{{ row.status === USER_STATUS.DISABLED ? '启用' : '禁用' }}</el-button>
       <el-button type="danger" text size="small" @click="handleDelete(row)">删除</el-button>
     </template>
   </ListPage>
@@ -54,8 +54,34 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { getUserListService } from '@/api/user'
+import { getUserListService, updateUserService, deleteUserService, createUserService } from '@/api/user'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { useUserStore } from '@/stores'
+
+const userStore = useUserStore()
+const userInfo = computed(() => userStore.userInfo)
+
+// 用户状态枚举常量
+const USER_STATUS = {
+  ENABLED: 1,
+  DISABLED: 0,
+  // 获取状态文本
+  getText: (status) => {
+    const statusMap = {
+      [USER_STATUS.ENABLED]: '已启用',
+      [USER_STATUS.DISABLED]: '已禁用'
+    }
+    return statusMap[status] || '未知状态'
+  },
+  // 获取状态标签类型
+  getTagType: (status) => {
+    const typeMap = {
+      [USER_STATUS.ENABLED]: 'success',
+      [USER_STATUS.DISABLED]: 'danger'
+    }
+    return typeMap[status] || 'info'
+  }
+}
 
 // 响应式数据
 const userList = ref([])
@@ -98,14 +124,8 @@ const tabs = computed(() => [
 // 表格列配置
 const tableColumns = [
   {
-    prop: 'status',
-    label: '状态',
-    width: 100,
-    align: 'center'
-  },
-  {
     prop: 'id',
-    label: 'ID',
+    label: '管理员编号',
     width: 80,
     align: 'center'
   },
@@ -116,33 +136,58 @@ const tableColumns = [
     align: 'center'
   },
   {
-    prop: 'email',
-    label: '邮箱',
-    minWidth: 180,
+    prop: 'nickname',
+    label: '昵称',
+    minWidth: 120,
+    align: 'center'
+  },
+  {
+    prop: 'phone',
+    label: '手机号',
+    minWidth: 120,
+    align: 'center',
     showOverflowTooltip: true
   },
   {
-    prop: 'createdAt',
+    prop: 'affiliatedSite',
+    label: '所属站点',
+    minWidth: 120,
+    align: 'center'
+  },
+  {
+    prop: 'permissionLevel',
+    label: '权限等级',
+    minWidth: 120,
+    align: 'center'
+  },
+  {
+    prop: 'createTime',
     label: '创建时间',
     minWidth: 150,
     align: 'center'
   },
   {
-    prop: 'updatedAt',
+    prop: 'updateTime',
     label: '更新时间',
     minWidth: 150,
     align: 'center'
   },
   {
-    prop: 'createdBy',
+    prop: 'createPerson',
     label: '创建人',
     minWidth: 150,
     align: 'center'
   },
   {
-    prop: 'updatedBy',
+    prop: 'updatePerson',
     label: '更新人',
     minWidth: 150,
+    align: 'center'
+  },
+  {
+    prop: 'status',
+    label: '状态',
+    width: 100,
     align: 'center'
   },
   {
@@ -164,11 +209,23 @@ const searchFields = [
     clearable: true
   },
   {
-    prop: 'email',
-    label: '邮箱',
+    prop: 'phone',
+    label: '手机号',
     type: 'input',
-    placeholder: '请输入邮箱',
+    placeholder: '请输入手机号',
     clearable: true
+  },
+  {
+    prop: 'permissionLevel',
+    label: '权限等级',
+    type: 'select',
+    placeholder: '请选择权限等级',
+    clearable: true,
+    options: [
+      { label: '普通用户', value: '用户' },
+      { label: '管理员', value: '管理员' },
+      { label: '超级管理员', value: '超级管理员' },
+    ]
   }
 ]
 
@@ -202,27 +259,19 @@ const formatDate = (date) => {
 const fetchUserList = async (searchParams = {}) => {
   loading.value = true
   try {
-    // 模拟API调用延迟
-    await new Promise(resolve => setTimeout(resolve, 500))
-    
-    // 模拟数据，实际项目中应从接口获取
-    const mockData = generateMockData()
-    // 先按状态筛选
-    let filteredData = filterDataByStatus(mockData)
-    // 再按搜索参数筛选
-    if (searchParams) {
-      filteredData = filteredData.filter(item => {
-        // 用户名搜索
-        if (searchParams.username && !item.username.includes(searchParams.username)) {
-          return false
-        }
-        // 邮箱搜索
-        if (searchParams.email && !item.email.includes(searchParams.email)) {
-          return false
-        }
-        return true
-      })
+
+    const params = {
+      page: currentPage.value,
+      pageSize: pageSize.value,
+      ...searchParams
     }
+    
+    // API调用
+    const response = await getUserListService(params)
+    const data = response.records
+    
+    // 按状态筛选
+    let filteredData = filterDataByStatus(data)
     
     // 模拟分页
     const start = (currentPage.value - 1) * pageSize.value
@@ -233,9 +282,8 @@ const fetchUserList = async (searchParams = {}) => {
     total.value = filteredData.length
     
     // 更新状态数量统计
-    updateStatusCounts(mockData)
+    updateStatusCounts(data)
   } catch (error) {
-    ElMessage.error('获取用户列表失败：' + (error.message || '未知错误'))
     userList.value = []
     total.value = 0
     
@@ -251,27 +299,6 @@ const fetchUserList = async (searchParams = {}) => {
 }
 
 /**
- * 生成模拟用户数据
- * @returns {Array} 模拟用户列表
- */
-const generateMockData = () => {
-  const mockUsers = []
-  const totalCount = 50
-  
-  for (let i = 1; i <= totalCount; i++) {
-    mockUsers.push({
-      id: i,
-      username: `user${i}`,
-      email: `user${i}@example.com`,
-      createdAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
-      status: i % 5 === 0 ? 'disabled' : 'enabled' // 模拟有部分禁用的用户
-    })
-  }
-  
-  return mockUsers
-}
-
-/**
  * 根据状态筛选数据
  * @param {Array} data - 原始数据
  * @returns {Array} 筛选后的数据
@@ -280,7 +307,14 @@ const filterDataByStatus = (data) => {
   if (statusFilter.value === 'all') {
     return data
   }
-  return data.filter(item => item.status === statusFilter.value)
+  // 根据筛选条件返回对应状态的数据
+  if (statusFilter.value === 'enabled') {
+    return data.filter(item => item.status === USER_STATUS.ENABLED)
+  }
+  if (statusFilter.value === 'disabled') {
+    return data.filter(item => item.status === USER_STATUS.DISABLED)
+  }
+  return data
 }
 
 /**
@@ -288,14 +322,32 @@ const filterDataByStatus = (data) => {
  * @param {Array} list - 用户列表数据
  */
 const updateStatusCounts = (list) => {
-  const enabledCount = list.filter(item => item.status === 'enabled').length
-  const disabledCount = list.filter(item => item.status === 'disabled').length
+  const enabledCount = list.filter(item => item.status === USER_STATUS.ENABLED).length
+  const disabledCount = list.filter(item => item.status === USER_STATUS.DISABLED).length
   
   statusCounts.value = {
     all: list.length,
     enabled: enabledCount,
     disabled: disabledCount
   }
+}
+
+/**
+ * 获取状态文本
+ * @param {number} status - 状态值
+ * @returns {string} 状态文本
+ */
+const getStatusText = (status) => {
+  return USER_STATUS.getText(status)
+}
+
+/**
+ * 获取状态标签类型
+ * @param {number} status - 状态值
+ * @returns {string} 标签类型
+ */
+const getStatusTagType = (status) => {
+  return USER_STATUS.getTagType(status)
 }
 
 /**
@@ -412,6 +464,23 @@ const handleEdit = (row) => {
  */
 const handleStatusChange = async (row) => {
   // TODO: 调用切换状态接口
+}
+
+/**
+ * 判断是否禁用状态切换
+ * @param {Object} row - 用户数据
+ * @returns {boolean} 是否禁用状态切换
+ */
+const disabledStatusChange = (row) => {
+  if (row.affiliatedSite === '超级管理员') {
+    return true
+  } else if (userInfo.affiliatedSite === '成员') {
+    return false
+  } else if (userInfo.id === row.id) {
+    return true
+  } else {
+    return true
+  }
 }
 
 /**
