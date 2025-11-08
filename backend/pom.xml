@@ -27,10 +27,9 @@
         <springdoc.version>2.3.0</springdoc.version>
         <mybatis-plus.version>3.5.5</mybatis-plus.version>
         <mybatis-spring.version>3.0.3</mybatis-spring.version>
-<<<<<<< HEAD
-=======
+
         <rocketmq.version>5.1.4</rocketmq.version>
->>>>>>> 7194a667e73e05f6f820be501adf75d935dc6a3c
+
         <lombok.version>1.18.30</lombok.version>
         <logback.version>1.4.11</logback.version>
         <netty.version>4.1.118.Final</netty.version>
@@ -128,14 +127,13 @@
                         <artifactId>mybatis-spring</artifactId>
                     </exclusion>
                 </exclusions>
-<<<<<<< HEAD
+
             </dependency>
             <dependency>
                 <groupId>org.mybatis</groupId>
                 <artifactId>mybatis-spring</artifactId>
                 <version>${mybatis-spring.version}</version>
-=======
->>>>>>> 7194a667e73e05f6f820be501adf75d935dc6a3c
+
             </dependency>
             <dependency>
                 <groupId>org.mybatis</groupId>

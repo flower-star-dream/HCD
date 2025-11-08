@@ -1,0 +1,33 @@
+package top.flowerstardream.hcd.bo.eo;
+
+
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import top.flowerstardream.hcd.base.bo.eo.BaseEO;
+
+import java.util.Date;
+
+@Data
+@EqualsAndHashCode(callSuper = true)
+@TableName("hcd_train")
+public class trainEO extends BaseEO {
+
+    // 路线id
+    @TableField("id")
+    private Long id;
+
+    // 列车型号
+    @TableField("train_model")
+    private String trainModel;
+
+    // 座位数
+    @TableField("seat_num")
+    private Integer seatNum;
+
+    // 服务年数
+    @TableField("service_years")
+    private Integer serviceYears;
+
+}
