@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.stereotype.Component;
 import top.flowerstardream.hcd.tools.interfaces.IdGenerator;
+import top.flowerstardream.hcd.tools.utils.TtlContextHolder;
 
 import java.time.LocalDateTime;
 

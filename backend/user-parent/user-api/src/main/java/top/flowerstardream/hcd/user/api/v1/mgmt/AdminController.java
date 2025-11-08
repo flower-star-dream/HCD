@@ -6,12 +6,17 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import top.flowerstardream.hcd.base.ao.req.StartOrStopREQ;
+import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.tools.result.Result;
+import top.flowerstardream.hcd.user.ao.req.AdminPageQueryREQ;
+import top.flowerstardream.hcd.user.ao.req.AdminREQ;
 import top.flowerstardream.hcd.user.ao.req.LoginREQ;
 import top.flowerstardream.hcd.user.ao.req.AdminInfoREQ;
 import top.flowerstardream.hcd.user.ao.res.LoginRES;
 import top.flowerstardream.hcd.user.biz.service.IAdminService;
 import top.flowerstardream.hcd.user.bo.eo.AdminEO;
+
+import java.util.List;
 
 /**
  * @Author: 花海
@@ -62,9 +67,62 @@ public class AdminController {
     @PutMapping("/info")
     @Operation(summary = "更新当前登录管理员信息", description = "更新当前登录管理员信息")
     public Result<AdminEO> updateInfo(@RequestBody AdminInfoREQ adminInfoREQ) {
+        log.info("更新当前登录管理员信息：{}", adminInfoREQ);
         IAdminService.updateInfo(adminInfoREQ);
         return Result.successResult();
     }
+
+    /**
+     * 获取管理员列表
+     *
+     * @return
+     */
+    @GetMapping("/list")
+    @Operation(summary = "获取管理员列表", description = "获取管理员列表")
+    public Result<PageResult<AdminEO>> list(AdminPageQueryREQ adminPageQueryREQ) {
+        log.info("获取管理员列表");
+        return Result.successResult(IAdminService.list(adminPageQueryREQ));
+    }
+
+    /**
+     * 新增管理员账号
+     * @param
+     * @return
+     */
+    @PostMapping
+    @Operation(summary = "新增管理员账号", description = "新增管理员账号")
+    public Result<String> add(@RequestBody AdminREQ adminREQ) {
+        log.info("新增管理员账号：{}", adminREQ);
+        IAdminService.add(adminREQ);
+        return Result.successResult();
+    }
+
+    /**
+     * 修改管理员账号
+     * @param
+     * @return
+     */
+    @PutMapping
+    @Operation(summary = "修改管理员账号", description = "修改管理员账号")
+    public Result<String> update(@RequestBody AdminREQ adminREQ) {
+        log.info("修改管理员账号：{}", adminREQ);
+        IAdminService.update(adminREQ);
+        return Result.successResult();
+    }
+
+    /**
+     * 批量删除管理员账号
+     * @param ids
+     * @return
+     */
+    @DeleteMapping("/{ids}")
+    @Operation(summary = "删除管理员账号", description = "删除管理员账号")
+    public Result<String> delete(@PathVariable List<Long> ids){
+        log.info("删除管理员账号：{}", ids);
+        IAdminService.delete(ids);
+        return Result.successResult();
+    }
+
 
     /**
      * 启用禁用管理员账号

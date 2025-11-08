@@ -1,9 +1,14 @@
 package top.flowerstardream.hcd.user.biz.service;
 
+import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.user.ao.req.AdminInfoREQ;
+import top.flowerstardream.hcd.user.ao.req.AdminPageQueryREQ;
+import top.flowerstardream.hcd.user.ao.req.AdminREQ;
 import top.flowerstardream.hcd.user.ao.req.LoginREQ;
 import top.flowerstardream.hcd.user.ao.res.LoginRES;
 import top.flowerstardream.hcd.user.bo.eo.AdminEO;
+
+import java.util.List;
 
 /**
  * @Author: 花海
@@ -43,4 +48,29 @@ public interface IAdminService {
      * @param adminInfoREQ
      */
     void updateInfo(AdminInfoREQ adminInfoREQ);
+
+    /**
+     * 获取管理员列表
+     * @param adminPageQueryREQ
+     * @return
+     */
+    PageResult<AdminEO> list(AdminPageQueryREQ adminPageQueryREQ);
+
+    /**
+     * 批量删除管理员
+     * @param ids
+     */
+    void delete(List<Long> ids);
+
+    /**
+     * 新增管理员账号
+     * @param adminREQ
+     */
+    void add(AdminREQ adminREQ);
+
+    /**
+     * 修改管理员账号
+     * @param adminREQ
+     */
+    void update(AdminREQ adminREQ);
 }

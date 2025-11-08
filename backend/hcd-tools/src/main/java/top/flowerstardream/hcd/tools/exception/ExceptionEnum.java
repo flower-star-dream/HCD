@@ -14,6 +14,7 @@ public enum ExceptionEnum {
     SUCCESS(200, "操作成功"),
     ERROR(500, "操作失败"),
     PARAM_ERROR(400, "参数错误"),
+    THE_QUERY_PARAMETER_CANNOT_BE_EMPTY(400, "查询参数不能为空"),
     UNAUTHORIZED(401, "未认证"),
     FORBIDDEN(403, "当前用户无权限"),
     NOT_FOUND(404, "资源不存在"),
@@ -36,6 +37,7 @@ public enum ExceptionEnum {
     FAILED_FILE_DELETE(70003, "文件删除失败"),
     THE_CONTENT_OF_THE_FILE_IS_EMPTY(70004, "文件内容为空"),
     USER_NOT_EXIST(10001, "用户不存在"),
+    USER_ALREADY_EXISTS(10002, "用户已存在"),
     USER_PASSWORD_ERROR(10002, "用户名或密码错误");
 
     private final Integer code;
