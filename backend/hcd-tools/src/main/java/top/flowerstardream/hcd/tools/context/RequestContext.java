@@ -11,5 +11,6 @@ import lombok.Data;
 public class RequestContext {
     private String traceId;
     private Long tenantId;
+    private String tenantName;
     private String token;
 }

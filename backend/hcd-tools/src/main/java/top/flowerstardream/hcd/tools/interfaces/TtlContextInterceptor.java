@@ -47,13 +47,18 @@ public class TtlContextInterceptor implements HandlerInterceptor {
             Claims claims = JwtUtil.getClaimsBody(secret, token.substring(7));
             RequestContext ctx = new RequestContext();
             String tenantId = BizSide.ADMIN.equals(side) ? JwtClaimsConstant.ADMIN_ID : JwtClaimsConstant.USER_ID;
+            String tenantName = BizSide.ADMIN.equals(side) ? JwtClaimsConstant.ADMIN_NAME : JwtClaimsConstant.USER_NAME;
             String traceId = UUID.randomUUID().toString();
             ctx.setTraceId(traceId);
             MDC.put("traceId", traceId);
             if (claims != null) {
                 Long userId = claims.get(tenantId, Long.class);
+                String userName = claims.get(tenantName, String.class);
                 if (userId != null) {
                     ctx.setTenantId(userId);
+                }
+                if (userName != null) {
+                    ctx.setTenantName(userName);
                 }
             }
             ctx.setToken(token);
