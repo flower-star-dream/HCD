@@ -1,12 +1,19 @@
 <template>
+<<<<<<< HEAD:frontend/hcd-mgmt/src/pages/Login.vue
+  <view class="login-container">
+    <view class="login-form">
+      <view class="login-header">
+        <view class="logo">
+=======
   <div class="login-container">
     <div class="login-form">
       <div class="login-header">
         <div class="logo">
+>>>>>>> 7194a667e73e05f6f820be501adf75d935dc6a3c:frontend/hcd-mgmt/src/views/Login.vue
           <!-- <img src="/vite.svg" alt="logo" /> -->
           <h2>火车订票系统后台管理</h2>
-        </div>
-      </div>
+        </view>
+      </view>
 
       <el-form
         ref="loginFormRef"
@@ -46,8 +53,8 @@
           </el-button>
         </el-form-item>
       </el-form>
-    </div>
-  </div>
+    </view>
+  </view>
 </template>
 
 <script setup lang="ts">
