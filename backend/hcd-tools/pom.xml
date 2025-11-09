@@ -98,14 +98,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
-<<<<<<< HEAD
-=======
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
->>>>>>> 7194a667e73e05f6f820be501adf75d935dc6a3c
-
 
     </dependencies>
 

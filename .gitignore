@@ -16,11 +16,8 @@
 
 # 忽略所有 node_modules 目录下的编译输出
 frontend/**/node_modules/
-frontend/**/dist/
 frontend/**/package-lock.json
 backend/.idea/compiler.xml
 
 .claude
 package-lock.json
-frontend/hcd-mgmt/pnpm-lock.yaml
-frontend/hcd-mgmt/components.d.ts

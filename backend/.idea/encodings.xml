@@ -5,18 +5,18 @@
     <file url="file://$PROJECT_DIR$/hcd-base/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/hcd-tools/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/hcd-tools/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/order/payNotify-ao/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/order/payNotify-ao/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/order/payNotify-api/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/order/payNotify-api/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/order/payNotify-biz/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/order/payNotify-biz/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/order/payNotify-bo/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/order/payNotify-bo/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/order/payNotify-constant/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/order/payNotify-constant/src/main/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/order/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/order/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/order-parent/order-ao/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/order-parent/order-ao/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/order-parent/order-api/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/order-parent/order-api/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/order-parent/order-biz/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/order-parent/order-biz/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/order-parent/order-bo/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/order-parent/order-bo/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/order-parent/order-constant/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/order-parent/order-constant/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/order-parent/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/order-parent/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/system-parent/src/main/java" charset="UTF-8" />
