@@ -34,7 +34,6 @@ public class MyGatewayProperties {
             "/knife4j",
             "/knife4j/**"
     );
-    private String redisTokenPrefix = "";
 
     private List<AuthMatrix> authMatrix = new ArrayList<>();
 

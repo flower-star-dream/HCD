@@ -1,6 +1,0 @@
-// 导入全局样式文件，以便使用其中定义的占位符
-@import '@/styles/global.scss';
-
-.user-view {
-  @extend %center-layout;
-}

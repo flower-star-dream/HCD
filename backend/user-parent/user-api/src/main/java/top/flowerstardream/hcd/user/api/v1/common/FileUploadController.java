@@ -2,9 +2,11 @@ package top.flowerstardream.hcd.user.api.v1.common;
 
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.multipart.MultipartFile;
+import top.flowerstardream.hcd.tools.result.Result;
 import top.flowerstardream.hcd.tools.service.FileStorageService;
 import top.flowerstardream.hcd.tools.utils.FileServiceUtil;
 
@@ -25,10 +27,10 @@ public class FileUploadController {
     private FileStorageService fileStorageService;
 
     @PostMapping("/upload")
-    public String uploadFile(MultipartFile file) throws IOException {
+    public Result<String> uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
         String filename = FileServiceUtil.getFileName(file);
         InputStream inputStream = file.getInputStream();
-        return fileStorageService.uploadImgFile(prefix, filename, inputStream);
+        return Result.successResult(fileStorageService.uploadImgFile(prefix, filename, inputStream));
     }
 
 }

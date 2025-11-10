@@ -30,6 +30,7 @@
         <module>ticket-biz</module>
         <module>ticket-bo</module>
         <module>ticket-constant</module>
+        <module>ticket-boot</module>
     </modules>
 
     <dependencies>

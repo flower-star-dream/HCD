@@ -11,8 +11,17 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum PermissionLevel {
-    USER("用户"),
+    USER("成员"),
     ADMIN("管理员"),
     SUPER_ADMIN("超级管理员");
     private final String permission;
+
+    public static PermissionLevel getByPermission(String permission) {
+        for (PermissionLevel level : values()) {
+            if (level.getPermission().equals(permission)) {
+                return level;
+            }
+        }
+        return null;
+    }
 }
