@@ -2,7 +2,7 @@
   <div class="dashboard">
     <div class="dashboard-header">
       <h1>仪表盘</h1>
-      <p>欢迎来到火车订票系统后台管理</p>
+      <p>欢迎来到火车订票系统员工管理</p>
     </div>
 
     <div class="dashboard-stats">
@@ -16,8 +16,8 @@
                 </el-icon>
               </div>
               <div class="stat-info">
-                <div class="stat-number">{{ stats.userCount }}</div>
-                <div class="stat-label">总用户数</div>
+                <div class="stat-number">{{ stats.employeeCount }}</div>
+                <div class="stat-label">总员工数</div>
               </div>
             </div>
           </el-card>
@@ -88,7 +88,7 @@
           <el-card>
             <template #header>
               <div class="card-header">
-                <span>用户增长</span>
+                <span>员工增长</span>
               </div>
             </template>
             <div class="chart-container">
@@ -105,7 +105,7 @@
 import { reactive, onMounted } from 'vue'
 
 const stats = reactive({
-  userCount: 1234,
+  employeeCount: 1234,
   trainCount: 567,
   orderCount: 8901,
   stationCount: 234

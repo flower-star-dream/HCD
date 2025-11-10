@@ -1,16 +1,13 @@
 package top.flowerstardream.hcd.user.bo.eo;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import top.flowerstardream.hcd.base.bo.eo.BaseEO;
 
-import java.time.LocalDateTime;
 
 /**
  *
@@ -20,9 +17,13 @@ import java.time.LocalDateTime;
  */
 @Data
 @SuperBuilder
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @TableName("hcd_user")
 public class UserEO extends BaseEO {
+
+    @TableField("openid")
+    private String openid;
 
     // 用户名
     @TableField("username")
@@ -42,7 +43,7 @@ public class UserEO extends BaseEO {
 
     // 乘车人id
     @TableField("passenger_id")
-    private long passengerId ;
+    private Long passengerId ;
 
     // 状态
     @TableField("status")

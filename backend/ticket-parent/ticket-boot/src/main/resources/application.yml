@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: hcd-ticket
+  profiles:
+    active: dev
+  config:
+    import:
+      - nacos:${spring.application.name}
+      - nacos:hcd-common
+  cloud:
+    nacos:
+      server-addr: localhost:8847
+      username: nacos
+      password: nacos
+      config:
+        namespace: 8a19b7dd-7c6e-4a98-8bcf-b81ebd4aad2c
+        group: DEFAULT_GROUP
+        file-extension: yaml
+      discovery:
+        ip: 127.0.0.1
+        port: ${server.port}
+        namespace: 8a19b7dd-7c6e-4a98-8bcf-b81ebd4aad2c
+        group: DEFAULT_GROUP
+
+# 设置端口
+server:
+  port: 8083

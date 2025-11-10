@@ -1,5 +1,6 @@
 package top.flowerstardream.hcd.base.bo.eo;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -21,14 +22,16 @@ import java.time.LocalDateTime;
 @SuperBuilder
 @NoArgsConstructor
 public class BaseEO implements Serializable {
-    @TableId(value = "id", type = IdType.ASSIGN_UUID)
+//    @TableId(value = "id", type = IdType.INPUT)
+    @TableId(value = "id", type = IdType.ASSIGN_ID) //默认自增
+    @TableField(value = "id", fill = FieldFill.INSERT)
     protected Long id;
-    @TableField("create_time")
+    @TableField(value = "create_time", fill = FieldFill.INSERT)
     protected LocalDateTime createTime;
-    @TableField("update_time")
+    @TableField(value = "update_time", fill = FieldFill.INSERT_UPDATE)
     protected LocalDateTime updateTime;
-    @TableField("create_person")
+    @TableField(value = "create_person", fill = FieldFill.INSERT)
     protected String createPerson;
-    @TableField("update_person")
+    @TableField(value = "update_person", fill = FieldFill.INSERT_UPDATE)
     protected String updatePerson;
 }

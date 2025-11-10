@@ -93,7 +93,7 @@
     <div class="table-container">
       <!-- 动态生成的表格 -->
       <el-table
-        v-if="tableColumns && tableColumns.length > 0 && tableData"
+        v-if="tableColumns && tableColumns.length > 0 && tableData && tableData.length > 0"
         :data="tableData"
         style="width: 100%"
         :loading="loading"
@@ -143,6 +143,11 @@
           </el-table-column>
         </template>
       </el-table>
+      <!-- 数据为空时显示空状态 -->
+      <el-empty
+        v-else-if="tableColumns && tableColumns.length > 0 && (!tableData || tableData.length === 0)"
+        description="暂无数据"
+      />
       <!-- 通过插槽自定义的表格 -->
       <slot v-else></slot>
     </div>

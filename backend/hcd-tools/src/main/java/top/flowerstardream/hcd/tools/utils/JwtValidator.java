@@ -13,6 +13,7 @@ import top.flowerstardream.hcd.tools.properties.JwtProperties;
 import top.flowerstardream.hcd.tools.properties.MyGatewayProperties;
 
 import static org.apache.commons.lang3.StringUtils.*;
+import static top.flowerstardream.hcd.base.constant.RedisPrefixConstant.*;
 
 /**
  * @Author: 花海
@@ -38,8 +39,7 @@ public class JwtValidator {
     public ValidateResult validate(String tokenHeader,
                                    String bizSideHeader,
                                    JwtProperties prop,
-                                   StringRedisTemplate redis,
-                                   MyGatewayProperties gatewayProp) {
+                                   StringRedisTemplate redis) {
         // 1. 提取并校验 token
         if (isBlank(tokenHeader)) {
             return ValidateResult.builder().valid(false).msg("未认证").build();
@@ -59,15 +59,8 @@ public class JwtValidator {
             return ValidateResult.builder().valid(false).msg("非法biz_side参数").build();
         }
 
-        // 3. Redis 存在性
-        String redisKey = gatewayProp.getRedisTokenPrefix() + rawToken;
-        String redisToken = redis.opsForValue().get(redisKey);
-        if (isBlank(redisToken)) {
-            return ValidateResult.builder().valid(false).msg("Token未找到").build();
-        }
-
-        // 4. 解析 JWT
-        String secret = side == BizSide.ADMIN ? prop.getAdminSecretKey() : prop.getUserSecretKey();
+        // 3. 解析 JWT
+        String secret = side == BizSide.ADMIN ? prop.getEmployeeSecretKey() : prop.getUserSecretKey();
         Claims claims;
         try {
             claims = JwtUtil.getClaimsBody(secret, rawToken);
@@ -76,15 +69,15 @@ public class JwtValidator {
             return ValidateResult.builder().valid(false).msg("Token无效").build();
         }
         int verify = JwtUtil.verifyToken(claims, side == BizSide.ADMIN
-                ? prop.getAdminRefreshTime()
+                ? prop.getEmployeeRefreshTime()
                 : prop.getUserRefreshTime());
         if (verify != -1 && verify != 0) {
             return ValidateResult.builder().valid(false).msg("Token过期").build();
         }
 
-        // 5. 取 userId
+        // 4. 取 userId
         String idClaim = side == BizSide.ADMIN
-                ? JwtClaimsConstant.ADMIN_ID
+                ? JwtClaimsConstant.EMPLOYEE_ID
                 : JwtClaimsConstant.USER_ID;
         Long userId = null;
         if (claims != null) {
@@ -102,12 +95,22 @@ public class JwtValidator {
             return ValidateResult.builder().valid(false).msg("Token无效").build();
         }
 
+        // 5. Redis 存在性
+        String tokenPrefix = side == BizSide.ADMIN
+                ? EMPLOYEE_TOKEN_PREFIX
+                : USER_TOKEN_PREFIX;
+        String redisKey = tokenPrefix + userId;
+        String redisToken = redis.opsForValue().get(redisKey);
+        if (isBlank(redisToken)) {
+            return ValidateResult.builder().valid(false).msg("Token未找到").build();
+        }
+
         // 6. 取权限
         String permStr = claims.get(JwtClaimsConstant.PERMISSION_LEVEL) != null
         ? claims.get(JwtClaimsConstant.PERMISSION_LEVEL).toString()
         : null;
         PermissionLevel perm = (permStr != null && !permStr.isEmpty())
-                ? PermissionLevel.valueOf(permStr)
+                ? PermissionLevel.getByPermission(permStr)
                 : PermissionLevel.USER;  // 默认最低权限
         return ValidateResult.builder().valid(true).side(side).userId(userId).permissionLevel(perm).token(rawToken).build();
     }
