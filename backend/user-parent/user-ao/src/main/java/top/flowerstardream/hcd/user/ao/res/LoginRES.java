@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class LoginRES {
 
-    @Schema(description = "管理员id")
+    @Schema(description = "员工id")
     private Long id;
 
     @Schema(description = "用户名")

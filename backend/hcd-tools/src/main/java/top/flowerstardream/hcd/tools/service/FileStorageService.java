@@ -3,7 +3,9 @@ package top.flowerstardream.hcd.tools.service;
 import java.io.InputStream;
 
 /**
- * @author itheima
+ * @author 花海
+ * @date 2025/11/01 21:37
+ * @description 文件存储服务
  */
 public interface FileStorageService {
 

@@ -25,4 +25,7 @@ export interface StartOrStopForm {
   status: number
 }
 
+export * from './employee'
+export * from './train'
 export * from './user'
+export * from './passenger'

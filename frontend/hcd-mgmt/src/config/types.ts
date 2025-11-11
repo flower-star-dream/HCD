@@ -79,7 +79,7 @@ export interface RouteMeta {
   affix?: boolean
 }
 
-// 用户信息类型
+// 员工信息类型
 export interface UserInfo {
   id: string | number
   username: string

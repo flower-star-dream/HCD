@@ -14,8 +14,9 @@
     "paths": {
       "@/*": ["src/*"]
     },
-    "types": ["vite/client", "./shime-vue", "node"]
+    "types": ["vite/client", "./shime-vue", "node"],
+    "skipLibCheck": true
   },
-  "include": ["src/**/*", "src/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }

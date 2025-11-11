@@ -19,9 +19,9 @@
           active-text-color="#409EFF"
           unique-opened
         >
-          <!-- 菜单列表 - 按原始顺序渲染 -->
+          <!-- 菜单列表 - 支持三级菜单结构 -->
           <template v-for="item in menuList" :key="item.path">
-            <!-- 带children的菜单项 -->
+            <!-- 一级菜单 - 带children的菜单项 -->
             <el-sub-menu
               v-if="item.children?.length && item.children.length > 0"
               :index="item.path"
@@ -32,19 +32,48 @@
                 </el-icon>
                 <span>{{ item.title }}</span>
               </template>
-              <el-menu-item
-                v-for="child in item.children"
-                :key="child.path"
-                :index="child.path"
-              >
-                <el-icon v-if="child.icon">
-                  <component :is="isCustomIcon(child.icon)" />
-                </el-icon>
-                <span>{{ child.title }}</span>
-              </el-menu-item>
+              
+              <!-- 二级菜单 - 递归渲染 -->
+              <template v-for="child in item.children" :key="child.path">
+                <!-- 二级菜单 - 带children的菜单项(即三级菜单) -->
+                <el-sub-menu
+                  v-if="child.children?.length && child.children.length > 0"
+                  :index="child.path"
+                >
+                  <template #title>
+                    <el-icon v-if="child.icon">
+                      <component :is="isCustomIcon(child.icon)" />
+                    </el-icon>
+                    <span>{{ child.title }}</span>
+                  </template>
+                  
+                  <!-- 三级菜单 - 最终菜单项 -->
+                  <el-menu-item
+                    v-for="grandchild in child.children"
+                    :key="grandchild.path"
+                    :index="grandchild.path"
+                  >
+                    <el-icon v-if="grandchild.icon">
+                      <component :is="isCustomIcon(grandchild.icon)" />
+                    </el-icon>
+                    <span>{{ grandchild.title }}</span>
+                  </el-menu-item>
+                </el-sub-menu>
+                
+                <!-- 二级菜单 - 无子菜单的菜单项 -->
+                <el-menu-item
+                  v-else
+                  :index="child.path"
+                >
+                  <el-icon v-if="child.icon">
+                    <component :is="isCustomIcon(child.icon)" />
+                  </el-icon>
+                  <span>{{ child.title }}</span>
+                </el-menu-item>
+              </template>
             </el-sub-menu>
             
-            <!-- 无子菜单的菜单项 -->
+            <!-- 一级菜单 - 无子菜单的菜单项 -->
             <el-menu-item
               v-else
               :index="item.path"
@@ -72,14 +101,15 @@
 
           <div class="header-right">
             <el-dropdown @command="handleCommand">
-              <span class="user-info">
-                <el-avatar :size="32" :src="userInfo?.avatar" />
-                <span class="username">{{ userInfo?.nickname || userInfo?.username }}</span>
+              <span class="employee-info">
+                <el-avatar :size="32" :src="employeeInfo?.avatar" />
+                <span class="username">{{ employeeInfo?.nickname || employeeInfo?.username }}</span>
                 <el-icon class="el-icon--right"><arrow-down /></el-icon>
               </span>
               <template #dropdown>
                 <el-dropdown-menu>
                   <el-dropdown-item command="profile">个人中心</el-dropdown-item>
+                  <el-dropdown-item command="resetPassword">重置密码</el-dropdown-item>
                   <el-dropdown-item divided command="logout">退出登录</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
@@ -99,14 +129,14 @@
 import { computed, onMounted, defineAsyncComponent, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { useUserStore, useAppStore, ossUrl } from '@/stores'
-import { getUserInfoService } from '@/api/user'
+import { useEmployeeStore, useAppStore, ossUrl } from '@/stores'
+import { getEmployeeInfoService } from '@/api/employee'
+import type { EmployeeInfo } from '@/types/employee'
 
 const router = useRouter()
-const userStore = useUserStore()
+const employeeStore = useEmployeeStore()
 const appStore = useAppStore()
-
-const userInfo = computed(() => userStore.userInfo)
+const employeeInfo = computed(() => (employeeStore.employeeInfo || {}) as EmployeeInfo)
 const sidebarCollapsed = computed(() => appStore.sidebarCollapsed)
 const menuList = computed(() => appStore.menuList)
 
@@ -132,7 +162,10 @@ const handleCommand = (command: string) => {
       handleLogout()
       break
     case 'profile':
-      router.push('/profile')
+      router.push('/employee/profile')
+      break
+    case 'resetPassword':
+      router.push('/employee/resetPassword')
       break
   }
 }
@@ -143,7 +176,7 @@ const handleLogout = () => {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(() => {
-    userStore.logoutAction()
+    employeeStore.logoutAction()
     router.push('/login')
     ElMessage.success('已退出登录')
   }).catch(() => {
@@ -152,16 +185,16 @@ const handleLogout = () => {
 }
 
 onMounted(async () => {
-    // 确保userInfo和id都存在时才获取用户详情
+    // 确保employeeInfo和id都存在时才获取用户详情
     try {
       if (isFirstLoad.value) {
-        let res = await getUserInfoService()
-        userStore.setUserInfo(res)
+        let res = await getEmployeeInfoService()
+        employeeStore.setEmployeeInfo(res)
         isFirstLoad.value = false
       }
     } catch (error) {
-        console.error('获取用户信息失败:', error)
-        ElMessage.error('获取用户信息失败，请重新登录')
+        console.error('获取员工信息失败:', error)
+        ElMessage.error('获取员工信息失败，请重新登录')
     }
 })
 </script>
@@ -236,7 +269,7 @@ onMounted(async () => {
   align-items: center;
 }
 
-.user-info {
+.employee-info {
   display: flex;
   align-items: center;
   cursor: pointer;
@@ -245,7 +278,7 @@ onMounted(async () => {
   transition: background-color 0.3s;
 }
 
-.user-info:hover {
+.employee-info:hover {
   background-color: #f5f5f5;
 }
 

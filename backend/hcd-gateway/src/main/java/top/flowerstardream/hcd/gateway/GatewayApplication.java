@@ -15,7 +15,8 @@ import org.springframework.context.annotation.ComponentScan;
         "top.flowerstardream.hcd.tools.result",
         "top.flowerstardream.hcd.tools.utils",
         "top.flowerstardream.hcd.tools.exception",
-        "top.flowerstardream.hcd.tools.constant"
+        "top.flowerstardream.hcd.tools.constant",
+        "top.flowerstardream.hcd.gateway"
     }
 )
 public class GatewayApplication {

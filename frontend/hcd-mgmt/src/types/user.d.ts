@@ -1,60 +1,32 @@
-import { StringDecoder } from "node:string_decoder"
+// 用户相关类型定义
 
-// 用户登录表单数据结构
-export interface LoginForm {
-  username: string
-  phone: string
-  password: string
-}
-
-// 登录响应数据结构
-export interface LoginResponse {
-  token: string
-  id: string
-  username: string
-}
-
-// 当前用户信息数据结构
-export interface UserInfo {
-  id: string
-  username: string
-  nickname: string
-  phone: string
-  avatar: string
-  affiliatedSite: string
-  permissionLevel: string
-}
-
-// 用户信息数据结构
+/**
+ * 用户基本信息
+ */
 export interface User {
   id: string
+  openid: string
   username: string
-  nickname: string
-  password: string
+  avatar: string
+  email: string
   phone: string
-  affiliatedSite: string
-  permissionLevel: StringDecoder
-}
-
-// 用户列表数据结构
-export interface UserList {
-  id: string
-  username: string
-  nickname: string
-  phone: string
-  affiliatedSite: string
-  permissionLevel: string
+  passengerId: string
+  status: number
   createdTime: string
   updatedTime: string
   createdPerson: string
   updatedPerson: string
-  status: number
 }
 
-// 重置密码表单数据结构
-export interface ResetPasswordForm {
-  oldPassword: string
-  newPassword: string
-  confirmPassword: string
-}
+/**
+ * 用户列表项
+ */
+export interface UserList extends User {}
 
+/**
+ * 用户分页查询参数
+ */
+export interface UserPageQueryREQ extends PageQuery {
+  username?: string
+  phone?: string
+}

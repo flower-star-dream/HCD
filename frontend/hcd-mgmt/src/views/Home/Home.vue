@@ -26,7 +26,7 @@
           </div>
           <div class="action-card" @click="navigateTo('/users')">
             <div class="action-icon">👥</div>
-            <div class="action-text">用户管理</div>
+            <div class="action-text">员工管理</div>
           </div>
           <div class="action-card" @click="navigateTo('/trains')">
             <div class="action-icon">🚆</div>
@@ -45,14 +45,14 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { useUserStore } from '@/stores/user'
+import { useEmployeeStore } from '@/stores/employee'
 
 const router = useRouter()
-const userStore = useUserStore()
+const employeeStore = useEmployeeStore()
 const currentTime = ref('')
 
-// 获取用户信息
-const userInfo = computed(() => userStore.userInfo)
+// 获取员工信息
+const userInfo = computed(() => employeeStore.employeeInfo)
 
 // 格式化当前时间
 const formatTime = () => {
@@ -83,7 +83,6 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
-// 使用@use替代弃用的@import规则
 @use '@/styles/global.scss';
 
 .home {

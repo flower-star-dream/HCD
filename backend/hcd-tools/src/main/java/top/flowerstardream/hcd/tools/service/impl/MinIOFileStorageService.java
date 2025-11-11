@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import top.flowerstardream.hcd.tools.config.MinIOConfig;
-import top.flowerstardream.hcd.tools.properties.MinIOConfigProperties;
+import top.flowerstardream.hcd.tools.properties.MinioProperties;
 import top.flowerstardream.hcd.tools.service.FileStorageService;
 
 import java.io.ByteArrayOutputStream;
@@ -22,7 +22,7 @@ import static top.flowerstardream.hcd.tools.exception.ExceptionEnum.FAILED_FILE_
 
 @Service
 @Slf4j
-@EnableConfigurationProperties(MinIOConfigProperties.class)
+@EnableConfigurationProperties(MinioProperties.class)
 @Import(MinIOConfig.class)
 public class MinIOFileStorageService implements FileStorageService {
 
@@ -30,7 +30,7 @@ public class MinIOFileStorageService implements FileStorageService {
     private MinioClient minioClient;
 
     @Resource
-    private MinIOConfigProperties minIOConfigProperties;
+    private MinioProperties minioProperties;
 
     private final static String separator = "/";
 
@@ -88,11 +88,11 @@ public class MinIOFileStorageService implements FileStorageService {
             PutObjectArgs putObjectArgs = PutObjectArgs.builder()
                     .object(filePath)
                     .contentType(getContentType(filename))
-                    .bucket(minIOConfigProperties.getBucket()).stream(inputStream,inputStream.available(),-1)
+                    .bucket(minioProperties.getBucket()).stream(inputStream,inputStream.available(),-1)
                     .build();
             minioClient.putObject(putObjectArgs);
-            StringBuilder urlPath = new StringBuilder(minIOConfigProperties.getEndpoint());
-            urlPath.append(separator).append(minIOConfigProperties.getBucket());
+            StringBuilder urlPath = new StringBuilder(minioProperties.getEndpoint());
+            urlPath.append(separator).append(minioProperties.getBucket());
             urlPath.append(separator);
             urlPath.append(filePath);
             return urlPath.toString();
@@ -109,7 +109,7 @@ public class MinIOFileStorageService implements FileStorageService {
      */
     @Override
     public void delete(String pathUrl) {
-        String key = pathUrl.replace(minIOConfigProperties.getEndpoint()+"/","");
+        String key = pathUrl.replace(minioProperties.getEndpoint()+"/","");
         int index = key.indexOf(separator);
         String bucket = key.substring(0,index);
         String filePath = key.substring(index+1);
@@ -132,12 +132,12 @@ public class MinIOFileStorageService implements FileStorageService {
      */
     @Override
     public byte[] downLoadFile(String pathUrl)  {
-        String key = pathUrl.replace(minIOConfigProperties.getEndpoint()+"/","");
+        String key = pathUrl.replace(minioProperties.getEndpoint()+"/","");
         int index = key.indexOf(separator);
         String filePath = key.substring(index+1);
         InputStream inputStream = null;
         try {
-            inputStream = minioClient.getObject(GetObjectArgs.builder().bucket(minIOConfigProperties.getBucket()).object(filePath).build());
+            inputStream = minioClient.getObject(GetObjectArgs.builder().bucket(minioProperties.getBucket()).object(filePath).build());
         } catch (Exception e) {
             log.error("Minio 下载文件错误.  pathUrl:{}",pathUrl);
             log.error("Minio异常:",e);
