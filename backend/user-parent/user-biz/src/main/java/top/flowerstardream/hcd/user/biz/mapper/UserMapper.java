@@ -2,6 +2,7 @@ package top.flowerstardream.hcd.user.biz.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
 import top.flowerstardream.hcd.user.bo.eo.UserEO;
 
 /**
@@ -12,4 +13,12 @@ import top.flowerstardream.hcd.user.bo.eo.UserEO;
 @Mapper
 public interface UserMapper extends BaseMapper<UserEO> {
 
+    /**
+     * 根据openid查询用户信息
+     *
+     * @param openid
+     * @return
+     */
+    @Select("select * from hcd_user where openid = #{openid}")
+    UserEO getByOpenId(String openid);
 }

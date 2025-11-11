@@ -64,6 +64,31 @@ const routes: RouteRecordRaw[] = [
       //   meta: { title: '订单管理', icon: 'Tickets' }
       // },
       {
+        path: '/employee',
+        name: 'Employee',
+        meta: { title: '员工管理', icon: 'Employee' },
+        children: [
+          {
+            path: '/employee/list',
+            name: 'EmployeeList',
+            component: () => import('@/views/Employee/Employee-list-view/Employee-list-view.vue'),
+            meta: { title: '员工列表' }
+          },
+          {
+            path: '/employee/profile',
+            name: 'Profile',
+            component: () => import('@/views/Employee/Employee-info-view/Employee-info-view.vue'),
+            meta: { title: '个人信息'}
+          },
+          {
+            path: '/employee/resetPassword',
+            name: 'ResetPassword',
+            component: () => import('@/views/Employee/Employee-resetPwd-view/Employee-resetPwd-view.vue'),
+            meta: { title: '重置密码'}
+          }
+        ]
+      },
+      {
         path: '/user',
         name: 'User',
         meta: { title: '用户管理', icon: 'User' },
@@ -71,11 +96,24 @@ const routes: RouteRecordRaw[] = [
           {
             path: '/user/list',
             name: 'UserList',
-            component: () => import('@/views/User/User-list/User-list-view.vue'),
+            component: () => import('@/views/User/User-list-view/User-list-view.vue'),
             meta: { title: '用户列表' }
           }
         ]
       },
+      {
+        path: '/passenger',
+        name: 'Passenger',
+        meta: { title: '乘车人管理', icon: 'User' },
+        children: [
+          {
+            path: '/passenger/list',
+            name: 'PassengerList',
+            component: () => import('@/views/Passenger/Passenger-list-view/Passenger-list-view.vue'),
+            meta: { title: '乘车人列表' }
+          }
+        ]
+      }
       // {
       //   path: '/station',
       //   name: 'Station',
@@ -83,12 +121,7 @@ const routes: RouteRecordRaw[] = [
 >>>>>>> 7194a667e73e05f6f820be501adf75d935dc6a3c
       //   meta: { title: '站点管理', icon: 'Location' }
       // },
-      {
-        path: '/profile',
-        name: 'Profile',
-        component: () => import('@/views/User/User-info/User-info-view.vue'),
-        meta: { title: '个人信息', icon: 'User' }
-      }
+      
     ]
   },
   {

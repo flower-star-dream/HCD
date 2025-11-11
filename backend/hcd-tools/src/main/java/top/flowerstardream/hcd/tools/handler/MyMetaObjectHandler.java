@@ -2,24 +2,25 @@ package top.flowerstardream.hcd.tools.handler;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.stereotype.Component;
-import top.flowerstardream.hcd.tools.interfaces.IdGenerator;
-import top.flowerstardream.hcd.tools.utils.TtlContextHolder;
 
 import java.time.LocalDateTime;
+
+import static top.flowerstardream.hcd.tools.utils.GetInfoUtil.getTenantName;
+import static top.flowerstardream.hcd.tools.utils.GetInfoUtil.getTraceId;
 
 /**
  * @Author: 花海
  * @Date: 2025/10/31/19:00
- * @Description: id生成器插入处理
+ * @Description: 字段自动填充处理
  */
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class MyMetaObjectHandler implements MetaObjectHandler {
 
-    private final IdGenerator idGenerator;
-    private final String idFieldName = "id";
     private final String createTimeFieldName = "createTime";
     private final String updateTimeFieldName = "updateTime";
     private final String createPersonFieldName = "createPerson";
@@ -27,43 +28,31 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
 
     @Override
     public void insertFill(MetaObject metaObject) {
-        if (metaObject.getValue(idFieldName) == null) {
-            // 判断是否存在 id 字段，并根据类型填充
-            if (hasFieldOfType(metaObject, Long.class)) {
-                long id = idGenerator.nextId();
-                this.strictInsertFill(metaObject, idFieldName, Long.class, id);
-            } else if (hasFieldOfType(metaObject, String.class)) {
-                String id = idGenerator.generateId().toString();
-                this.strictInsertFill(metaObject, idFieldName, String.class, id);
-            }
-        }
+        log.info("【id生成器：插入字段自动填充】traceId:{}, 插入填充：{}", getTraceId(), metaObject);
         this.strictInsertFill(metaObject, createTimeFieldName, LocalDateTime.class, LocalDateTime.now());
         this.strictInsertFill(metaObject, updateTimeFieldName, LocalDateTime.class, LocalDateTime.now());
+        String createPerson = getTenantName();
+        if (createPerson == null) {
+            createPerson = "system";
+        }
         if (metaObject.getValue(createPersonFieldName) == null) {
-            this.strictInsertFill(metaObject, createPersonFieldName, String.class, "system");
+            this.strictInsertFill(metaObject, createPersonFieldName, String.class, createPerson);
         }
         if (metaObject.getValue(updatePersonFieldName) == null) {
-            this.strictInsertFill(metaObject, updatePersonFieldName, String.class, "system");
-        }
-    }
-
-    /**
-     * 检查指定字段是否存在且为特定类型
-     */
-    private boolean hasFieldOfType(MetaObject metaObject, Class<?> targetType) {
-        try {
-            Object value = metaObject.getValue(idFieldName);
-            return value == null || targetType.isInstance(value);
-        } catch (Exception e) {
-            return false;
+            this.strictInsertFill(metaObject, updatePersonFieldName, String.class, createPerson);
         }
     }
 
     @Override
     public void updateFill(MetaObject metaObject) {
+        log.info("【更新字段自动填充】traceId:{}, 更新填充：{}", getTraceId(), metaObject);
+        String updatePerson = getTenantName();
+        if (updatePerson == null) {
+            updatePerson = "system";
+        }
         this.strictUpdateFill(metaObject, updateTimeFieldName, LocalDateTime.class, LocalDateTime.now());
         if (metaObject.getValue(updatePersonFieldName) == null) {
-            this.strictUpdateFill(metaObject, updatePersonFieldName, String.class, "system");
+            this.strictUpdateFill(metaObject, updatePersonFieldName, String.class, updatePerson);
         }
     }
 }

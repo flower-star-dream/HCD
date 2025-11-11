@@ -34,20 +34,39 @@ const responseInterceptor = (response: AxiosResponse<ApiResponse>) => {
   if (code === 200) {
     return data
   } else {
-    ElMessage.error(message || '请求失败')
-    return Promise.reject(new Error(message || '请求失败'))
+    // 不在这里显示错误信息，而是将错误传递给错误拦截器统一处理
+    // 创建一个包含原始响应信息的错误对象
+    const error = new Error(message || '请求失败')
+    ;(error as any).response = response
+    return Promise.reject(error)
   }
 }
 
 // 错误响应拦截器
 const errorResponseInterceptor = (error: any) => {
+  // 处理401未授权错误
   if (error.response?.status === 401) {
     localStorage.removeItem('token')
     window.location.href = '/login'
     ElMessage.error('登录已过期，请重新登录')
   } else {
-    ElMessage.error(error.response?.data?.message || '网络错误')
+    // 从错误对象中提取错误信息
+    // 优先从响应体中获取message字段，适用于后端返回的500错误等情况
+    const errorMessage = (error.response?.data?.message) || 
+                        error.message || 
+                        '网络错误'
+    
+    // 显示错误信息
+    ElMessage.error(errorMessage)
   }
+  
+  // 确保错误对象中包含完整的响应体信息
+  if (error.response && error.response.data) {
+    // 将响应体数据附加到错误对象上，方便调用者查看
+    (error as any).responseBody = error.response.data
+  }
+  
+  // 继续传递错误，让调用者能够捕获并处理
   return Promise.reject(error)
 }
 
