@@ -1,15 +1,16 @@
-package top.flowerstardream.hcd.trainSeat.ao.DTO;
+package top.flowerstardream.hcd.trainSeat.ao.PQREQ;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
-/**
- * @Author: QAQ
- * @Date: 2025/11/09/23:00
- * @Description: 班次数据传输对象
- */
+import lombok.*;
+import top.flowerstardream.hcd.base.ao.req.BasePageQueryREQ;
+
 @Data
-@Schema(description = "班次数据传输对象")
-public class ScheduleDTO {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@Schema(description = "班次分页查询请求")
+public class SchedulePageQueryREQ extends BasePageQueryREQ {
 
     @Schema(description = "班次号")
     private Long id;
@@ -28,7 +29,5 @@ public class ScheduleDTO {
 
     @Schema(description = "结束时间")
     private String endTime;
-
-
 
 }

@@ -30,4 +30,9 @@ public class ScheduleRES {
     @Schema(description = "列车长")
     private String conductor;
 
+    @Schema(description = "出发时间")
+    private String startTime;
+
+    @Schema(description = "到达时间")
+    private String endTime;
 }

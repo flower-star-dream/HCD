@@ -12,10 +12,6 @@ import top.flowerstardream.hcd.base.bo.eo.BaseEO;
 @TableName("hcd_schedule")
 public class ScheduleEO extends BaseEO {
 
-    // 班次号
-    @TableField("id")
-    private Long id;
-
     // 列车号
     @TableField("train_id")
     private Long trainId;
@@ -28,6 +24,17 @@ public class ScheduleEO extends BaseEO {
     @TableField("conductor")
     private String conductor;
 
+    // 余票
+    @TableField("availing_tickets")
+    private Integer availingTickets;
+
+    // 始发站
+    @TableField("start_time")
+    private String startTime;
+
+    // 终点站
+    @TableField("end_time")
+    private String endTime;
 
 
 }

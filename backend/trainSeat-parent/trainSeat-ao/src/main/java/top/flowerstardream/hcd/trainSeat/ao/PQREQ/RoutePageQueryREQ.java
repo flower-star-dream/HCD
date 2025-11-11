@@ -21,7 +21,8 @@ import top.flowerstardream.hcd.base.ao.req.BasePageQueryREQ;
 @Schema(description = "路线分页查询请求")
 public class RoutePageQueryREQ extends BasePageQueryREQ {
 
-
+    @Schema(description = "路线号")
+    private Long id;
 
     @Schema(description = "路线名")
     private String routeName;
@@ -31,4 +32,7 @@ public class RoutePageQueryREQ extends BasePageQueryREQ {
 
     @Schema(description = "终点站")
     private String endStation;
+
+    @Schema(description = "站点数")
+    private Integer stationCount;
 }

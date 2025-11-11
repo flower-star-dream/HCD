@@ -17,10 +17,6 @@ import top.flowerstardream.hcd.base.bo.eo.BaseEO;
 @TableName("hcd_route")
 public class RouteEO extends BaseEO {
 
-    // 路线id
-    @TableField("id")
-    private Long id;
-
     // 路线名称
     @TableField("route_name")
     private String routeName;

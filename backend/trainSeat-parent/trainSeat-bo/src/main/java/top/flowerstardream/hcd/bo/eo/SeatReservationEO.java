@@ -11,9 +11,6 @@ import top.flowerstardream.hcd.base.bo.eo.BaseEO;
 @TableName("hcd_seat_reservation")
 public class SeatReservationEO extends BaseEO {
 
-    // 座位预订号
-    @TableField("id")
-    private Long id;
 
     // 班次号
     @TableField("schedule_id")

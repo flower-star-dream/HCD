@@ -1,7 +1,6 @@
 package top.flowerstardream.hcd.trainSeat.biz.service;
 
 
-import top.flowerstardream.hcd.bo.eo.RouteEO;
 import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.trainSeat.ao.PQREQ.RoutePageQueryREQ;
 import top.flowerstardream.hcd.trainSeat.ao.REQ.RouteREQ;
@@ -32,22 +31,16 @@ public interface IRouteService  {
      */
     void update(RouteREQ routeREQ);
 
-    /**
-     * 获取路线信息
-     * @param id
-     * @return
-     */
-    RouteEO get(Long id);
 
     /**
-     * 获取路线信息
-     * @param id
-     * @return
+     * 分页查询路线列表（通用）
+     *
+     * @param routePageQueryREQ 查询条件
+     * @return 路线查询分页结果
      */
-    RouteRES getInfo(Long id);
+    PageResult<RouteRES> list(RoutePageQueryREQ routePageQueryREQ);
 
-    PageResult<RouteEO> list(RoutePageQueryREQ routePageQueryREQ);
+    
 
-    PageResult<RouteRES> list();
 
 }

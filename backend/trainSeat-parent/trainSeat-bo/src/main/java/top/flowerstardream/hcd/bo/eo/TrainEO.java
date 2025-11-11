@@ -12,10 +12,6 @@ import top.flowerstardream.hcd.base.bo.eo.BaseEO;
 @TableName("hcd_train")
 public class TrainEO extends BaseEO {
 
-    // 列车id
-    @TableField("id")
-    private Long id;
-
     // 列车名称
     @TableField("train_name")
     private String trainName;

@@ -12,10 +12,6 @@ import top.flowerstardream.hcd.base.bo.eo.BaseEO;
 @TableName("hcd_station")
 public class StationEO extends BaseEO {
 
-    // 站点id
-    @TableField("id")
-    private Long id;
-
     // 站点名称
     @TableField("station_name")
     private String stationName;

@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "路线站点返回参数")
-public class RouteStationRES {
+public class RouteStationsRES {
 
     @Schema(description = "路线站点号")
     private Long id;

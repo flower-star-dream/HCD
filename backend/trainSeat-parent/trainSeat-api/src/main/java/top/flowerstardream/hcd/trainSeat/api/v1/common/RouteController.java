@@ -1,4 +1,4 @@
-package top.flowerstardream.hcd.trainSeat.api.v1.app;
+package top.flowerstardream.hcd.trainSeat.api.v1.common;
 
 /**
  * Created with IntelliJ IDEA.
