@@ -10,15 +10,15 @@ import top.flowerstardream.hcd.base.bo.eo.BaseEO;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("hcd_station")
-public class stationEO extends BaseEO {
+public class StationEO extends BaseEO {
 
     // 站点id
     @TableField("id")
     private Long id;
 
     // 站点名称
-    @TableField("name")
-    private String name;
+    @TableField("station_name")
+    private String stationName;
 
     // 站点地址
     @TableField("address")

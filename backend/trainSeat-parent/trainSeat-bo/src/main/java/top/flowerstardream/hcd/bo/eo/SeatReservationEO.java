@@ -6,12 +6,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import top.flowerstardream.hcd.base.bo.eo.BaseEO;
 
-import java.util.Date;
-
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("hcd_seat_reservation")
-public class seatReservationEO extends BaseEO {
+public class SeatReservationEO extends BaseEO {
 
     // 座位预订号
     @TableField("id")

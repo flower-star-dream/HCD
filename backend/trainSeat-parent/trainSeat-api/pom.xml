@@ -31,6 +31,10 @@
             <artifactId>trainSeat-bo</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>top.flowerstardream.hcd</groupId>
+            <artifactId>trainSeat-biz</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

@@ -1,30 +1,33 @@
 package top.flowerstardream.hcd.bo.eo;
 
-
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import top.flowerstardream.hcd.base.bo.eo.BaseEO;
 
-import java.util.Date;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("hcd_route_stations")
-public class routeStationsEO extends BaseEO {
+@TableName("hcd_schedule")
+public class ScheduleEO extends BaseEO {
 
-    // 路线id
+    // 班次号
+    @TableField("id")
+    private Long id;
+
+    // 列车号
+    @TableField("train_id")
+    private Long trainId;
+
+    // 路线号
     @TableField("route_id")
     private Long routeId;
 
-    // 站点id
-    @TableField("station_id")
-    private Long stationId;
+    // 列车长
+    @TableField("conductor")
+    private String conductor;
 
-    // 站点排序
-    @TableField("station_sorting")
-    private Integer stationSorting;
 
 
 }

@@ -7,16 +7,18 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import top.flowerstardream.hcd.base.bo.eo.BaseEO;
 
-import java.util.Date;
-
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("hcd_train")
-public class trainEO extends BaseEO {
+public class TrainEO extends BaseEO {
 
-    // 路线id
+    // 列车id
     @TableField("id")
     private Long id;
+
+    // 列车名称
+    @TableField("train_name")
+    private String trainName;
 
     // 列车型号
     @TableField("train_model")

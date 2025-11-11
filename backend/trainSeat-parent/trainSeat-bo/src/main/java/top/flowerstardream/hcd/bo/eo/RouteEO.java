@@ -3,12 +3,9 @@ package top.flowerstardream.hcd.bo.eo;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import top.flowerstardream.hcd.base.bo.eo.BaseEO;
-
-import java.util.Date;
 
 /**
  * @Author: QAQ
@@ -18,11 +15,15 @@ import java.util.Date;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @TableName("hcd_route")
-public class routeEO extends BaseEO {
+public class RouteEO extends BaseEO {
 
     // 路线id
     @TableField("id")
     private Long id;
+
+    // 路线名称
+    @TableField("route_name")
+    private String routeName;
 
     // 起点站
     @TableField("start_station")

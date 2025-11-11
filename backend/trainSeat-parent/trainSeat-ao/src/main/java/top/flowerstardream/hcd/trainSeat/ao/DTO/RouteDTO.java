@@ -1,10 +1,7 @@
-package top.flowerstardream.hcd.trainSeat.ao.dto;
+package top.flowerstardream.hcd.trainSeat.ao.DTO;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 /**
@@ -15,10 +12,13 @@ import lombok.Data;
  */
 @Data
 @Schema(description = "路线数据传输对象")
-public class routeDTO {
+public class RouteDTO {
 
     @Schema(description = "路线id")
     private Long id;
+
+    @Schema(description = "路线名")
+    private String routeName;
 
     @Schema(description = "起点站")
     private String startStation;

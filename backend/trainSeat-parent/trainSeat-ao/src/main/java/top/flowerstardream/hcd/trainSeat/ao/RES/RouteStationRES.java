@@ -1,4 +1,4 @@
-package top.flowerstardream.hcd.trainSeat.ao.req;
+package top.flowerstardream.hcd.trainSeat.ao.RES;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -6,19 +6,18 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 /**
  * @Author: QAQ
- * @Date: 2025/11/06/23:00
- * @Description: 路线请求
+ * @Date: 2025/11/09/23:00
+ * @Description: 路线站点返回参数
  */
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "路线请求")
-public class routeStationREQ {
+@Schema(description = "路线站点返回参数")
+public class RouteStationRES {
 
     @Schema(description = "路线站点号")
     private Long id;
