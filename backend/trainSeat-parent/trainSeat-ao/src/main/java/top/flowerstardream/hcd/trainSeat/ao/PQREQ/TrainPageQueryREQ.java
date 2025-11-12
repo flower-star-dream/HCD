@@ -10,7 +10,7 @@ import top.flowerstardream.hcd.base.ao.req.BasePageQueryREQ;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Schema(description = "列车分页查询请求")
-public class TrainPageQueryERQ extends BasePageQueryREQ {
+public class TrainPageQueryREQ extends BasePageQueryREQ {
 
     @Schema(description = "列车号")
     private Long id;

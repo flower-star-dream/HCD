@@ -1,10 +1,11 @@
 package top.flowerstardream.hcd.trainSeat.biz.service;
 
 
+import top.flowerstardream.hcd.bo.eo.RouteEO;
 import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.trainSeat.ao.PQREQ.RoutePageQueryREQ;
 import top.flowerstardream.hcd.trainSeat.ao.REQ.RouteREQ;
-import top.flowerstardream.hcd.trainSeat.ao.RES.RouteRES;
+
 
 import java.util.List;
 
@@ -19,17 +20,17 @@ public interface IRouteService  {
      * 新增路线
      * @param routeREQ
      */
-    void add(RouteREQ routeREQ);
+    void addRoute(RouteREQ routeREQ);
     /**
      * 批量删除路线
      * @param ids
      */
-    void delete(List<Long> ids);
+    void deleteRoute(List<Long> ids);
     /**
      * 修改路线
      * @param routeREQ
      */
-    void update(RouteREQ routeREQ);
+    void updateRoute(RouteREQ routeREQ);
 
 
     /**
@@ -38,7 +39,7 @@ public interface IRouteService  {
      * @param routePageQueryREQ 查询条件
      * @return 路线查询分页结果
      */
-    PageResult<RouteRES> list(RoutePageQueryREQ routePageQueryREQ);
+    PageResult<RouteEO> PageQuery(RoutePageQueryREQ routePageQueryREQ);
 
     
 

@@ -23,7 +23,7 @@ public class RouteEO extends BaseEO {
 
     // 起点站
     @TableField("start_station")
-    private String startingStation;
+    private String startStation;
 
     // 终点站
     @TableField("end_station")

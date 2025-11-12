@@ -28,7 +28,7 @@ public class RoutePageQueryREQ extends BasePageQueryREQ {
     private String routeName;
 
     @Schema(description = "起点站")
-    private String startingStation;
+    private String startStation;
 
     @Schema(description = "终点站")
     private String endStation;
