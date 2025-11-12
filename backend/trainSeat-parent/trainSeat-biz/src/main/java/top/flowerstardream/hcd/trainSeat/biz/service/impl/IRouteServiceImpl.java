@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import kotlin.jvm.internal.Lambda;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.Route;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import top.flowerstardream.hcd.bo.eo.RouteEO;
@@ -19,8 +20,7 @@ import top.flowerstardream.hcd.trainSeat.biz.service.IRouteService;
 
 import java.util.List;
 
-import static top.flowerstardream.hcd.tools.exception.ExceptionEnum.PARAM_ERROR;
-import static top.flowerstardream.hcd.tools.exception.ExceptionEnum.THE_QUERY_PARAMETER_CANNOT_BE_EMPTY;
+import static top.flowerstardream.hcd.tools.exception.ExceptionEnum.*;
 
 /**
  * @Author: QAQ
@@ -48,9 +48,9 @@ public class IRouteServiceImpl extends ServiceImpl<RouteMapper, RouteEO> impleme
             THE_QUERY_PARAMETER_CANNOT_BE_EMPTY.throwException();
         }
 
-        //判断是否存在
-        RouteEO routeEO = self.getOne(Wrappers.<RouteEO>lambdaQuery()
-                .eq(RouteEO::getRouteName, routeREQ.getRouteName()));
+        //判断路线存在
+        validateRouteIsExist(routeREQ.getRouteName());
+
 
     }
 
@@ -103,9 +103,20 @@ public class IRouteServiceImpl extends ServiceImpl<RouteMapper, RouteEO> impleme
         return pageResult;
     }
 
-    private void validateRouteIsNotEmpty(RouteEO routeEO) {
+
+
+    //查询路线
+    private RouteEO getRoute(String routeName) {
+        LambdaQueryWrapper<RouteEO> queryWrapper = Wrappers.lambdaQuery();
+        queryWrapper.eq(RouteEO::getRouteName, routeName);
+        return routeMapper.selectOne(queryWrapper);
+    }
+    //校验路线是否存在
+    private void validateRouteIsExist(String routeName) {
+        RouteEO routeEO = getRoute(routeName);
         if (routeEO == null) {
-            PARAM_ERROR.throwException();
+            INSERTION_FAILED.throwException();
         }
+
     }
 }
