@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 /**
  * 微信登录请求
  *
@@ -18,7 +20,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "微信登录请求")
-public class WechatLoginREQ {
+public class WechatLoginREQ implements Serializable {
 
     @Schema(description = "微信登录code")
     @NotBlank(message = "微信code不能为空")

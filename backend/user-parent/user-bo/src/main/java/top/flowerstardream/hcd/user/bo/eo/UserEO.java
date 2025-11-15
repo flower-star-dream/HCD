@@ -6,7 +6,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import top.flowerstardream.hcd.base.bo.eo.BaseEO;
+import top.flowerstardream.hcd.base.bo.BaseEO;
+
+import java.io.Serializable;
 
 
 /**
@@ -20,7 +22,7 @@ import top.flowerstardream.hcd.base.bo.eo.BaseEO;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @TableName("hcd_user")
-public class UserEO extends BaseEO {
+public class UserEO extends BaseEO implements Serializable {
 
     @TableField("openid")
     private String openid;

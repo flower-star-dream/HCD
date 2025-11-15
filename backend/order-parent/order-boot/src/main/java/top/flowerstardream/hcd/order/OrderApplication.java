@@ -1,0 +1,35 @@
+package top.flowerstardream.hcd.order;
+
+import lombok.extern.slf4j.Slf4j;
+import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+/**
+ * @Author: 花海
+ * @Date: 2025/11/11/21:12
+ * @Description:
+ */
+@SpringBootApplication(scanBasePackages = {
+        "top.flowerstardream.hcd.order",
+        "top.flowerstardream.hcd.tools",
+        "top.flowerstardream.hcd.base"
+})
+@EnableDiscoveryClient //开启服务注册与发现
+@EnableFeignClients
+@EnableTransactionManagement //开启注解方式的事务管理
+@EnableScheduling //开启注解方式的定时任务
+@EnableCaching //开启注解方式的缓存管理
+@Slf4j
+@MapperScan("top.flowerstardream.hcd.order.biz.mapper")
+public class OrderApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(OrderApplication.class, args);
+        log.info("order server started");
+    }
+}

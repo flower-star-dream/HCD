@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 /**
  * 用户信息请求
  *
@@ -17,7 +19,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "用户信息请求")
-public class UserInfoREQ {
+public class UserInfoREQ implements Serializable {
 
     @Schema(description = "用户ID")
     private Long userId;

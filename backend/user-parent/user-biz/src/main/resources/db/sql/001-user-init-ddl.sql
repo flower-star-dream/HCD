@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS `hcd_passenger` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='hcd_乘车人';
 
 CREATE TABLE IF NOT EXISTS hcd_user_passenger(
-    `id` BIGINT NOT NULL COMMENT '乘车人id',
+    `id` BIGINT NOT NULL COMMENT '用户乘车人映射id',
     `user_id` BIGINT NOT NULL COMMENT '用户id',
     `passenger_id` BIGINT NOT NULL COMMENT '乘车人id',
     `create_time` DATETIME NOT NULL COMMENT '创建时间',

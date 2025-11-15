@@ -24,12 +24,14 @@
         <dependency>
             <groupId>top.flowerstardream.hcd</groupId>
             <artifactId>ticket-ao</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>top.flowerstardream.hcd</groupId>
             <artifactId>ticket-bo</artifactId>
-            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>top.flowerstardream.hcd</groupId>
+            <artifactId>ticket-biz</artifactId>
         </dependency>
     </dependencies>
 

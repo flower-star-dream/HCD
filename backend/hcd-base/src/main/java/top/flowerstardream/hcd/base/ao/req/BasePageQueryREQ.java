@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serializable;
+
 /**
  * @Author: 花海
  * @Date: 2025/11/08/15:01
@@ -15,12 +17,12 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class BasePageQueryREQ{
+public class BasePageQueryREQ implements Serializable {
 
     @Schema(description = "页码")
-    private int page;
+    protected int page;
 
     @Schema(description = "每页显示记录数")
-    private int pageSize;
+    protected int pageSize;
 
 }

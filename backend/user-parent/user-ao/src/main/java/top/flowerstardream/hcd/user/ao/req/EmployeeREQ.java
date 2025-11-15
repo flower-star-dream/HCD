@@ -3,6 +3,8 @@ package top.flowerstardream.hcd.user.ao.req;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.io.Serializable;
+
 import static top.flowerstardream.hcd.base.constant.StatusConstant.DISABLE;
 
 /**
@@ -15,7 +17,7 @@ import static top.flowerstardream.hcd.base.constant.StatusConstant.DISABLE;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "员工新增/修改请求")
-public class EmployeeREQ {
+public class EmployeeREQ implements Serializable {
     @Schema(description = "员工ID")
     private Long id;
 

@@ -19,7 +19,7 @@ import top.flowerstardream.hcd.tools.utils.JwtUtil;
 import top.flowerstardream.hcd.tools.utils.TtlContextHolder;
 import top.flowerstardream.hcd.tools.utils.WhiteListUtil;
 
-import static top.flowerstardream.hcd.tools.utils.GetInfoUtil.getTraceId;
+import static top.flowerstardream.hcd.base.constant.CommonConstant.*;
 
 /**
  * @Author: 花海
@@ -29,8 +29,6 @@ import static top.flowerstardream.hcd.tools.utils.GetInfoUtil.getTraceId;
 @Component
 @Slf4j
 public class TtlContextInterceptor implements HandlerInterceptor {
-
-    private final String bizSide = "biz_side";
 
     @Resource
     private JwtProperties jwtProperties;
@@ -44,7 +42,7 @@ public class TtlContextInterceptor implements HandlerInterceptor {
                              Object handler) {
         // 1. 创建TTL上下文, 设置traceId
         RequestContext ctx = new RequestContext();
-        String traceId = request.getHeader("X-Trace-Id");
+        String traceId = request.getHeader(TRACE_ID);
         log.info("【TTL拦截器】traceId: {}", traceId);
         if (traceId == null) {
             log.warn("【TTL拦截器】traceId为空, 创建traceId");
@@ -52,7 +50,23 @@ public class TtlContextInterceptor implements HandlerInterceptor {
         }
         ctx.setTraceId(traceId);
         MDC.put("traceId", traceId);
-        // 2. 跳过白名单
+        // 2. 获取业务端，判断是否OpenFeign调用，是则直接放行
+        String bizSideHeader = request.getHeader(BIZ_SIDE);
+        BizSide side = BizSide.valueOf(bizSideHeader.toUpperCase());
+        if (BizSide.SYSTEM.equals(side)) {
+            String tenantId = request.getHeader(TENANT_ID);
+            if (tenantId != null) {
+                ctx.setTenantId(Long.parseLong(tenantId));
+            }
+            String tenantName = request.getHeader(TENANT_NAME);
+            if (tenantName != null) {
+                ctx.setTenantName(tenantName);
+            }
+            TtlContextHolder.set(ctx);
+            return true;
+        }
+
+        // 3. 跳过白名单
         String path = request.getRequestURI();
         if (WhiteListUtil.shouldSkip(path, myGatewayProperties.getWhiteList())
                 || "OPTIONS".equalsIgnoreCase(request.getMethod())) {
@@ -60,15 +74,13 @@ public class TtlContextInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        // 3. 获取token
-        String token = request.getHeader("Authorization");
-        String bizSideHeader = request.getHeader(bizSide);
-        BizSide side = BizSide.valueOf(bizSideHeader.toUpperCase());
+        // 4. 获取token
+        String token = request.getHeader(AUTHORIZATION);
         String secret = BizSide.ADMIN.equals(side) ? jwtProperties.getEmployeeSecretKey() : jwtProperties.getUserSecretKey();
-        // 4. 解析token
-        if (token != null && token.startsWith("Bearer ")) {
+        // 5. 解析token
+        if (token != null && token.startsWith(TOKEN_HEADER)) {
             Claims claims = JwtUtil.getClaimsBody(secret, token.substring(7));
-            // 5. 封装TTL上下文
+            // 6. 封装TTL上下文
             String tenantId = BizSide.ADMIN.equals(side) ? JwtClaimsConstant.EMPLOYEE_ID : JwtClaimsConstant.USER_ID;
             String tenantName = BizSide.ADMIN.equals(side) ? JwtClaimsConstant.EMPLOYEE_NAME : JwtClaimsConstant.USER_NAME;
             if (claims != null) {
@@ -88,7 +100,7 @@ public class TtlContextInterceptor implements HandlerInterceptor {
             ctx.setToken(token);
             TtlContextHolder.set(ctx);
         }
-        // 5. 放行
+        // 7. 放行
         return true;
     }
 

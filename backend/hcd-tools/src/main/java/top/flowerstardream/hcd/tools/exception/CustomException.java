@@ -11,11 +11,15 @@ import lombok.Getter;
 @Getter
 public class CustomException extends RuntimeException {
 
-    private final ExceptionEnum exceptionEnum;
+    private final ICustomError iCustomError;
 
-    public CustomException(ExceptionEnum exceptionEnum) {
-        super(exceptionEnum.getMessage());
-        this.exceptionEnum = exceptionEnum;
+    public CustomException(ICustomError iCustomError) {
+        super(iCustomError.getMessage());
+        this.iCustomError = iCustomError;
+    }
+    public CustomException(Integer code, String message) {
+        super(message);
+        this.iCustomError = ICustomError.of(code, message);
     }
 
 }
