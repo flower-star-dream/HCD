@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 /**
  * @Author: 花海
  * @Date: 2025/11/09/01:04
@@ -16,7 +18,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "重置密码请求")
-public class ResetPwdREQ {
+public class ResetPwdREQ implements Serializable {
     @Schema(description = "员工id")
     private Long id;
 

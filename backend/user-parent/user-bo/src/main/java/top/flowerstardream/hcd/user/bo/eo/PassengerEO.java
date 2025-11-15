@@ -2,12 +2,13 @@ package top.flowerstardream.hcd.user.bo.eo;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import top.flowerstardream.hcd.base.bo.eo.BaseEO;
+import top.flowerstardream.hcd.base.bo.BaseEO;
+
+import java.io.Serializable;
 
 /**
  * @Author: 花海
@@ -19,7 +20,7 @@ import top.flowerstardream.hcd.base.bo.eo.BaseEO;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @TableName("hcd_passenger")
-public class PassengerEO extends BaseEO {
+public class PassengerEO extends BaseEO implements Serializable {
 
     /** 真实姓名 */
     @TableField("real_name")

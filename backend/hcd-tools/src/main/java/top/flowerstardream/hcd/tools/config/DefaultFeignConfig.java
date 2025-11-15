@@ -1,11 +1,11 @@
 package top.flowerstardream.hcd.tools.config;
 
-import feign.RequestInterceptor;
-import feign.RequestTemplate;
+import feign.codec.ErrorDecoder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import top.flowerstardream.hcd.tools.utils.TtlContextHolder;
+import top.flowerstardream.hcd.tools.interfaces.FeignInterceptor;
+import top.flowerstardream.hcd.tools.utils.ResultAwareErrorDecoder;
 
 /**
  * @Author: 花海
@@ -16,12 +16,12 @@ import top.flowerstardream.hcd.tools.utils.TtlContextHolder;
 @Slf4j
 public class DefaultFeignConfig {
     @Bean
-    public RequestInterceptor userInfoRequestInterceptor() {
-        return requestTemplate -> {
-            Long tenantId = TtlContextHolder.get().getTenantId();
-            if (tenantId != null) {
-                requestTemplate.header("user-info", tenantId.toString());
-            }
-        };
+    public FeignInterceptor traceFeignInterceptor() {
+        return new FeignInterceptor();
+    }
+
+    @Bean
+    public ErrorDecoder errorDecoder() {
+        return new ResultAwareErrorDecoder();
     }
 }

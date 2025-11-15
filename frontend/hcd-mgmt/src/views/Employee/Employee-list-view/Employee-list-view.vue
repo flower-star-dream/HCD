@@ -119,9 +119,9 @@ const employeeForm = ref({
 const formFields = [
   {
     prop: 'username',
-    label: '员工账号',
+    label: '用户名',
     type: 'input',
-    placeholder: '请输入员工账号',
+    placeholder: '请输入用户名',
     maxlength: 20,
     showWordLimit: true,
     disabled: (isEditMode) => {

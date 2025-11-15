@@ -19,7 +19,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <name>order-biz</name>
-    <description>用户服务业务模块 - 存放业务逻辑代码</description>
+    <description>订单模块 - 存放业务逻辑代码</description>
     <dependencies>
         <dependency>
             <groupId>top.flowerstardream.hcd</groupId>

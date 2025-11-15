@@ -21,4 +21,11 @@
     <description>票务常量模块 - 存放枚举类</description>
     <version>${revision}</version>
 
+    <dependencies>
+        <dependency>
+            <groupId>top.flowerstardream.hcd</groupId>
+            <artifactId>hcd-tools</artifactId>
+        </dependency>
+    </dependencies>
+
 </project>

@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import top.flowerstardream.hcd.tools.exception.ExceptionEnum;
+import top.flowerstardream.hcd.tools.exception.ICustomError;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -49,12 +50,12 @@ public class Result<T> implements Serializable {
         this.data = data;
     }
 
-    public static <T> Result<T> setExceptionEnum(ExceptionEnum exceptionEnum, String message) {
-        return successResult(exceptionEnum.getCode(), message);
+    public static <T> Result<T> setExceptionEnum(ICustomError iCustomError, String message) {
+        return successResult(iCustomError.getCode(), message);
     }
 
-    public static <T> Result<T> setExceptionEnum(ExceptionEnum exceptionEnum) {
-        return successResult(exceptionEnum.getCode(), exceptionEnum.getMessage());
+    public static <T> Result<T> setExceptionEnum(ICustomError iCustomError) {
+        return successResult(iCustomError.getCode(), iCustomError.getMessage());
     }
 
     public static <T> Result<T> successResult(Integer code, String message) {
@@ -74,12 +75,12 @@ public class Result<T> implements Serializable {
         return result;
     }
 
-    public static <T> Result<T> errorResult(ExceptionEnum exceptionEnum) {
-        return setExceptionEnum(exceptionEnum, exceptionEnum.getMessage());
+    public static <T> Result<T> errorResult(ICustomError iCustomError) {
+        return setExceptionEnum(iCustomError, iCustomError.getMessage());
     }
 
-    public static <T> Result<T> errorResult(ExceptionEnum exceptionEnum, String message) {
-        return setExceptionEnum(exceptionEnum, message);
+    public static <T> Result<T> errorResult(ICustomError iCustomError, String message) {
+        return setExceptionEnum(iCustomError, message);
     }
 
     /**

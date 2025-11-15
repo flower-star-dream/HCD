@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 /**
  * @Author: 花海
  * @Date: 2025/11/06/21:20
@@ -16,7 +18,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "员工信息请求")
-public class EmployeeInfoREQ {
+public class EmployeeInfoREQ implements Serializable {
 
     @Schema(description = "员工ID")
     private Long id;

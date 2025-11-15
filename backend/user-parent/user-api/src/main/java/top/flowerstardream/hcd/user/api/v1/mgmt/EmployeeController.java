@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import top.flowerstardream.hcd.base.ao.req.StartOrStopREQ;
+import top.flowerstardream.hcd.base.ao.req.StatusChangeREQ;
 import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.tools.result.Result;
 import top.flowerstardream.hcd.user.ao.req.*;
@@ -126,14 +126,14 @@ public class EmployeeController {
 
     /**
      * 启用禁用员工账号
-     * @param startOrStopREQ
+     * @param statusChangeREQ
      * @return
      */
     @PostMapping("/status")
     @Operation(summary = "启用禁用员工账号", description = "启用禁用员工账号")
-    public Result<String> startOrStop(@RequestBody StartOrStopREQ startOrStopREQ){
-        log.info("【用户-员工】traceId:{}, 启用禁用员工账号：{}，{}", getTraceId(), startOrStopREQ.getStatus(), startOrStopREQ.getId());
-        IEmployeeService.startOrStop(startOrStopREQ.getStatus(), startOrStopREQ.getId());
+    public Result<String> startOrStop(@RequestBody StatusChangeREQ statusChangeREQ){
+        log.info("【用户-员工】traceId:{}, 启用禁用员工账号：{}，{}", getTraceId(), statusChangeREQ.getStatus(), statusChangeREQ.getId());
+        IEmployeeService.startOrStop(statusChangeREQ.getStatus(), statusChangeREQ.getId());
         return Result.successResult();
     }
 

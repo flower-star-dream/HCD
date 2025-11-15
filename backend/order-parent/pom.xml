@@ -16,7 +16,7 @@
     <artifactId>order-parent</artifactId>
     <version>${revision}</version>
     <packaging>pom</packaging>
-    <name>order</name>
+    <name>order-parent</name>
     <description>订单处理</description>
 
     <properties>
@@ -32,6 +32,7 @@
         <module>order-biz</module>
         <module>order-bo</module>
         <module>order-constant</module>
+        <module>order-boot</module>
     </modules>
 
     <dependencies>

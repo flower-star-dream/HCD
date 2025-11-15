@@ -76,7 +76,7 @@ public class UserController {
      */
     @PutMapping("/info")
     @Operation(summary = "更新用户信息", description = "小程序端更新用户信息接口")
-    public Result<Void> updateUserInfo(@RequestBody UserInfoREQ userInfoREQ) {
+    public Result<String> updateUserInfo(@RequestBody UserInfoREQ userInfoREQ) {
         log.info("【用户-小程序】traceId:{}, 更新用户信息，请求参数: {}", getTraceId(), userInfoREQ);
         userService.updateUserInfo(userInfoREQ);
         return Result.successResult();

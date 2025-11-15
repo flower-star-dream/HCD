@@ -40,6 +40,7 @@ import static top.flowerstardream.hcd.tools.exception.ExceptionEnum.*;
 import static top.flowerstardream.hcd.tools.utils.GetInfoUtil.*;
 import static top.flowerstardream.hcd.user.constant.DefaultParams.*;
 import static top.flowerstardream.hcd.user.constant.UserRedisPrefixConstant.*;
+import static top.flowerstardream.hcd.user.constant.UserExceptionEnum.*;
 
 /**
  * @Author: 花海
@@ -243,6 +244,9 @@ public class IEmployeeServiceImpl extends ServiceImpl<EmployeeMapper, EmployeeEO
         validateEmployeeIsNotEmpty(employeeREQ.getUsername(), employeeREQ.getPhone());
         EmployeeEO employee = new EmployeeEO();
         BeanUtils.copyProperties(employeeREQ, employee);
+        if (employeeREQ.getId() != null) {
+            employee.setId(null);
+        }
         employee.setAvatar(Avatar);
         employee.setPassword(DigestUtils.md5DigestAsHex(employeeREQ.getPassword().getBytes()));
         boolean save = save(employee);
