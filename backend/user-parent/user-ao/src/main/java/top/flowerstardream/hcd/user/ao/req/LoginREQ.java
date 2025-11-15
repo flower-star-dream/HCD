@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 /**
  * @Author: 花海
  * @Date: 2025/10/28/17:23
@@ -16,7 +18,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "登录请求")
-public class LoginREQ {
+public class LoginREQ implements Serializable {
     @Schema(description = "用户名")
     private String username;
 

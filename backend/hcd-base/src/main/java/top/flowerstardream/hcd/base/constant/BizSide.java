@@ -12,6 +12,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum BizSide {
     ADMIN("admin"),
-    USER("user");
+    USER("user"),
+    SYSTEM("system");
     private final String bizSide;
 }

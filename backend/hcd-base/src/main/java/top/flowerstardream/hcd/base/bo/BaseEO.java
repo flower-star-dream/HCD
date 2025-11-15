@@ -1,4 +1,4 @@
-package top.flowerstardream.hcd.base.bo.eo;
+package top.flowerstardream.hcd.base.bo;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;

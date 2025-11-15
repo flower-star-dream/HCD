@@ -20,7 +20,11 @@
     <name>ticket-ao</name>
     <description>票务AO模块 - 存放DTO对象</description>
     <dependencies>
-
+        <dependency>
+            <groupId>top.flowerstardream.hcd</groupId>
+            <artifactId>ticket-bo</artifactId>
+            <version>${revision}</version>
+        </dependency>
     </dependencies>
 
 </project>

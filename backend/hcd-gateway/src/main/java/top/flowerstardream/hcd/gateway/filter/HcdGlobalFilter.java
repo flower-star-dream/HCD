@@ -18,6 +18,8 @@ import top.flowerstardream.hcd.tools.properties.JwtProperties;
 import top.flowerstardream.hcd.tools.result.Result;
 import top.flowerstardream.hcd.tools.utils.*;
 
+import static top.flowerstardream.hcd.base.constant.CommonConstant.*;
+
 /**
  * @Author: 花海
  * @Date: 2025/10/26/21:05
@@ -31,7 +33,6 @@ public class HcdGlobalFilter implements GlobalFilter, Ordered {
     private final JwtProperties jwtProperties;
     private final StringRedisTemplate stringRedisTemplate;
     private final MyGatewayProperties myGatewayProperties;
-    private final String bizSide = "biz_side";
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -54,7 +55,7 @@ public class HcdGlobalFilter implements GlobalFilter, Ordered {
 
         // 2. 统一 JWT 校验
         String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-        String bizSideHeader = request.getHeaders().getFirst(bizSide);
+        String bizSideHeader = request.getHeaders().getFirst(BIZ_SIDE);
         
         log.info("【网关】准备进行JWT校验 - authHeader={}, bizSideHeader={}", 
                  authHeader != null ? "存在" : "不存在", 

@@ -24,16 +24,18 @@
         <dependency>
             <groupId>top.flowerstardream.hcd</groupId>
             <artifactId>ticket-ao</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>top.flowerstardream.hcd</groupId>
-            <artifactId>ticket-api</artifactId>
         </dependency>
         <dependency>
             <groupId>top.flowerstardream.hcd</groupId>
             <artifactId>ticket-bo</artifactId>
-            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>top.flowerstardream.hcd</groupId>

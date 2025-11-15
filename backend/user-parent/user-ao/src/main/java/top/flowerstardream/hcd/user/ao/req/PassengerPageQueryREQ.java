@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import top.flowerstardream.hcd.base.ao.req.BasePageQueryREQ;
 
+import java.io.Serializable;
+
 /**
  * 乘车人分页查询请求
  *
@@ -20,7 +22,7 @@ import top.flowerstardream.hcd.base.ao.req.BasePageQueryREQ;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Schema(description = "乘车人分页查询请求")
-public class PassengerPageQueryREQ extends BasePageQueryREQ {
+public class PassengerPageQueryREQ extends BasePageQueryREQ implements Serializable {
 
     @Schema(description = "真实姓名")
     private String realName;

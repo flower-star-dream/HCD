@@ -7,6 +7,8 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+import java.io.Serializable;
+
 /**
  * 用户数据传输对象
  *
@@ -15,7 +17,7 @@ import lombok.Data;
  */
 @Data
 @Schema(description = "用户数据传输对象")
-public class UserDTO {
+public class UserDTO implements Serializable {
 
     @Schema(description = "用户名")
     @NotBlank(message = "用户名不能为空")
