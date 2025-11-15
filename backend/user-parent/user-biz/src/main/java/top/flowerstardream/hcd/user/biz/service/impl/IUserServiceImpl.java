@@ -35,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 
 import static top.flowerstardream.hcd.base.constant.RedisPrefixConstant.USER_TOKEN_PREFIX;
 import static top.flowerstardream.hcd.tools.exception.ExceptionEnum.*;
+import static top.flowerstardream.hcd.user.constant.UserExceptionEnum.*;
 import static top.flowerstardream.hcd.user.constant.UserRedisPrefixConstant.USER_INFO_CACHE_NAME;
 
 /**

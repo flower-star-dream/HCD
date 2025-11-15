@@ -27,8 +27,8 @@ public class GlobalExceptionHandler {
         Result<Void> result;
         if (e instanceof CustomException be) {
             log.error("业务异常: {}", be.getMessage(), be);
-            HttpStatus httpStatus = exceptionEnum2HttpStatus(be.getExceptionEnum());
-            result = Result.errorResult(be.getExceptionEnum(), be.getMessage());
+            HttpStatus httpStatus = exceptionEnum2HttpStatus(be.getICustomError());
+            result = Result.errorResult(be.getICustomError(), be.getMessage());
             return ResponseEntity.status(httpStatus).body(result);
         } else if (e instanceof ErrorResponseException errorResponseException){
             log.error("业务异常: {}", errorResponseException.getMessage(), errorResponseException);
@@ -47,13 +47,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(httpStatus).body(result);
     }
 
-    private static HttpStatus exceptionEnum2HttpStatus(ExceptionEnum exceptionEnum) {
-        if (exceptionEnum == null) {
-            exceptionEnum = ExceptionEnum.INTERNAL_SERVER_ERROR;
+    private static HttpStatus exceptionEnum2HttpStatus(ICustomError iCustomError) {
+        if (iCustomError == null) {
+            iCustomError = ExceptionEnum.INTERNAL_SERVER_ERROR;
         }
         HttpStatus httpStatus = null;
         try {
-            httpStatus = HttpStatus.valueOf(exceptionEnum.getCode());
+            httpStatus = HttpStatus.valueOf(iCustomError.getCode());
         } catch (Exception e) {
             httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
         }

@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 /**
  * @Author: 花海
  * @Date: 2025/10/28/17:14
@@ -16,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class WxLoginRES {
+public class WxLoginRES implements Serializable {
 
     @Schema(description = "员工id")
     private Long id;

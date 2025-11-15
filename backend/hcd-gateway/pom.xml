@@ -44,6 +44,10 @@
                     <groupId>com.github.xiaoymin</groupId>
                     <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
                 </exclusion>
+                <exclusion>
+                  <groupId>org.apache.seata</groupId>
+                  <artifactId>seata-spring-boot-starter</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>

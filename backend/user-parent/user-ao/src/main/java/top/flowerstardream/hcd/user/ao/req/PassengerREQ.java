@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 /**
  * @Author: 花海
  * @Date: 2025/11/11
@@ -18,7 +20,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "乘车人请求对象")
-public class PassengerREQ {
+public class PassengerREQ implements Serializable {
 
     @Schema(description = "真实姓名")
     @NotBlank(message = "真实姓名不能为空")

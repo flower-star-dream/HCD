@@ -3,6 +3,8 @@ package top.flowerstardream.hcd.user.ao.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.io.Serializable;
+
 /**
  * 乘车人数据传输对象
  *
@@ -11,7 +13,7 @@ import lombok.Data;
  */
 @Data
 @Schema(description = "乘车人数据传输对象")
-public class PassengerDTO {
+public class PassengerDTO implements Serializable {
 
     @Schema(description = "乘车人ID")
     private Long id;

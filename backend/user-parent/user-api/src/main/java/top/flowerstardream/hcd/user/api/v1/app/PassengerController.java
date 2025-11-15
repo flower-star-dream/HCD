@@ -59,7 +59,7 @@ public class PassengerController {
      */
     @PostMapping("/add")
     @Operation(summary = "新增乘车人", description = "小程序端新增乘车人并关联到当前用户接口")
-    public Result<Void> addPassenger(@RequestBody PassengerREQ passengerREQ) {
+    public Result<String> addPassenger(@RequestBody PassengerREQ passengerREQ) {
         log.info("【用户-乘车人】traceId:{}, 新增乘车人，用户ID: {}, 乘车人信息: {}", getTraceId(), getTenantId(), passengerREQ);
         passengerService.addPassenger(getTenantId(), passengerREQ);
         return Result.successResult();
@@ -76,7 +76,7 @@ public class PassengerController {
      */
     @PutMapping("/default/{id}")
     @Operation(summary = "设置默认乘车人", description = "小程序端设置当前用户默认乘车人接口")
-    public Result<Void> setDefaultPassenger(@PathVariable("id") Long passengerId) {
+    public Result<String> setDefaultPassenger(@PathVariable("id") Long passengerId) {
         log.info("【用户-乘车人】traceId:{}, 设置默认乘车人，用户ID: {}, 乘车人ID: {}", getTraceId(), getTenantId(), passengerId);
         passengerService.setDefaultPassenger(getTenantId(), passengerId);
         return Result.successResult();

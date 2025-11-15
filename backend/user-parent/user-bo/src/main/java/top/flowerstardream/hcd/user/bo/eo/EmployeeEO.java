@@ -7,7 +7,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import top.flowerstardream.hcd.base.bo.eo.BaseEO;
+import top.flowerstardream.hcd.base.bo.BaseEO;
+
+import java.io.Serializable;
 
 /**
  * @Author: 花海
@@ -19,7 +21,7 @@ import top.flowerstardream.hcd.base.bo.eo.BaseEO;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @TableName("hcd_employee")
-public class EmployeeEO extends BaseEO {
+public class EmployeeEO extends BaseEO implements Serializable {
 
     // 用户名
     @TableField("username")

@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import top.flowerstardream.hcd.base.ao.req.StartOrStopREQ;
+import top.flowerstardream.hcd.base.ao.req.StatusChangeREQ;
 import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.tools.result.Result;
 import top.flowerstardream.hcd.user.ao.req.UserPageQueryREQ;
@@ -55,15 +55,15 @@ public class UserController {
      * 后管端冻结/解冻用户账号
      * </p>
      *
-     * @param startOrStopREQ 状态更新请求参数
+     * @param statusChangeREQ 状态更新请求参数
      * @return 更新结果
      */
     @PostMapping("/status")
     @Operation(summary = "启用禁用用户账号", description = "后管端冻结/解冻用户账号接口")
-    public Result<Void> startOrStop(@RequestBody StartOrStopREQ startOrStopREQ) {
+    public Result<Void> startOrStop(@RequestBody StatusChangeREQ statusChangeREQ) {
         log.info("【用户-后管】traceId:{}, 更新用户状态：状态={}, 用户ID={}", 
-                getTraceId(), startOrStopREQ.getStatus(), startOrStopREQ.getId());
-        userService.updateUserStatus(startOrStopREQ.getStatus(), startOrStopREQ.getId());
+                getTraceId(), statusChangeREQ.getStatus(), statusChangeREQ.getId());
+        userService.updateUserStatus(statusChangeREQ.getStatus(), statusChangeREQ.getId());
         return Result.successResult();
     }
 }

@@ -10,9 +10,9 @@ import top.flowerstardream.hcd.base.constant.PermissionLevel;
 import top.flowerstardream.hcd.tools.constant.JwtClaimsConstant;
 import top.flowerstardream.hcd.base.constant.BizSide;
 import top.flowerstardream.hcd.tools.properties.JwtProperties;
-import top.flowerstardream.hcd.tools.properties.MyGatewayProperties;
 
 import static org.apache.commons.lang3.StringUtils.*;
+import static top.flowerstardream.hcd.base.constant.CommonConstant.TOKEN_HEADER;
 import static top.flowerstardream.hcd.base.constant.RedisPrefixConstant.*;
 
 /**
@@ -23,7 +23,6 @@ import static top.flowerstardream.hcd.base.constant.RedisPrefixConstant.*;
 @Slf4j
 @UtilityClass
 public class JwtValidator {
-    private static final String BEARER = "Bearer ";
 
     @Data
     @Builder
@@ -44,19 +43,19 @@ public class JwtValidator {
         if (isBlank(tokenHeader)) {
             return ValidateResult.builder().valid(false).msg("未认证").build();
         }
-        String rawToken = tokenHeader.startsWith(BEARER)
-                ? tokenHeader.substring(BEARER.length())
+        String rawToken = tokenHeader.startsWith(TOKEN_HEADER)
+                ? tokenHeader.substring(TOKEN_HEADER.length())
                 : tokenHeader;
         if (isBlank(rawToken)) {
             return ValidateResult.builder().valid(false).msg("token不存在").build();
         }
 
-        // 2. 校验 biz_side
+        // 2. 校验 X-Biz-Side
         BizSide side;
         try {
             side = BizSide.valueOf(bizSideHeader.toUpperCase());
         } catch (Exception e) {
-            return ValidateResult.builder().valid(false).msg("非法biz_side参数").build();
+            return ValidateResult.builder().valid(false).msg("非法X-Biz-Side参数").build();
         }
 
         // 3. 解析 JWT
