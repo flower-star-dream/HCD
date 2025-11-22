@@ -1,9 +1,9 @@
 package top.flowerstardream.hcd.trainSeat.biz.service.impl;
 
-
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
@@ -11,15 +11,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import top.flowerstardream.hcd.bo.eo.RouteEO;
 import top.flowerstardream.hcd.bo.eo.ScheduleEO;
 import top.flowerstardream.hcd.bo.eo.SeatReservationEO;
 import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.trainSeat.ao.PQREQ.SchedulePageQueryREQ;
 import top.flowerstardream.hcd.trainSeat.ao.REQ.ScheduleREQ;
+import top.flowerstardream.hcd.trainSeat.ao.RES.RouteRES;
+import top.flowerstardream.hcd.trainSeat.ao.RES.ScheduleRES;
 import top.flowerstardream.hcd.trainSeat.biz.mapper.ScheduleMapper;
 import top.flowerstardream.hcd.trainSeat.biz.mapper.SeatReservationMapper;
 import top.flowerstardream.hcd.trainSeat.biz.service.IScheduleService;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static top.flowerstardream.hcd.tools.exception.ExceptionEnum.*;
 import static top.flowerstardream.hcd.trainSeat.constant.TrainSeatExceptionEnum.SCHEDULE_ALREADY_EXISTS;
@@ -105,7 +109,7 @@ public class IScheduleServiceImpl extends ServiceImpl<ScheduleMapper, ScheduleEO
     }
 
     @Override
-    public PageResult<ScheduleEO> PageQuery(SchedulePageQueryREQ schedulePageQueryREQ) {
+    public PageResult<ScheduleEO> EmployeePageQuery(SchedulePageQueryREQ schedulePageQueryREQ) {
         //参数校验
         if (schedulePageQueryREQ == null) {
             THE_QUERY_PARAMETER_CANNOT_BE_EMPTY.throwException();
@@ -123,12 +127,12 @@ public class IScheduleServiceImpl extends ServiceImpl<ScheduleMapper, ScheduleEO
         //创建查询条件
         LambdaQueryWrapper<ScheduleEO> queryWrapper = new LambdaQueryWrapper<>();
 
-        queryWrapper.like(ScheduleEO::getTrainId, schedulePageQueryREQ.getTrainId())
-                .like(ScheduleEO::getRouteId, schedulePageQueryREQ.getRouteId())
+        queryWrapper.eq(ScheduleEO::getTrainId, schedulePageQueryREQ.getTrainId())
+                .eq(ScheduleEO::getRouteId, schedulePageQueryREQ.getRouteId())
                 .like(ScheduleEO::getConductor, schedulePageQueryREQ.getConductor())
                 .like(ScheduleEO::getAvailingTickets, schedulePageQueryREQ.getAvailingTickets())
-                .like(ScheduleEO::getStartTime, schedulePageQueryREQ.getStartTime())
-                .like(ScheduleEO::getEndTime, schedulePageQueryREQ.getEndTime());
+                .eq(ScheduleEO::getStartTime, schedulePageQueryREQ.getStartTime())
+                .eq(ScheduleEO::getEndTime, schedulePageQueryREQ.getEndTime());
 
         //执行分页查询
         Page<ScheduleEO> schedulePage = scheduleMapper.selectPage(page, queryWrapper);
@@ -138,6 +142,53 @@ public class IScheduleServiceImpl extends ServiceImpl<ScheduleMapper, ScheduleEO
         pageResult.setTotal(schedulePage.getTotal());
         pageResult.setRecords(schedulePage.getRecords());
         return pageResult;
+    }
+
+    @Override
+    public PageResult<ScheduleRES> UserPageQuery(SchedulePageQueryREQ schedulePageQueryREQ) {
+        //参数校验
+        if (schedulePageQueryREQ == null) {
+            THE_QUERY_PARAMETER_CANNOT_BE_EMPTY.throwException();
+        }
+
+        // 设置分页参数默认值
+        if (schedulePageQueryREQ.getPage() <= 0) {
+            schedulePageQueryREQ.setPage(1);
+        }
+        if (schedulePageQueryREQ.getPageSize() <= 0) {
+            schedulePageQueryREQ.setPageSize(10);
+        }
+
+        //创建分页对象
+        Page<ScheduleEO> page = new Page<>(schedulePageQueryREQ.getPage(), schedulePageQueryREQ.getPageSize());
+        //创建查询条件
+        LambdaQueryWrapper<ScheduleEO> queryWrapper = Wrappers.lambdaQuery();
+
+        queryWrapper.eq(ScheduleEO::getTrainId, schedulePageQueryREQ.getTrainId())
+                .eq(ScheduleEO::getRouteId, schedulePageQueryREQ.getRouteId())
+                .like(ScheduleEO::getConductor, schedulePageQueryREQ.getConductor())
+                .like(ScheduleEO::getAvailingTickets, schedulePageQueryREQ.getAvailingTickets())
+                .eq(ScheduleEO::getStartTime, schedulePageQueryREQ.getStartTime())
+                .eq(ScheduleEO::getEndTime, schedulePageQueryREQ.getEndTime());
+
+
+        //执行分页查询
+        Page<ScheduleEO> schedulePage = scheduleMapper.selectPage(page, queryWrapper);
+
+        //将EO转换为RES
+        List<ScheduleRES> resList = schedulePage.getRecords().stream()
+                .map(eo -> {
+                    ScheduleRES res = new ScheduleRES();
+                    BeanUtil.copyProperties(eo, res);
+                    return res;
+                })
+                .collect(Collectors.toList());
+
+        //封装返回结果
+        PageResult<ScheduleRES> pageResult = new PageResult<>();
+        pageResult.setTotal(schedulePage.getTotal());
+        pageResult.setRecords(resList);
+        return pageResult ;
     }
 
 
@@ -159,17 +210,6 @@ public class IScheduleServiceImpl extends ServiceImpl<ScheduleMapper, ScheduleEO
             SCHEDULE_ALREADY_EXISTS.throwException();
         }
     }
-    /*
-    private void validateScheduleIsExist(Long trainId, Long routeId, String startTime) {
-        LambdaQueryWrapper<ScheduleEO> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ScheduleEO::getTrainId, trainId)
-                .eq(ScheduleEO::getRouteId, routeId)
-                .eq(ScheduleEO::getStartTime, startTime);
-        ScheduleEO scheduleEO = scheduleMapper.selectOne(queryWrapper);
-        if (scheduleEO != null) {
-            SCHEDULE_ALREADY_EXISTS.throwException();
-        }
-    }
-    */
+
 
 }

@@ -16,11 +16,13 @@ import top.flowerstardream.hcd.bo.eo.ScheduleEO;
 import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.trainSeat.ao.PQREQ.RoutePageQueryREQ;
 import top.flowerstardream.hcd.trainSeat.ao.REQ.RouteREQ;
+import top.flowerstardream.hcd.trainSeat.ao.RES.RouteRES;
 import top.flowerstardream.hcd.trainSeat.biz.mapper.RouteMapper;
 import top.flowerstardream.hcd.trainSeat.biz.mapper.ScheduleMapper;
 import top.flowerstardream.hcd.trainSeat.biz.service.IRouteService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static top.flowerstardream.hcd.tools.exception.ExceptionEnum.*;
 import static top.flowerstardream.hcd.trainSeat.constant.TrainSeatExceptionEnum.ROUTE_AlREADY_EXISTS;
@@ -112,7 +114,7 @@ public class IRouteServiceImpl extends ServiceImpl<RouteMapper, RouteEO> impleme
     }
 
     @Override
-    public PageResult<RouteEO> PageQuery(RoutePageQueryREQ routePageQueryREQ) {
+    public PageResult<RouteEO> EmployeePageQuery(RoutePageQueryREQ routePageQueryREQ) {
         //参数校验
         if (routePageQueryREQ == null) {
             THE_QUERY_PARAMETER_CANNOT_BE_EMPTY.throwException();
@@ -146,9 +148,51 @@ public class IRouteServiceImpl extends ServiceImpl<RouteMapper, RouteEO> impleme
         pageResult.setRecords(routePage.getRecords());
         return pageResult;
     }
+    @Override
+    public PageResult<RouteRES> UserPageQuery(RoutePageQueryREQ routePageQueryREQ) {
+        //参数校验
+        if (routePageQueryREQ == null) {
+            THE_QUERY_PARAMETER_CANNOT_BE_EMPTY.throwException();
+        }
+
+        // 设置分页参数默认值
+        if (routePageQueryREQ.getPage() <= 0) {
+            routePageQueryREQ.setPage(1);
+        }
+        if (routePageQueryREQ.getPageSize() <= 0) {
+            routePageQueryREQ.setPageSize(10);
+        }
+
+        //创建分页对象
+        Page<RouteEO> page = new Page<>(routePageQueryREQ.getPage(), routePageQueryREQ.getPageSize());
+        //创建查询条件
+        LambdaQueryWrapper<RouteEO> queryWrapper = Wrappers.lambdaQuery();
+
+        queryWrapper.like(RouteEO::getRouteName, routePageQueryREQ.getRouteName())
+                .like(RouteEO::getStartStation, routePageQueryREQ.getStartStation())
+                .like(RouteEO::getEndStation, routePageQueryREQ.getEndStation())
+                .like(RouteEO::getStationCount, routePageQueryREQ.getStationCount());
 
 
+        //执行分页查询
+        Page<RouteEO> routePage =  routeMapper.selectPage(page, queryWrapper);
 
+        //将EO转换为RES
+        List<RouteRES> resList = routePage.getRecords().stream()
+                .map(eo -> {
+                    RouteRES res = new RouteRES();
+                    BeanUtil.copyProperties(eo, res);
+                    return res;
+                })
+                .collect(Collectors.toList());
+
+        //封装返回结果
+        PageResult<RouteRES> pageResult = new PageResult<>();
+        pageResult.setTotal(routePage.getTotal());
+        pageResult.setRecords(resList);
+        return pageResult ;
+
+    }
 
 
     //查询路线

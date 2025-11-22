@@ -31,4 +31,7 @@ public class RouteRES {
     @Schema(description = "终点站")
     private String endStation;
 
+    @Schema(description = "站点数")
+    private Integer stationCount;
+
 }

@@ -1,5 +1,6 @@
 package top.flowerstardream.hcd.trainSeat.biz.service;
 
+import top.flowerstardream.hcd.bo.eo.StationEO;
 import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.trainSeat.ao.PQREQ.StationPageQueryREQ;
 import top.flowerstardream.hcd.trainSeat.ao.REQ.StationREQ;
@@ -39,8 +40,14 @@ public interface IStationService {
      * @param stationPageQueryREQ 站点查询条件
      * @return 站点查询分页结果
      */
-    PageResult<StationRES> PageQuery(StationPageQueryREQ stationPageQueryREQ);
+    PageResult<StationEO> EmployeePageQuery(StationPageQueryREQ stationPageQueryREQ);
 
-
+    /**
+     * 分页查询站点列表（用户）
+     *
+     * @param stationPageQueryREQ 站点查询条件
+     * @return 站点查询分页结果
+     */
+    PageResult<StationRES> UserPageQuery(StationPageQueryREQ stationPageQueryREQ);
 
 }

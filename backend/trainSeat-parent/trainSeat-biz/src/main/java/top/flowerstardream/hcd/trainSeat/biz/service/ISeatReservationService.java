@@ -1,8 +1,10 @@
 package top.flowerstardream.hcd.trainSeat.biz.service;
 
 
+import top.flowerstardream.hcd.bo.eo.SeatReservationEO;
 import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.trainSeat.ao.REQ.SeatReservationREQ;
+import top.flowerstardream.hcd.trainSeat.ao.RES.SeatReservationRES;
 
 import java.util.List;
 
@@ -37,5 +39,13 @@ public interface ISeatReservationService {
      * @param seatReservationPageQueryREQ 座位预约查询条件
      * @return 座位预约查询分页结果
      */
-    PageResult<SeatReservationREQ> PageQuery(SeatReservationREQ seatReservationPageQueryREQ);
+    PageResult<SeatReservationEO> EmployeePageQuery(SeatReservationREQ seatReservationPageQueryREQ);
+
+    /**
+     * 分页查询座位预约列表（用户）
+     *
+     * @param seatReservationPageQueryREQ 座位预约查询条件
+     * @return 座位预约查询分页结果
+     */
+    PageResult<SeatReservationRES> UserPageQuery(SeatReservationREQ seatReservationPageQueryREQ);
 }

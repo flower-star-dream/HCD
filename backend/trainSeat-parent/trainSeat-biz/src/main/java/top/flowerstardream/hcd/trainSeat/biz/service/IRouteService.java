@@ -5,6 +5,7 @@ import top.flowerstardream.hcd.bo.eo.RouteEO;
 import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.trainSeat.ao.PQREQ.RoutePageQueryREQ;
 import top.flowerstardream.hcd.trainSeat.ao.REQ.RouteREQ;
+import top.flowerstardream.hcd.trainSeat.ao.RES.RouteRES;
 
 
 import java.util.List;
@@ -34,13 +35,20 @@ public interface IRouteService  {
 
 
     /**
-     * 分页查询路线列表（通用）
+     * 分页查询路线列表（管理）
      *
      * @param routePageQueryREQ 查询条件
      * @return 路线查询分页结果
      */
-    PageResult<RouteEO> PageQuery(RoutePageQueryREQ routePageQueryREQ);
+    PageResult<RouteEO> EmployeePageQuery(RoutePageQueryREQ routePageQueryREQ);
 
+    /**
+     * 分页查询路线列表（用户）
+     *
+     * @param routePageQueryREQ 站点查询条件
+     * @return 站点查询分页结果
+     */
+    PageResult<RouteRES> UserPageQuery(RoutePageQueryREQ routePageQueryREQ);
     
 
 

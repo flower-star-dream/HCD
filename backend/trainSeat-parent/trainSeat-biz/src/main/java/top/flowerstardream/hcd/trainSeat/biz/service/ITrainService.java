@@ -1,5 +1,6 @@
 package top.flowerstardream.hcd.trainSeat.biz.service;
 
+import top.flowerstardream.hcd.bo.eo.TrainEO;
 import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.trainSeat.ao.PQREQ.TrainPageQueryREQ;
 import top.flowerstardream.hcd.trainSeat.ao.REQ.TrainREQ;
@@ -24,6 +25,19 @@ public interface ITrainService {
 
     void update(TrainREQ trainREQ);
 
-    PageResult<TrainRES> PageQuery(TrainPageQueryREQ trainPageQueryREQ);
+    /**
+     * 分页查询火车列表（管理）
+     *
+     * @param trainPageQueryREQ 火车查询条件
+     * @return 火车查询分页结果
+     */
+    PageResult<TrainEO> EmployeePageQuery(TrainPageQueryREQ trainPageQueryREQ);
 
+    /**
+     * 分页查询火车列表（用户）
+     *
+     * @param trainPageQueryREQ 火车查询条件
+     * @return 火车查询分页结果
+     */
+    PageResult<TrainRES> UserPageQuery(TrainPageQueryREQ trainPageQueryREQ);
 }

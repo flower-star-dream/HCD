@@ -32,10 +32,18 @@ public interface IScheduleService  {
      */
     void updateSchedule(ScheduleREQ scheduleREQ);
     /**
-     * 分页查询排班列表（通用）
+     * 分页查询排班列表（管理）
      *
      * @param schedulePageQueryREQ 查询条件
      * @return 排班查询分页结果
      */
-    PageResult<ScheduleEO> PageQuery(SchedulePageQueryREQ schedulePageQueryREQ);
+    PageResult<ScheduleEO> EmployeePageQuery(SchedulePageQueryREQ schedulePageQueryREQ);
+
+    /**
+     * 分页查询排班列表（用户）
+     *
+     * @param schedulePageQueryREQ 查询条件
+     * @return 排班查询分页结果
+     */
+    PageResult<ScheduleRES> UserPageQuery(SchedulePageQueryREQ schedulePageQueryREQ);
 }
