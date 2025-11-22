@@ -42,9 +42,32 @@ public class OrderController {
      * @param orderId 订单ID
      * @param newTotalPrice 新的总价
      */
-    @PutMapping("/order/totalPrice")
+    @PutMapping("/totalPrice")
     Result<Void> updateTotalPrice(@RequestParam("orderId") Long orderId, @RequestParam("newTotalPrice") BigDecimal newTotalPrice){
         orderService.updateTotalPrice(orderId, newTotalPrice);
         return Result.successResult();
+    }
+
+    /**
+     * 订单退款
+     * @param orderId 订单ID
+     */
+    @PutMapping("/refund")
+    @Operation(summary = "订单退款", description = "订单退款")
+    Result<Void> orderRefund(@RequestParam("orderId") Long orderId) throws Exception {
+        orderService.orderRefund(orderId);
+        return Result.successResult();
+    }
+
+    /**
+     * 获取订单状态
+     * @param orderId 订单ID
+     * @return 订单状态
+     */
+    @GetMapping("/order/status")
+    @Operation(summary = "获取订单状态", description = "获取订单状态")
+    Result<Integer> getOrderStatus(@RequestParam("orderId") Long orderId) {
+        Integer status = orderService.getOrderStatus(orderId);
+        return Result.successResult(status);
     }
 }

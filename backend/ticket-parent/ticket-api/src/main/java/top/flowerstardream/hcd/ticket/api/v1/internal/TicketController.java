@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import top.flowerstardream.hcd.ticket.ao.dto.CancelTicketDTO;
 import top.flowerstardream.hcd.ticket.ao.dto.TicketDTO;
 import top.flowerstardream.hcd.ticket.biz.service.ITicketService;
 import top.flowerstardream.hcd.tools.result.Result;
@@ -42,12 +43,12 @@ public class TicketController {
 
     /**
      * 取消车票
-     * @param orderId
+     * @param cancelTicketDTO
      */
     @PostMapping("/cancel")
-    Result<Void> cancelTicket(@RequestParam Long orderId){
-        log.info("【车票-内部服务】取消车票，订单ID: {}", orderId);
-        ticketService.cancelTicketByOrder(orderId);
+    Result<Void> cancelTicket(@RequestBody CancelTicketDTO cancelTicketDTO){
+        log.info("【车票-内部服务】取消车票，订单ID: {}", cancelTicketDTO);
+        ticketService.cancelTicketByOrder(cancelTicketDTO);
         return Result.successResult();
     }
 }

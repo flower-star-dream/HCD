@@ -1,5 +1,6 @@
 package top.flowerstardream.hcd.user.biz.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -13,6 +14,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.flowerstardream.hcd.tools.result.PageResult;
+import top.flowerstardream.hcd.user.ao.dto.PassengerDTO;
 import top.flowerstardream.hcd.user.ao.req.PassengerPageQueryREQ;
 import top.flowerstardream.hcd.user.ao.req.PassengerREQ;
 import top.flowerstardream.hcd.user.ao.res.PassengerRES;
@@ -253,5 +255,43 @@ public class IPassengerServiceImpl extends ServiceImpl<PassengerMapper, Passenge
         }
         user.setPassengerId(passengerId);
         userMapper.updateById(user);
+    }
+
+    /**
+     * 根据乘车人姓名获取乘车人列表
+     *
+     * @param passengerName 乘车人姓名
+     * @return 乘车人列表
+     */
+    @Override
+    public List<Long> getPassengersByName(String passengerName) {
+        if (StringUtils.isBlank(passengerName)) {
+            return List.of();
+        }
+        LambdaQueryWrapper<PassengerEO> wrapper = Wrappers.lambdaQuery();
+        wrapper.like(PassengerEO::getRealName, passengerName);
+        return passengerMapper.selectList(wrapper).stream()
+                .map(PassengerEO::getId)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 根据乘车人ID列表获取乘车人信息列表
+     *
+     * @param passengerIds 乘车人ID列表
+     * @return 乘车人信息列表
+     */
+    @Override
+    public List<PassengerDTO> getPassengersByIds(List<Long> passengerIds) {
+        if (CollUtil.isEmpty(passengerIds)) {
+            return List.of();
+        }
+        return passengerMapper.selectBatchIds(passengerIds).stream()
+                .map(passenger -> {
+                    PassengerDTO dto = new PassengerDTO();
+                    BeanUtils.copyProperties(passenger, dto);
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 }

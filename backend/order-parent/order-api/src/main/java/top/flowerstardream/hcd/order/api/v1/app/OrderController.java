@@ -1,5 +1,9 @@
 package top.flowerstardream.hcd.order.api.v1.app;
 
+import lombok.extern.slf4j.Slf4j;
+import top.flowerstardream.hcd.order.ao.req.OrdersPaymentREQ;
+import top.flowerstardream.hcd.order.ao.res.OrderMgmtRES;
+import top.flowerstardream.hcd.order.ao.res.OrderPaymentRES;
 import top.flowerstardream.hcd.tools.result.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -10,7 +14,6 @@ import top.flowerstardream.hcd.order.ao.req.OrderREQ;
 import top.flowerstardream.hcd.order.ao.res.OrderRES;
 import top.flowerstardream.hcd.order.biz.service.IOrderService;
 import top.flowerstardream.hcd.order.bo.OrderEO;
-import top.flowerstardream.hcd.order.constant.OrderConstant;
 
 import java.util.List;
 
@@ -25,6 +28,7 @@ import static top.flowerstardream.hcd.tools.utils.GetInfoUtil.*;
 @RestController("appOrderController")
 @RequestMapping("/api/v1/app/order/order")
 @Tag(name = "订单服务", description = "C端订单接口")
+@Slf4j
 public class OrderController {
 
     @Resource
@@ -53,7 +57,7 @@ public class OrderController {
         // 获取当前用户ID
         Long userId = getTenantId();
         // 查询订单并验证归属
-        OrderEO order = orderService.getOrderById(id);
+        OrderMgmtRES order = orderService.getOrderById(id);
         if (!order.getUserId().equals(userId)) {
             ORDER_PERMISSION_DENIED.throwException();
         }
@@ -63,12 +67,26 @@ public class OrderController {
     }
 
     /**
-     * 取消订单（退订）
+     * 订单支付
+     * @param ordersPaymentREQ
+     * @return
+     */
+    @PutMapping("/payment")
+    @Operation(summary = "订单支付", description = "C端订单支付")
+    public Result<OrderPaymentRES> payment(@RequestBody OrdersPaymentREQ ordersPaymentREQ) throws Exception {
+        log.info("订单支付：{}", ordersPaymentREQ);
+        OrderPaymentRES orderPaymentVO = orderService.payment(ordersPaymentREQ);
+        log.info("生成预支付交易单：{}", orderPaymentVO);
+        return Result.successResult(orderPaymentVO);
+    }
+
+    /**
+     * 取消订单
      * @param orderId 订单ID
      */
     @Operation(summary = "取消订单", description = "C端取消订单")
     @DeleteMapping("/{orderId}")
-    public Result<String> cancelOrder(@PathVariable Long orderId) {
+    public Result<String> cancelOrder(@PathVariable Long orderId) throws Exception {
         // 获取当前用户ID
         Long userId = getTenantId();
         orderService.cancelOrder(orderId, userId);

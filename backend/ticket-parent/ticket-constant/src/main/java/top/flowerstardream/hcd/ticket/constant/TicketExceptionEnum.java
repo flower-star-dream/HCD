@@ -50,7 +50,15 @@ public enum TicketExceptionEnum implements ICustomError {
     /**
      * 改签时间已过
      */
-    CHANGE_TIME_EXPIRED(30008, "改签时间已过");
+    CHANGE_TIME_EXPIRED(30008, "改签时间已过"),
+    /**
+     * 车票当前状态不允许此操作
+     */
+    TICKET_STATUS_NOT_ALLOWED(30009, "车票当前状态不允许此操作"),
+    /**
+     * 订单当前状态不允许操作此车票
+     */
+    ORDER_STATUS_NOT_ALLOWED(30010, "订单当前状态不允许操作此车票");
 
     private final Integer code;
     private final String message;

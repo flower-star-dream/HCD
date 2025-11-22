@@ -30,6 +30,7 @@ import top.flowerstardream.hcd.user.biz.service.IUserService;
 import top.flowerstardream.hcd.user.bo.eo.UserEO;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -109,9 +110,9 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, UserEO> implements
     }
 
     @Override
-    @Cacheable(cacheNames = USER_INFO_CACHE_NAME, key = "#id", unless = "#id == null")
-    public UserEO getUserInfo(Long id) {
-        return self.getById(id);
+    @Cacheable(cacheNames = USER_INFO_CACHE_NAME, key = "#ids", unless = "#ids == null")
+    public List<UserEO> getUserInfo(List<Long> ids) {
+        return self.listByIds(ids);
     }
 
     @Override

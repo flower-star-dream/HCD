@@ -12,6 +12,9 @@ import top.flowerstardream.hcd.user.ao.res.WxLoginRES;
 import top.flowerstardream.hcd.user.biz.service.IUserService;
 import top.flowerstardream.hcd.user.bo.eo.UserEO;
 
+import java.util.Collections;
+import java.util.List;
+
 import static top.flowerstardream.hcd.tools.utils.GetInfoUtil.*;
 
 /**
@@ -61,8 +64,8 @@ public class UserController {
     @Operation(summary = "获取用户信息", description = "小程序端获取用户信息接口")
     public Result<UserEO> getUserInfo() {
         log.info("【用户-小程序】traceId:{}, 获取用户信息，用户ID: {}", getTraceId(), getTenantId());
-        UserEO userEO = userService.getUserInfo(getTenantId());
-        return Result.successResult(userEO);
+        List<UserEO> userEO = userService.getUserInfo(Collections.singletonList(getTenantId()));
+        return Result.successResult(userEO.get(0));
     }
 
     /**
