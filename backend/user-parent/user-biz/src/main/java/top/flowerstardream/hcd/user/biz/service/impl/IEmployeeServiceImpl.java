@@ -115,7 +115,7 @@ public class IEmployeeServiceImpl extends ServiceImpl<EmployeeMapper, EmployeeEO
 
     @Override
     public void logout() {
-        Long id = getTenantId();
+        Long id = getTenantId(); // 获取当前登录用户id
         String redisKey = EMPLOYEE_TOKEN_PREFIX + id;
         String redisToken = stringRedisTemplate.opsForValue().get(redisKey);
         if (redisToken != null) {
@@ -222,7 +222,7 @@ public class IEmployeeServiceImpl extends ServiceImpl<EmployeeMapper, EmployeeEO
             if (employee == null) {
                 return;
             }
-            if (employee.getStatus() == ENABLE) {
+            if (Objects.equals(employee.getStatus(), ENABLE)) {
                 USER_STATUS_ENABLE.throwException();
             }
         });

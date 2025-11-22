@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import top.flowerstardream.hcd.tools.result.Result;
 
+import java.awt.image.RenderedImage;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -33,4 +34,19 @@ public interface OrderClient {
      */
     @PutMapping("/order/totalPrice")
     Result<Void> updateTotalPrice(@RequestParam("orderId") Long orderId, @RequestParam("newTotalPrice") BigDecimal newTotalPrice);
+
+    /**
+     * 订单退款
+     * @param orderId 订单ID
+     */
+    @PutMapping("/order/refund")
+    Result<Void> orderRefund(@RequestParam("orderId") Long orderId);
+
+    /**
+     * 获取订单状态
+     * @param orderId 订单ID
+     * @return 订单状态
+     */
+    @GetMapping("/order/status")
+    Result<Integer> getOrderStatus(@RequestParam("orderId") Long orderId);
 }

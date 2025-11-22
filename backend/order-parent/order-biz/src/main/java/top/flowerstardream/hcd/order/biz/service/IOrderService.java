@@ -6,6 +6,9 @@ import top.flowerstardream.hcd.order.ao.dto.OrderDTO;
 import top.flowerstardream.hcd.order.ao.req.OrderPageQueryREQ;
 import top.flowerstardream.hcd.order.ao.req.OrderREQ;
 import top.flowerstardream.hcd.order.ao.req.OrderStatusREQ;
+import top.flowerstardream.hcd.order.ao.req.OrdersPaymentREQ;
+import top.flowerstardream.hcd.order.ao.res.OrderMgmtRES;
+import top.flowerstardream.hcd.order.ao.res.OrderPaymentRES;
 import top.flowerstardream.hcd.order.ao.res.OrderRES;
 import top.flowerstardream.hcd.order.bo.OrderEO;
 import top.flowerstardream.hcd.tools.result.PageResult;
@@ -32,27 +35,27 @@ public interface IOrderService extends IService<OrderEO> {
      * @param id 订单ID
      * @return 订单详情
      */
-    OrderEO getOrderById(Long id);
+    OrderMgmtRES getOrderById(Long id);
 
     /**
      * 更新订单状态
      * @param req 订单状态更新请求
      */
-    void updateOrderStatus(OrderStatusREQ req);
+    void updateOrderStatus(OrderStatusREQ req) throws Exception;
 
     /**
      * 取消订单（退订）
      * @param orderId 订单ID
      * @param userId 用户ID
      */
-    void cancelOrder(Long orderId, Long userId);
+    void cancelOrder(Long orderId, Long userId) throws Exception;
 
     /**
      * 分页查询订单列表
      * @param req 查询条件
      * @return 分页结果
      */
-    PageResult<OrderEO> pageQuery(OrderPageQueryREQ req);
+    PageResult<OrderMgmtRES> pageQuery(OrderPageQueryREQ req);
 
     /**
      * 查询用户的订单列表
@@ -67,4 +70,30 @@ public interface IOrderService extends IService<OrderEO> {
      * @param newTotalPrice 新的总价
      */
     void updateTotalPrice(Long orderId, BigDecimal newTotalPrice);
+
+    /**
+     * 支付成功，修改订单状态
+     * @param outTradeNo
+     */
+    void paySuccess(Long outTradeNo);
+
+    /**
+     * 订单支付
+     * @param ordersPaymentREQ
+     * @return
+     */
+    OrderPaymentRES payment(OrdersPaymentREQ ordersPaymentREQ) throws Exception;
+
+    /**
+     * 订单退款
+     * @param orderId
+     */
+    void orderRefund(Long orderId) throws Exception;
+
+    /**
+     * 获取订单状态
+     * @param orderId
+     * @return
+     */
+    Integer getOrderStatus(Long orderId);
 }

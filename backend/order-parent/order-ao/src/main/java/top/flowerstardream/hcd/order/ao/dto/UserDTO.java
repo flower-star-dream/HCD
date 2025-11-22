@@ -1,4 +1,4 @@
-package top.flowerstardream.hcd.user.ao.dto;
+package top.flowerstardream.hcd.order.ao.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
