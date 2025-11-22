@@ -1,6 +1,7 @@
 package top.flowerstardream.hcd.ticket.biz.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import top.flowerstardream.hcd.ticket.ao.dto.CancelTicketDTO;
 import top.flowerstardream.hcd.ticket.ao.dto.TicketDTO;
 import top.flowerstardream.hcd.ticket.ao.req.TicketPageQueryREQ;
 import top.flowerstardream.hcd.ticket.ao.req.TicketStatusChangeREQ;
@@ -59,8 +60,8 @@ public interface ITicketService extends IService<TicketEO> {
     List<TicketRES> getTicketsByOrderId(Long orderId);
 
     /**
-     * 根据订单ID取消车票
-     * @param orderId 订单ID
+     * 根据订单信息取消车票
+     * @param cancelTicketDTO 订单信息
      */
-    void cancelTicketByOrder(Long orderId);
+    void cancelTicketByOrder(CancelTicketDTO cancelTicketDTO);
 }

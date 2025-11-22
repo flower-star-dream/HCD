@@ -68,7 +68,7 @@ public interface TrainSeatClient {
      * @return
      */
     @PostMapping("/seatReservation/by-ids")
-    Result<List<SeatReservationDTO>> getSeatReservationByIds(List<Long> seatReservationIds);
+    Result<List<SeatReservationDTO>> getSeatReservationByIds(@RequestParam List<Long> seatReservationIds);
 
     /**
      * 根据站ID获取站名
@@ -76,5 +76,5 @@ public interface TrainSeatClient {
      * @return
      */
     @PostMapping("/stations/by-ids")
-    Result<List<StationsDTO>> getStationNamesByStationIds(List<Long> stationIds);
+    Result<List<StationsDTO>> getStationNamesByStationIds(@RequestParam List<Long> stationIds);
 }

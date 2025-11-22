@@ -3,6 +3,7 @@ package top.flowerstardream.hcd.order.biz.client;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 import top.flowerstardream.hcd.order.ao.dto.CalcTicketPriceDTO;
+import top.flowerstardream.hcd.order.ao.dto.CancelTicketDTO;
 import top.flowerstardream.hcd.order.ao.dto.TicketDTO;
 import top.flowerstardream.hcd.tools.result.Result;
 
@@ -17,10 +18,10 @@ public interface TicketClient {
 
     /**
      * 取消车票
-     * @param orderId
+     * @param cancelTicketDTO
      */
     @PostMapping("/ticket/cancel")
-    Result<Void> cancelTicket(@RequestParam Long orderId);
+    Result<Void> cancelTicket(@RequestBody CancelTicketDTO cancelTicketDTO);
 
     /**
      * 创建车票

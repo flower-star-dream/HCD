@@ -57,7 +57,16 @@ public enum OrderExceptionEnum implements ICustomError {
     /**
      * 该订单已支付
      */
-    ORDER_ALREADY_PAID(40009, "该订单已支付");
+    ORDER_ALREADY_PAID(40009, "该订单已支付"),
+    /**
+     * 订单退款失败
+     */
+    ORDER_REFUND_FAILED(40010, "订单退款失败"),
+    /**
+     * 订单当前状态禁止退款
+     */
+    ORDER_REFUND_FORBIDDEN(40011, "当前订单状态禁止退款");
+
 
     /**
      * 错误码

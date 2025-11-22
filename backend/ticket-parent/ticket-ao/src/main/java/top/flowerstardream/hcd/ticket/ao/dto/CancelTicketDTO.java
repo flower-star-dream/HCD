@@ -11,21 +11,22 @@ import java.io.Serializable;
 
 /**
  * @Author: 花海
- * @Date: 2025/11/14/03:30
- * @Description: 座位预约信息
+ * @Date: 2025/11/21/22:25
+ * @Description: 取消车票请求
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "座位预约信息")
-public class SeatReservationDTO implements Serializable {
+@Schema(description = "取消车票请求")
+public class CancelTicketDTO implements Serializable {
+
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "座位ID")
-    private Long id;
+    @Schema(description = "订单ID")
+    Long orderId;
 
-    @Schema(description = "座位号")
-    private String seatNum;
+    @Schema(description = "状态")
+    Integer status;
 }
