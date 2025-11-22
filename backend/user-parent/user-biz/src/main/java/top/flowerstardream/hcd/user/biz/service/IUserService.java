@@ -7,6 +7,8 @@ import top.flowerstardream.hcd.user.ao.req.WechatLoginREQ;
 import top.flowerstardream.hcd.user.ao.res.WxLoginRES;
 import top.flowerstardream.hcd.user.bo.eo.UserEO;
 
+import java.util.List;
+
 /**
  * 用户服务接口
  *
@@ -29,7 +31,7 @@ public interface IUserService {
      * @param userId 用户ID
      * @return 用户信息
      */
-    UserEO getUserInfo(Long userId);
+    List<UserEO> getUserInfo(List<Long> userId);
 
     /**
      * 更新用户信息
