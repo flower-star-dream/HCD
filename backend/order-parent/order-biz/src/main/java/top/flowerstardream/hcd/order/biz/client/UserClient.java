@@ -1,10 +1,14 @@
 package top.flowerstardream.hcd.order.biz.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import top.flowerstardream.hcd.order.ao.dto.UserDTO;
+import top.flowerstardream.hcd.tools.result.Result;
+
+import java.awt.image.RenderedImage;
+import java.util.List;
 
 /**
  * @Author: 花海
@@ -15,6 +19,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/api/v1/internal/user")
 public interface UserClient {
 
-    @PostMapping("/user/openid")
-    String getOpenid(@RequestParam Long userId);
+    @PostMapping("/user/")
+    Result<List<UserDTO>> getUserByIds(@RequestParam List<Long> userIds);
 }

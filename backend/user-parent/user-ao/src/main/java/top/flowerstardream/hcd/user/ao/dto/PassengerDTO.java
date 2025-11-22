@@ -26,10 +26,4 @@ public class PassengerDTO implements Serializable {
 
     @Schema(description = "身份证号")
     private String idCard;
-
-    @Schema(description = "创建时间")
-    private String createTime;
-
-    @Schema(description = "创建人")
-    private String createPerson;
 }

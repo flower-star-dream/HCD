@@ -29,7 +29,7 @@ import static top.flowerstardream.hcd.tools.utils.GetInfoUtil.*;
 public class EmployeeController {
 
     @Resource
-    private IEmployeeService IEmployeeService;
+    private IEmployeeService employeeService;
 
     /**
      * 登录
@@ -41,7 +41,7 @@ public class EmployeeController {
     @Operation(summary = "员工登录", description = "员工登录")
     public Result<LoginRES> login(@RequestBody LoginREQ loginREQ) {
         log.info("【用户-员工】traceId:{}, 员工登录：{}", getTraceId(), loginREQ);
-        LoginRES loginRES = IEmployeeService.login(loginREQ);
+        LoginRES loginRES = employeeService.login(loginREQ);
         return Result.successResult(loginRES);
     }
 
@@ -54,7 +54,7 @@ public class EmployeeController {
     @Operation(summary = "获取当前登录员工信息", description = "获取当前登录员工信息")
     public Result<EmployeeEO> getInfo() {
         log.info("【用户-员工】traceId:{}, 获取当前登录员工信息:{}", getTraceId(), getTenantId());
-        EmployeeEO employeeEO = IEmployeeService.getInfo(getTenantId());
+        EmployeeEO employeeEO = employeeService.getInfo(getTenantId());
         return Result.successResult(employeeEO);
     }
 
@@ -67,7 +67,7 @@ public class EmployeeController {
     @Operation(summary = "更新当前登录员工信息", description = "更新当前登录员工信息")
     public Result<EmployeeEO> updateInfo(@RequestBody EmployeeInfoREQ employeeInfoREQ) {
         log.info("【用户-员工】traceId:{}, 更新当前登录员工信息：{}", getTraceId(), employeeInfoREQ);
-        IEmployeeService.updateInfo(employeeInfoREQ);
+        employeeService.updateInfo(employeeInfoREQ);
         return Result.successResult();
     }
 
@@ -80,7 +80,7 @@ public class EmployeeController {
     @Operation(summary = "获取员工列表", description = "获取员工列表")
     public Result<PageResult<EmployeeEO>> list(EmployeePageQueryREQ employeePageQueryREQ) {
         log.info("【用户-员工】traceId:{}, 获取员工列表", getTraceId());
-        return Result.successResult(IEmployeeService.list(employeePageQueryREQ));
+        return Result.successResult(employeeService.list(employeePageQueryREQ));
     }
 
     /**
@@ -92,7 +92,7 @@ public class EmployeeController {
     @Operation(summary = "新增员工账号", description = "新增员工账号")
     public Result<String> add(@RequestBody EmployeeREQ employeeREQ) {
         log.info("【用户-员工】traceId:{}, 新增员工账号：{}", getTraceId(), employeeREQ);
-        IEmployeeService.add(employeeREQ);
+        employeeService.add(employeeREQ);
         return Result.successResult();
     }
 
@@ -105,8 +105,8 @@ public class EmployeeController {
     @Operation(summary = "修改员工账号", description = "修改员工账号")
     public Result<String> update(@RequestBody EmployeeREQ employeeREQ) {
         log.info("【用户-员工】traceId:{}, 修改员工账号：{}", getTraceId(), employeeREQ);
-        log.info("实际注入的Service实现类={}", IEmployeeService.getClass().getName());
-        IEmployeeService.update(employeeREQ);
+        log.info("实际注入的Service实现类={}", employeeService.getClass().getName());
+        employeeService.update(employeeREQ);
         return Result.successResult();
     }
 
@@ -119,7 +119,7 @@ public class EmployeeController {
     @Operation(summary = "删除员工账号", description = "删除员工账号")
     public Result<String> delete(@PathVariable List<Long> ids){
         log.info("【用户-员工】traceId:{}, 删除员工账号：{}", getTraceId(), ids);
-        IEmployeeService.delete(ids);
+        employeeService.delete(ids);
         return Result.successResult();
     }
 
@@ -133,7 +133,7 @@ public class EmployeeController {
     @Operation(summary = "启用禁用员工账号", description = "启用禁用员工账号")
     public Result<String> startOrStop(@RequestBody StatusChangeREQ statusChangeREQ){
         log.info("【用户-员工】traceId:{}, 启用禁用员工账号：{}，{}", getTraceId(), statusChangeREQ.getStatus(), statusChangeREQ.getId());
-        IEmployeeService.startOrStop(statusChangeREQ.getStatus(), statusChangeREQ.getId());
+        employeeService.startOrStop(statusChangeREQ.getStatus(), statusChangeREQ.getId());
         return Result.successResult();
     }
 
@@ -146,7 +146,7 @@ public class EmployeeController {
     @Operation(summary = "重置密码", description = "重置密码")
     public Result<String> resetPassword(@RequestBody ResetPwdREQ resetPwdREQ){
         log.info("【用户-员工】traceId:{}, 重置密码：{}", getTraceId(), resetPwdREQ);
-        IEmployeeService.resetPassword(resetPwdREQ);
+        employeeService.resetPassword(resetPwdREQ);
         return Result.successResult();
     }
 
@@ -161,7 +161,7 @@ public class EmployeeController {
     @Operation(summary = "员工登出", description = "员工登出")
     public Result<Void> logout() {
         log.info("【用户-员工】traceId:{}, 员工登出", getTraceId());
-        IEmployeeService.logout();
+        employeeService.logout();
         return Result.successResult();
     }
 

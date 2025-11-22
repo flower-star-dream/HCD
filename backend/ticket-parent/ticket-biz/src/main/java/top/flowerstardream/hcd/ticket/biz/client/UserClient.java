@@ -25,8 +25,13 @@ public interface UserClient {
      * @return 乘车人ID列表
      */
     @GetMapping("/passenger/by-name")
-    Result<List<Long>> getPassengerIdsByName(String passengerName);
+    Result<List<Long>> getPassengerIdsByName(@RequestParam String passengerName);
 
+    /**
+     * 根据乘车人ID列表获取乘车人信息列表
+     * @param passengerIds 乘车人ID列表
+     * @return 乘车人信息列表
+     */
     @PostMapping("/passenger/by-ids")
     Result<List<PassengerDTO>> getPassengerByIds(@RequestParam List<Long> passengerIds);
 }

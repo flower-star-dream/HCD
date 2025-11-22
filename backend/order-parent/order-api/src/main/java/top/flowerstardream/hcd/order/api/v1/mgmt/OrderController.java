@@ -4,8 +4,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 import top.flowerstardream.hcd.order.ao.req.OrderStatusREQ;
+import top.flowerstardream.hcd.order.ao.res.OrderMgmtRES;
 import top.flowerstardream.hcd.order.bo.OrderEO;
 import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.order.ao.dto.OrderDTO;
@@ -36,7 +38,7 @@ public class OrderController {
      */
     @Operation(summary = "分页查询订单列表", description = "B端分页查询所有订单")
     @GetMapping("/page")
-    public Result<PageResult<OrderEO>> pageQuery(@RequestBody OrderPageQueryREQ req) {
+    public Result<PageResult<OrderMgmtRES>> pageQuery(@RequestBody OrderPageQueryREQ req) {
         log.info("【订单】traceId:{}, 分页查询订单列表：{}", getTraceId(), req);
         return Result.successResult(orderService.pageQuery(req));
     }
@@ -48,7 +50,7 @@ public class OrderController {
      */
     @Operation(summary = "查询订单详情", description = "根据订单ID查询订单详情")
     @GetMapping("/{id}")
-    public Result<OrderEO> getOrderById(@PathVariable Long id) {
+    public Result<OrderMgmtRES> getOrderById(@PathVariable Long id) {
         log.info("【订单】traceId:{}, 查询订单详情：{}", getTraceId(), id);
         return Result.successResult(orderService.getOrderById(id));
     }
@@ -59,7 +61,7 @@ public class OrderController {
      */
     @Operation(summary = "修改订单状态", description = "B端修改订单状态")
     @PutMapping("/status")
-    public Result<String> updateOrderStatus(@RequestBody OrderStatusREQ req) {
+    public Result<String> updateOrderStatus(@RequestBody OrderStatusREQ req) throws Exception {
         log.info("【订单】traceId:{}, 修改订单状态：{}", getTraceId(), req);
         orderService.updateOrderStatus(req);
         return Result.successResult();

@@ -1,7 +1,8 @@
 package top.flowerstardream.hcd.order.biz.service.impl;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import cn.hutool.core.collection.CollUtil;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -16,10 +17,14 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.flowerstardream.hcd.order.ao.dto.CalcTicketPriceDTO;
+import top.flowerstardream.hcd.order.ao.dto.CancelTicketDTO;
 import top.flowerstardream.hcd.order.ao.dto.TicketDTO;
+import top.flowerstardream.hcd.order.ao.dto.UserDTO;
 import top.flowerstardream.hcd.order.ao.req.OrderPageQueryREQ;
 import top.flowerstardream.hcd.order.ao.req.OrderREQ;
 import top.flowerstardream.hcd.order.ao.req.OrderStatusREQ;
+import top.flowerstardream.hcd.order.ao.req.OrdersPaymentREQ;
+import top.flowerstardream.hcd.order.ao.res.OrderMgmtRES;
 import top.flowerstardream.hcd.order.ao.res.OrderPaymentRES;
 import top.flowerstardream.hcd.order.ao.res.OrderRES;
 import top.flowerstardream.hcd.order.biz.client.TicketClient;
@@ -29,22 +34,24 @@ import top.flowerstardream.hcd.order.biz.mapper.OrderMapper;
 import top.flowerstardream.hcd.order.biz.service.IOrderService;
 import top.flowerstardream.hcd.order.bo.OrderEO;
 import top.flowerstardream.hcd.tools.result.PageResult;
-import top.flowerstardream.hcd.tools.result.Result;
 import top.flowerstardream.hcd.tools.utils.WeChatPayUtil;
 
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static top.flowerstardream.hcd.order.constant.OrderConstant.*;
 import static top.flowerstardream.hcd.order.constant.OrderExceptionEnum.*;
 import static top.flowerstardream.hcd.order.constant.OrderRedisPrefixConstant.*;
-import static top.flowerstardream.hcd.tools.utils.GetInfoUtil.getTenantId;
+import static top.flowerstardream.hcd.tools.exception.ExceptionEnum.*;
+import static top.flowerstardream.hcd.tools.utils.GetInfoUtil.*;
 
 /**
  * @Author: 花海
@@ -114,7 +121,6 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
         // 4. 创建车票
         TicketDTO ticketDTO = new TicketDTO();
         BeanUtils.copyProperties(req, ticketDTO);
-        ticketDTO.setOrderId(orderEO.getId());
         ticketDTO.setMoney(price);
         createOrderAndTicket(ticketDTO, orderEO);
     }
@@ -130,7 +136,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
     }
 
     @Override
-    public OrderEO getOrderById(Long id) {
+    public OrderMgmtRES getOrderById(Long id) {
         // 参数校验
         if (id == null || id <= 0) {
             ORDER_PERMISSION_DENIED.throwException();
@@ -141,16 +147,18 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
         if (orderEO == null) {
             ORDER_NOT_FOUND.throwException();
         }
-
-        return orderEO;
+        OrderMgmtRES orderMgmtRES = new OrderMgmtRES();
+        BeanUtils.copyProperties(orderEO, orderMgmtRES);
+        orderMgmtRES.setUsername(userClient.getUserByIds(Collections.singletonList(orderEO.getUserId())).getData().get(0).getUsername());
+        return orderMgmtRES;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void updateOrderStatus(OrderStatusREQ req) {
+    public void updateOrderStatus(OrderStatusREQ req) throws Exception {
         // 参数校验
         if (req == null || req.getId() == null || req.getId() <= 0 || req.getStatus() == null) {
-            ORDER_PERMISSION_DENIED.throwException();
+            PARAM_ERROR.throwException();
         }
 
         // 查询订单是否存在
@@ -161,9 +169,15 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
 
         // 更新订单状态
         if (Objects.equals(orderEO.getStatus(), ORDER_STATUS_COMPLETED) ||
-                Objects.equals(orderEO.getStatus(), ORDER_STATUS_TICKETED) ||
+                Objects.equals(orderEO.getStatus(), ORDER_STATUS_REFUNDED) ||
                 Objects.equals(orderEO.getStatus(), ORDER_STATUS_CANCELLED)) {
             ORDER_STATUS_INVALID.throwException();
+        }
+
+        if (Objects.equals(req.getStatus(), ORDER_STATUS_REFUNDED) ||
+                Objects.equals(req.getStatus(), ORDER_STATUS_CANCELLED)) {
+            cancelOrder(orderEO.getId(), orderEO.getUserId());
+            return;
         }
 
         orderEO.setStatus(req.getStatus());
@@ -178,7 +192,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
 
     @Override
     @GlobalTransactional(rollbackFor = Exception.class)
-    public void cancelOrder(Long orderId, Long userId) {
+    public void cancelOrder(Long orderId, Long userId) throws Exception {
         // 参数校验
         if (orderId == null || userId == null || userId <= 0) {
             ORDER_PERMISSION_DENIED.throwException();
@@ -201,16 +215,27 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
                 Objects.equals(orderEO.getStatus(), ORDER_STATUS_REFUNDED)) {
             ORDER_STATUS_INVALID.throwException();
         }
+        // 更新订单状态为已取消
+        orderEO.setStatus(ORDER_STATUS_CANCELLED);
+
+        // 订单状态处于待支付或已出票时，调用服务取消车票并退款
+        if (Objects.equals(orderEO.getStatus(), ORDER_STATUS_PAID) ||
+                Objects.equals(orderEO.getStatus(), ORDER_STATUS_TICKETED)) {
+            orderEO = refund(orderEO, orderEO.getTotalPrice(), orderEO.getTotalPrice());
+            orderEO.setStatus(ORDER_STATUS_REFUNDED);
+        }
 
         // 调用票务服务取消车票
         // 发送MQ消息取消车票
         // TODO: 发送MQ消息到票务服务，由票务服务消费消息后执行车票取消逻辑
         // 示例伪代码：rabbitTemplate.convertAndSend("ticket.cancel", id);
         // 这里暂时直接调用客户端方法，后续需要改造为MQ异步处理
-        ticketClient.cancelTicket(orderId);
+        CancelTicketDTO cancelTicketDTO = CancelTicketDTO.builder()
+                .orderId(orderEO.getId())
+                .status(orderEO.getStatus())
+                .build();
+        ticketClient.cancelTicket(cancelTicketDTO);
 
-        // 更新订单状态为已取消
-        orderEO.setStatus(ORDER_STATUS_CANCELLED);
         if (!self.updateById(orderEO)) {
             ORDER_CANCEL_FAILED.throwException();
         }
@@ -222,7 +247,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
      * @return
      */
     @Override
-    public PageResult<OrderEO> pageQuery(OrderPageQueryREQ req) {
+    public PageResult<OrderMgmtRES> pageQuery(OrderPageQueryREQ req) {
         // 参数校验
         if (req == null) {
             ORDER_PERMISSION_DENIED.throwException();
@@ -247,9 +272,9 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
 
         IPage<OrderEO> orderPage = orderMapper.selectPage(page, queryWrapper);
         // 封装返回结果
-        PageResult<OrderEO> pageResult = new PageResult<>();
+        PageResult<OrderMgmtRES> pageResult = new PageResult<>();
         pageResult.setTotal(orderPage.getTotal());
-        pageResult.setRecords(orderPage.getRecords());
+        pageResult.setRecords(convertToRES(orderPage.getRecords()));
         return pageResult;
     }
 
@@ -291,8 +316,11 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
             ORDER_NOT_FOUND.throwException();
         }
         if (newTotalPrice.compareTo(BigDecimal.ZERO) > 0) {
-            // TODO 订单总价减少，需要退款
-
+            try {
+               orderEO = refund(orderEO, newTotalPrice, orderEO.getTotalPrice());
+            } catch (Exception e) {
+                ORDER_REFUND_FAILED.throwException();
+            }
         } else if (newTotalPrice.compareTo(BigDecimal.ZERO) < 0) {
             orderEO.setStatus(ORDER_STATUS_PENDING_PAY);
         } else {
@@ -308,18 +336,22 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
     /**
      * 订单支付
      *
-     * @param orderId
+     * @param ordersPaymentREQ
      * @return
      */
-    public OrderPaymentRES payment(Long orderId) throws Exception {
+    public OrderPaymentRES payment(OrdersPaymentREQ ordersPaymentREQ) throws Exception {
+        if (ordersPaymentREQ == null) {
+            PARAM_ERROR.throwException();
+        }
         // 当前登录用户id
         Long userId = getTenantId();
-        String openid = userClient.getOpenid(userId);
+        String openid = userClient.getUserByIds(Collections.singletonList(userId)).getData().get(0).getOpenId();
+        OrderEO orderEO = self.getById(ordersPaymentREQ.getOrderId());
 
         //调用微信支付接口，生成预支付交易单
         JSONObject jsonObject = weChatPayUtil.pay(
-                String.valueOf(orderId), //商户订单号
-                new BigDecimal("0.01"), //支付金额，单位 元
+                String.valueOf(ordersPaymentREQ.getOrderId()), //商户订单号
+                orderEO.getTotalPrice(), //支付金额，单位 元
                 "车票订单", //商品描述
                 openid //微信用户的openid
         );
@@ -331,10 +363,52 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
         OrderPaymentRES res = jsonObject.toJavaObject(OrderPaymentRES.class);
         res.setPackageStr(jsonObject.getString("package"));
 
-//        // 用于测试，直接跳过预支付，交易单生成
+        // 用于测试，直接跳过预支付，交易单生成
 //        OrderPaymentRES res = new OrderPaymentRES();
 //        paySuccess(orderId);
         return res;
+    }
+
+    /**
+     * 订单退款
+     *
+     * @param orderId
+     */
+    @Override
+    public void orderRefund(Long orderId) throws Exception {
+        if (orderId == null) {
+            PARAM_ERROR.throwException();
+        }
+        OrderEO orderEO = self.getById(orderId);
+        if (orderEO == null) {
+            ORDER_NOT_FOUND.throwException();
+        }
+        if (!Objects.equals(orderEO.getStatus(), ORDER_STATUS_PAID) && !Objects.equals(orderEO.getStatus(), ORDER_STATUS_TICKETED)) {
+            ORDER_REFUND_FORBIDDEN.throwException();
+        }
+        orderEO = refund(orderEO, orderEO.getTotalPrice(), orderEO.getTotalPrice());
+        orderEO.setStatus(ORDER_STATUS_REFUNDED);
+        if (!self.updateById(orderEO)) {
+            ORDER_REFUND_FAILED.throwException();
+        }
+    }
+
+    /**
+     * 获取订单状态
+     *
+     * @param orderId
+     * @return
+     */
+    @Override
+    public Integer getOrderStatus(Long orderId) {
+        if (orderId == null) {
+            PARAM_ERROR.throwException();
+        }
+        OrderEO orderEO = self.getById(orderId);
+        if (orderEO == null) {
+            ORDER_NOT_FOUND.throwException();
+        }
+        return orderEO.getStatus();
     }
 
     /**
@@ -342,8 +416,8 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
      *
      * @param outTradeNo
      */
+    @Override
     public void paySuccess(Long outTradeNo) {
-
         // 根据订单号查询订单
         OrderEO ordersDB = self.getById(outTradeNo);
 
@@ -375,5 +449,37 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
             order.setStatus(ORDER_STATUS_REFUNDED);
         }
         return order;
+    }
+
+    private List<OrderMgmtRES> convertToRES(List<OrderEO> orderList) {
+        if (CollUtil.isEmpty(orderList)) {
+            return Collections.emptyList();
+        }
+
+        /* 1. 查所有关联数据 */
+        // 1.1 用户
+        List<Long> userIds = orderList.stream()
+                                            .map(OrderEO::getUserId)
+                                            .distinct()
+                                            .toList();
+        Map<Long, UserDTO> userMap = userClient.getUserByIds(userIds)
+                                                         .getData()
+                                                         .stream()
+                                                         .collect(Collectors.toMap(UserDTO::getId, Function.identity()));
+
+        /* 2. 组装结果 */
+        return orderList.stream()
+                         .map(order -> {
+                             OrderMgmtRES res = new OrderMgmtRES();
+                             BeanUtils.copyProperties(order, res);
+
+                             // 2.1 用户
+                             UserDTO user = userMap.get(order.getUserId());
+                             if (user != null) {
+                                 res.setUsername(user.getUsername());
+                             }
+                             return res;
+                         })
+                         .toList();
     }
 }

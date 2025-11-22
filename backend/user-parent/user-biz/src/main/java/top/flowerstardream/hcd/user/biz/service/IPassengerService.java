@@ -55,4 +55,20 @@ public interface IPassengerService {
      * @param passengerId 乘车人ID
      */
     void setDefaultPassenger(Long userId, Long passengerId);
+
+    /**
+     * 根据乘车人姓名获取乘车人列表
+     *
+     * @param passengerName 乘车人姓名
+     * @return 乘车人列表
+     */
+    List<Long> getPassengersByName(String passengerName);
+
+    /**
+     * 根据乘车人ID列表获取乘车人信息列表
+     *
+     * @param passengerIds 乘车人ID列表
+     * @return 乘车人信息列表
+     */
+    List<PassengerDTO> getPassengersByIds(List<Long> passengerIds);
 }

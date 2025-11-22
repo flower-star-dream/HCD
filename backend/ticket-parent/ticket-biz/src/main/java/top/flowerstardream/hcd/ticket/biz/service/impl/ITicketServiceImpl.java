@@ -23,6 +23,7 @@ import top.flowerstardream.hcd.ticket.biz.client.OrderClient;
 import top.flowerstardream.hcd.ticket.biz.mapper.TicketMapper;
 import top.flowerstardream.hcd.ticket.biz.service.ITicketService;
 import top.flowerstardream.hcd.ticket.bo.TicketEO;
+import top.flowerstardream.hcd.ticket.constant.OrderConstant;
 import top.flowerstardream.hcd.ticket.constant.TicketStatusEnum;
 import top.flowerstardream.hcd.ticket.biz.client.TrainSeatClient;
 import top.flowerstardream.hcd.ticket.biz.client.UserClient;
@@ -35,9 +36,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static top.flowerstardream.hcd.ticket.constant.OrderConstant.*;
 import static top.flowerstardream.hcd.ticket.constant.TicketExceptionEnum.*;
 import static top.flowerstardream.hcd.tools.exception.ExceptionEnum.*;
-import static top.flowerstardream.hcd.tools.utils.GetInfoUtil.getTenantId;
+import static top.flowerstardream.hcd.tools.utils.GetInfoUtil.*;
 
 /**
  * @Author: 花海
@@ -229,6 +231,14 @@ public class ITicketServiceImpl extends ServiceImpl<TicketMapper, TicketEO> impl
                 orderClient.updateTotalPrice(oldTicket.getOrderId(), newTotalPrice);
             }
         }
+        // 如果是退票车票，需要调用列车服务释放座位
+        if (TicketStatusEnum.REFUNDED.getCode().equals(req.getStatus())) {
+            if (oldTicket.getSeatReservationId() != null) {
+                trainSeatClient.releaseSeat(Collections.singletonList(oldTicket.getSeatReservationId()));
+                orderClient.orderRefund(oldTicket.getOrderId());
+            }
+        }
+        ticketEO.setStatus(req.getStatus());
         self.updateById(ticketEO);
     }
 
@@ -250,12 +260,24 @@ public class ITicketServiceImpl extends ServiceImpl<TicketMapper, TicketEO> impl
         if (!isOwner) {
             TICKET_PERMISSION_DENIED.throwException();
         }
-        
+
+        if (!TicketStatusEnum.NORMAL.getCode().equals(ticketEO.getStatus())) {
+            TICKET_STATUS_NOT_ALLOWED.throwException();
+        }
+
+        // 调用订单服务访问订单状态
+        Integer orderStatus = orderClient.getOrderStatus(ticketEO.getOrderId()).getData();
+        if (orderStatus > ORDER_STATUS_TICKETED) {
+            ORDER_STATUS_NOT_ALLOWED.throwException();
+        }
         // 更新状态为已取消
         TicketStatusChangeREQ ticketStatusChangeREQ = new TicketStatusChangeREQ();
         ticketStatusChangeREQ.setId(ticketId);
-        ticketStatusChangeREQ.setStatus(TicketStatusEnum.CANCELLED.getCode());
-        
+        if (orderStatus.equals(ORDER_STATUS_PENDING_PAY)) {
+            ticketStatusChangeREQ.setStatus(TicketStatusEnum.CANCELLED.getCode());
+        } else {
+            ticketStatusChangeREQ.setStatus(TicketStatusEnum.REFUNDED.getCode());
+        }
         updateTicketStatus(ticketStatusChangeREQ);
     }
 
@@ -280,14 +302,14 @@ public class ITicketServiceImpl extends ServiceImpl<TicketMapper, TicketEO> impl
     }
 
     /**
-     * 根据订单ID取消车票
+     * 根据订单信息取消车票
      *
-     * @param orderId  订单ID
+     * @param cancelTicketDTO  订单信息
      */
     @Override
-    public void cancelTicketByOrder(Long orderId) {
+    public void cancelTicketByOrder(CancelTicketDTO cancelTicketDTO) {
         LambdaQueryWrapper<TicketEO> queryWrapper = Wrappers.lambdaQuery();
-        queryWrapper.eq(TicketEO::getOrderId, orderId);
+        queryWrapper.eq(TicketEO::getOrderId, cancelTicketDTO.getOrderId());
         List<TicketEO> ticketList = ticketMapper.selectList(queryWrapper);
         List<Long> seatReservationIds = ticketList.stream()
                                                 .map(TicketEO::getSeatReservationId)
@@ -296,6 +318,13 @@ public class ITicketServiceImpl extends ServiceImpl<TicketMapper, TicketEO> impl
                                                 .toList();
         if (CollUtil.isNotEmpty(seatReservationIds)) {
             trainSeatClient.releaseSeat(seatReservationIds);
+            // 更新车票状态
+            if (Objects.equals(cancelTicketDTO.getStatus(), ORDER_STATUS_CANCELLED)) {
+                ticketList.forEach(ticket -> ticket.setStatus(TicketStatusEnum.CANCELLED.getCode()));
+            } else {
+                ticketList.forEach(ticket -> ticket.setStatus(TicketStatusEnum.REFUNDED.getCode()));
+            }
+            self.updateBatchById(ticketList);
         }
     }
 
