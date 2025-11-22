@@ -15,6 +15,8 @@
     <file url="file://$PROJECT_DIR$/order-parent/order-biz/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/order-parent/order-bo/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/order-parent/order-bo/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/order-parent/order-boot/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/order-parent/order-boot/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/order-parent/order-constant/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/order-parent/order-constant/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/order-parent/src/main/java" charset="UTF-8" />

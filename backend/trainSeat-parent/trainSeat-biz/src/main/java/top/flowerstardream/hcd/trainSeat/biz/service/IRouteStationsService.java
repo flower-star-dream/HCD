@@ -2,7 +2,7 @@ package top.flowerstardream.hcd.trainSeat.biz.service;
 
 
 import top.flowerstardream.hcd.tools.result.PageResult;
-import top.flowerstardream.hcd.trainSeat.ao.PQREQ.RouteStationsPageQueryERQ;
+import top.flowerstardream.hcd.trainSeat.ao.PQREQ.RouteStationsPageQueryREQ;
 import top.flowerstardream.hcd.trainSeat.ao.REQ.RouteStationsREQ;
 
 import java.util.List;
@@ -34,5 +34,5 @@ public interface IRouteStationsService {
      * @param routeStationPageQueryREQ 查询条件
      * @return 路线查询分页结果
      */
-    PageResult<RouteStationsPageQueryERQ> list(RouteStationsPageQueryERQ routeStationPageQueryREQ);
+    PageResult<RouteStationsPageQueryREQ> PageQuery(RouteStationsPageQueryREQ routeStationPageQueryREQ);
 }

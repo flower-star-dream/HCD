@@ -5,12 +5,18 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import top.flowerstardream.hcd.base.bo.eo.BaseEO;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+import top.flowerstardream.hcd.base.bo.BaseEO;
+
+import java.io.Serializable;
 
 @Data
+@SuperBuilder
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @TableName("hcd_station")
-public class StationEO extends BaseEO {
+public class StationEO extends BaseEO implements Serializable {
 
     // 站点名称
     @TableField("station_name")

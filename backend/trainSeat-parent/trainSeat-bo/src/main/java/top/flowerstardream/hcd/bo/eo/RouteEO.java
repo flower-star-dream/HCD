@@ -5,7 +5,11 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import top.flowerstardream.hcd.base.bo.eo.BaseEO;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+import top.flowerstardream.hcd.base.bo.BaseEO;
+
+import java.io.Serializable;
 
 /**
  * @Author: QAQ
@@ -13,9 +17,11 @@ import top.flowerstardream.hcd.base.bo.eo.BaseEO;
  * @Description: 路线实体对象
  */
 @Data
+@SuperBuilder
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @TableName("hcd_route")
-public class RouteEO extends BaseEO {
+public class RouteEO extends BaseEO implements Serializable {
 
     // 路线名称
     @TableField("route_name")

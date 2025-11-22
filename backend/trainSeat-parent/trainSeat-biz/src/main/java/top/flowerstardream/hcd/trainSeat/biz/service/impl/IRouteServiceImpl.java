@@ -1,26 +1,30 @@
 package top.flowerstardream.hcd.trainSeat.biz.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
-import kotlin.jvm.internal.Lambda;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.Route;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import top.flowerstardream.hcd.bo.eo.RouteEO;
+import top.flowerstardream.hcd.bo.eo.ScheduleEO;
 import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.trainSeat.ao.PQREQ.RoutePageQueryREQ;
 import top.flowerstardream.hcd.trainSeat.ao.REQ.RouteREQ;
-import top.flowerstardream.hcd.trainSeat.ao.RES.RouteRES;
 import top.flowerstardream.hcd.trainSeat.biz.mapper.RouteMapper;
+import top.flowerstardream.hcd.trainSeat.biz.mapper.ScheduleMapper;
 import top.flowerstardream.hcd.trainSeat.biz.service.IRouteService;
 
 import java.util.List;
 
 import static top.flowerstardream.hcd.tools.exception.ExceptionEnum.*;
+import static top.flowerstardream.hcd.trainSeat.constant.TrainSeatExceptionEnum.ROUTE_AlREADY_EXISTS;
+import static top.flowerstardream.hcd.trainSeat.constant.TrainSeatExceptionEnum.ROUTE_IS_USED;
 
 /**
  * @Author: QAQ
@@ -39,6 +43,8 @@ public class IRouteServiceImpl extends ServiceImpl<RouteMapper, RouteEO> impleme
     @Resource
     private IRouteServiceImpl self;
 
+    @Resource
+    private ScheduleMapper scheduleMapper;
 
     @Override
     public void addRoute(RouteREQ routeREQ) {
@@ -48,20 +54,61 @@ public class IRouteServiceImpl extends ServiceImpl<RouteMapper, RouteEO> impleme
             THE_QUERY_PARAMETER_CANNOT_BE_EMPTY.throwException();
         }
 
-        //判断路线存在
+        //判断路线存在,存在则中断
         validateRouteIsExist(routeREQ.getRouteName());
 
+        //打包req的属性进入EO，然后插入数据库
+        RouteEO routeEO = new RouteEO();
+        BeanUtil.copyProperties(routeREQ, routeEO);
+        boolean insert = self.save(routeEO);
+        if (!insert) {
+            INSERTION_FAILED.throwException();
+        }
 
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void deleteRoute(List<Long> ids) {
+        if(CollUtil.isEmpty(ids)){
+            return;
+        }
+        //排查有无使用该路线
+        ids.forEach(id -> {
+            //获取路线信息
+            RouteEO routeEO = self.getById(id);
+            if (routeEO == null) {
+                return;
+            }
 
+            LambdaQueryWrapper<ScheduleEO> queryWrapper = Wrappers.lambdaQuery();
+            queryWrapper.eq(ScheduleEO::getRouteId,id);
+            List<ScheduleEO> schedules = scheduleMapper.selectList(Wrappers.lambdaQuery());
+
+            if (schedules != null){
+                ROUTE_IS_USED.throwException();
+            }
+        });
+        //批量删除员工
+        boolean delete = self.removeByIds(ids);
+        if (!delete) {
+            DELETION_FAILED.throwException();
+        }
     }
 
     @Override
     public void updateRoute(RouteREQ routeREQ) {
-
+        //参数校验
+        if (routeREQ == null) {
+            //判断REQ是否存在
+            THE_QUERY_PARAMETER_CANNOT_BE_EMPTY.throwException();
+        }
+        RouteEO routeEO = new RouteEO();
+        BeanUtil.copyProperties(routeREQ, routeEO);
+        boolean update = self.updateById(routeEO);
+        if (!update) {
+            MODIFICATION_FAILED.throwException();
+        }
     }
 
     @Override
@@ -84,9 +131,6 @@ public class IRouteServiceImpl extends ServiceImpl<RouteMapper, RouteEO> impleme
         //创建查询条件
         LambdaQueryWrapper<RouteEO> queryWrapper = Wrappers.lambdaQuery();
 
-        /* *
-        *
-         */
         queryWrapper.like(RouteEO::getRouteName, routePageQueryREQ.getRouteName())
                 .like(RouteEO::getStartStation, routePageQueryREQ.getStartStation())
                 .like(RouteEO::getEndStation, routePageQueryREQ.getEndStation())
@@ -105,6 +149,8 @@ public class IRouteServiceImpl extends ServiceImpl<RouteMapper, RouteEO> impleme
 
 
 
+
+
     //查询路线
     private RouteEO getRoute(String routeName) {
         LambdaQueryWrapper<RouteEO> queryWrapper = Wrappers.lambdaQuery();
@@ -113,10 +159,10 @@ public class IRouteServiceImpl extends ServiceImpl<RouteMapper, RouteEO> impleme
     }
     //校验路线是否存在
     private void validateRouteIsExist(String routeName) {
+
         RouteEO routeEO = getRoute(routeName);
         if (routeEO == null) {
-            INSERTION_FAILED.throwException();
+            ROUTE_AlREADY_EXISTS.throwException();
         }
-
     }
 }

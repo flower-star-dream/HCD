@@ -37,5 +37,5 @@ public interface ISeatReservationService {
      * @param seatReservationPageQueryREQ 座位预约查询条件
      * @return 座位预约查询分页结果
      */
-    PageResult<SeatReservationREQ> list(SeatReservationREQ seatReservationPageQueryREQ);
+    PageResult<SeatReservationREQ> PageQuery(SeatReservationREQ seatReservationPageQueryREQ);
 }

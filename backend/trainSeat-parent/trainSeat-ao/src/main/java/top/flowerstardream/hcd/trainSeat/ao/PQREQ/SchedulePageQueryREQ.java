@@ -1,5 +1,6 @@
 package top.flowerstardream.hcd.trainSeat.ao.PQREQ;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import top.flowerstardream.hcd.base.ao.req.BasePageQueryREQ;
@@ -24,10 +25,14 @@ public class SchedulePageQueryREQ extends BasePageQueryREQ {
     @Schema(description = "列车长")
     private String conductor;
 
-    @Schema(description = "出发时间")
+    @TableField("availing_tickets")
+    private Integer availingTickets;
+
+    @TableField("start_time")
     private String startTime;
 
-    @Schema(description = "结束时间")
+    @TableField("end_time")
     private String endTime;
+
 
 }

@@ -39,7 +39,7 @@ public interface IStationService {
      * @param stationPageQueryREQ 站点查询条件
      * @return 站点查询分页结果
      */
-    PageResult<StationRES> list(StationPageQueryREQ stationPageQueryREQ);
+    PageResult<StationRES> PageQuery(StationPageQueryREQ stationPageQueryREQ);
 
 
 

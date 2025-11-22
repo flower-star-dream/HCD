@@ -19,7 +19,7 @@ import top.flowerstardream.hcd.base.ao.req.BasePageQueryREQ;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Schema(description = "路线站点分页查询请求")
-public class RouteStationsPageQueryERQ extends BasePageQueryREQ {
+public class RouteStationsPageQueryREQ extends BasePageQueryREQ {
 
     @Schema(description = "路线站点号")
     private Long id;

@@ -24,6 +24,6 @@ public interface ITrainService {
 
     void update(TrainREQ trainREQ);
 
-    PageResult<TrainRES> list(TrainPageQueryREQ trainPageQueryREQ);
+    PageResult<TrainRES> PageQuery(TrainPageQueryREQ trainPageQueryREQ);
 
 }
