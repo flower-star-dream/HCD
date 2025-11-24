@@ -20,7 +20,11 @@ public enum TrainSeatExceptionEnum implements ICustomError {
     SCHEDULE_IS_USED(20003, "班次已被使用，无法被删除"),
     SCHEDULE_ALREADY_EXISTS(20004, "班次已存在"),
 
-    ROUTESTATIONS_ALREADY_EXISTS(20006, "路线站点已存在");
+    ROUTE_STATIONS_ALREADY_EXISTS(20006, "路线站点已存在"),
+    SEAT_RESERVATION_IS_USED(20007, "座位预订已被使用，无法被删除"),
+    SEAT_RESERVATION_ALREADY_EXISTS(20008, "座位预订已存在"),
+    STATION_IS_USED(20009, "站点已被使用，无法被删除"),
+    STATION_ALREADY_EXISTS(20010, "站点已存在");
     /**
      * 错误码
      */

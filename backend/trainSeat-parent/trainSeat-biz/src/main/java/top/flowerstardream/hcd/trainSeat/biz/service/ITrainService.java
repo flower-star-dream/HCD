@@ -19,11 +19,19 @@ public interface ITrainService {
      * 新增火车
      * @param trainREQ
      */
-    void add(TrainREQ trainREQ);
+    void addTrain(TrainREQ trainREQ);
 
-    void delete(List<Long> ids);
+    /**
+     * 批量删除火车
+     * @param ids
+     */
+    void deleteTrain(List<Long> ids);
 
-    void update(TrainREQ trainREQ);
+    /**
+     * 修改火车
+     * @param trainREQ
+     */
+    void updateTrain(TrainREQ trainREQ);
 
     /**
      * 分页查询火车列表（管理）

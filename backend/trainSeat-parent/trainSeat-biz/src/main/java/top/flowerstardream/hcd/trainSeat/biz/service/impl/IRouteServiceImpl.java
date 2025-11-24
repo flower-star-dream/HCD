@@ -133,10 +133,11 @@ public class IRouteServiceImpl extends ServiceImpl<RouteMapper, RouteEO> impleme
         //创建查询条件
         LambdaQueryWrapper<RouteEO> queryWrapper = Wrappers.lambdaQuery();
 
+        //模糊查询
         queryWrapper.like(RouteEO::getRouteName, routePageQueryREQ.getRouteName())
                 .like(RouteEO::getStartStation, routePageQueryREQ.getStartStation())
-                .like(RouteEO::getEndStation, routePageQueryREQ.getEndStation())
-                .like(RouteEO::getStationCount, routePageQueryREQ.getStationCount());
+                .like(RouteEO::getEndStation, routePageQueryREQ.getEndStation());
+
 
 
         //执行分页查询
@@ -168,10 +169,11 @@ public class IRouteServiceImpl extends ServiceImpl<RouteMapper, RouteEO> impleme
         //创建查询条件
         LambdaQueryWrapper<RouteEO> queryWrapper = Wrappers.lambdaQuery();
 
+        //查询条件
         queryWrapper.like(RouteEO::getRouteName, routePageQueryREQ.getRouteName())
                 .like(RouteEO::getStartStation, routePageQueryREQ.getStartStation())
-                .like(RouteEO::getEndStation, routePageQueryREQ.getEndStation())
-                .like(RouteEO::getStationCount, routePageQueryREQ.getStationCount());
+                .like(RouteEO::getEndStation, routePageQueryREQ.getEndStation());
+
 
 
         //执行分页查询
@@ -195,13 +197,16 @@ public class IRouteServiceImpl extends ServiceImpl<RouteMapper, RouteEO> impleme
     }
 
 
-    //查询路线
+    /*
+    * 查询路线
+    * 校验路线是否存在
+    * add方法使用
+    */
     private RouteEO getRoute(String routeName) {
         LambdaQueryWrapper<RouteEO> queryWrapper = Wrappers.lambdaQuery();
         queryWrapper.eq(RouteEO::getRouteName, routeName);
         return routeMapper.selectOne(queryWrapper);
     }
-    //校验路线是否存在
     private void validateRouteIsExist(String routeName) {
 
         RouteEO routeEO = getRoute(routeName);

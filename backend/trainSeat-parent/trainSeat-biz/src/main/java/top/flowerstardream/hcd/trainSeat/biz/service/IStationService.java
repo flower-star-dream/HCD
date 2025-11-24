@@ -20,19 +20,19 @@ public interface IStationService {
      * 新增站点
      * @param stationREQ
      */
-    void add(StationREQ stationREQ);
+    void addStation(StationREQ stationREQ);
 
     /**
      * 批量删除站点
      * @param ids
      */
-    void delete(List<Long> ids);
+    void deleteStation(List<Long> ids);
 
     /**
      * 修改站点
      * @param stationREQ
      */
-    void update(StationREQ stationREQ);
+    void updateStation(StationREQ stationREQ);
 
     /**
      * 分页查询站点列表（通用）

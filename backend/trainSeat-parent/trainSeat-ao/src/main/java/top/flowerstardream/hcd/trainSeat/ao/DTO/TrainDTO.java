@@ -21,7 +21,7 @@ public class TrainDTO {
     private String trainModel;
 
     @Schema(description = "座位数")
-    private Integer seatCount;
+    private Integer seatNum;
 
     @Schema(description = "服务年数")
     private Integer serviceYears;

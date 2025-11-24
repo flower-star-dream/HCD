@@ -3,6 +3,7 @@ package top.flowerstardream.hcd.trainSeat.biz.service;
 
 import top.flowerstardream.hcd.bo.eo.SeatReservationEO;
 import top.flowerstardream.hcd.tools.result.PageResult;
+import top.flowerstardream.hcd.trainSeat.ao.PQREQ.SeatReservationPageQueryREQ;
 import top.flowerstardream.hcd.trainSeat.ao.REQ.SeatReservationREQ;
 import top.flowerstardream.hcd.trainSeat.ao.RES.SeatReservationRES;
 
@@ -19,19 +20,19 @@ public interface ISeatReservationService {
      * 新增座位预约
      * @param seatReservationREQ
      */
-    void add(SeatReservationREQ seatReservationREQ);
+    void addSeatReservation(SeatReservationREQ seatReservationREQ);
 
     /**
      * 删除座位预约
      * @param ids
      */
-    void delete(List<Long> ids);
+    void deleteSeatReservation(List<Long> ids);
 
     /**
      * 修改座位预约
      * @param seatReservationREQ
      */
-    void update(SeatReservationREQ seatReservationREQ);
+    void updateSeatReservation(SeatReservationREQ seatReservationREQ);
 
     /**
      * 分页查询座位预约列表（通用）
@@ -39,7 +40,7 @@ public interface ISeatReservationService {
      * @param seatReservationPageQueryREQ 座位预约查询条件
      * @return 座位预约查询分页结果
      */
-    PageResult<SeatReservationEO> EmployeePageQuery(SeatReservationREQ seatReservationPageQueryREQ);
+    PageResult<SeatReservationEO> EmployeePageQuery(SeatReservationPageQueryREQ seatReservationPageQueryREQ);
 
     /**
      * 分页查询座位预约列表（用户）
@@ -47,5 +48,5 @@ public interface ISeatReservationService {
      * @param seatReservationPageQueryREQ 座位预约查询条件
      * @return 座位预约查询分页结果
      */
-    PageResult<SeatReservationRES> UserPageQuery(SeatReservationREQ seatReservationPageQueryREQ);
+    PageResult<SeatReservationRES> UserPageQuery(SeatReservationPageQueryREQ seatReservationPageQueryREQ);
 }

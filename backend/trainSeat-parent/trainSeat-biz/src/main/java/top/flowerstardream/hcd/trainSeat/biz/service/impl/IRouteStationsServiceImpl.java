@@ -1,6 +1,7 @@
 package top.flowerstardream.hcd.trainSeat.biz.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -9,23 +10,19 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import top.flowerstardream.hcd.bo.eo.RouteStationsEO;
-import top.flowerstardream.hcd.bo.eo.ScheduleEO;
 import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.trainSeat.ao.PQREQ.RouteStationsPageQueryREQ;
-import top.flowerstardream.hcd.trainSeat.ao.PQREQ.SchedulePageQueryREQ;
 import top.flowerstardream.hcd.trainSeat.ao.REQ.RouteStationsREQ;
 import top.flowerstardream.hcd.trainSeat.ao.RES.RouteStationsRES;
-import top.flowerstardream.hcd.trainSeat.ao.RES.ScheduleRES;
 import top.flowerstardream.hcd.trainSeat.biz.mapper.RouteStationsMapper;
 import top.flowerstardream.hcd.trainSeat.biz.service.IRouteStationsService;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static top.flowerstardream.hcd.tools.exception.ExceptionEnum.INSERTION_FAILED;
-import static top.flowerstardream.hcd.tools.exception.ExceptionEnum.THE_QUERY_PARAMETER_CANNOT_BE_EMPTY;
-import static top.flowerstardream.hcd.trainSeat.constant.TrainSeatExceptionEnum.ROUTESTATIONS_ALREADY_EXISTS;
-import static top.flowerstardream.hcd.trainSeat.constant.TrainSeatExceptionEnum.SCHEDULE_ALREADY_EXISTS;
+import static top.flowerstardream.hcd.tools.exception.ExceptionEnum.*;
+import static top.flowerstardream.hcd.trainSeat.constant.TrainSeatExceptionEnum.*;
 
 @Slf4j
 @Service
@@ -37,9 +34,6 @@ public class IRouteStationsServiceImpl extends ServiceImpl<RouteStationsMapper, 
     @Lazy
     @Resource
     private IRouteStationsServiceImpl self;
-
-    @Resource
-
 
 
     @Override
@@ -63,13 +57,33 @@ public class IRouteStationsServiceImpl extends ServiceImpl<RouteStationsMapper, 
 
 
     @Override
+    @Transactional
     public void deleteRouteStations(List<Long> ids) {
+        if(CollUtil.isEmpty(ids)){
+            return;
+        }
 
+        //不存在路线站点占用
+
+        //批量删除路线站点
+        boolean delete = self.removeByIds(ids);
+        if (!delete) {
+            DELETION_FAILED.throwException();
+        }
     }
 
     @Override
     public void updateRouteStations(RouteStationsREQ routeStationsREQ) {
-
+        //参数校验
+        if (routeStationsREQ == null) {
+            THE_QUERY_PARAMETER_CANNOT_BE_EMPTY.throwException();
+        }
+        RouteStationsEO routeStationsEO = new RouteStationsEO();
+        BeanUtil.copyProperties(routeStationsREQ, routeStationsEO);
+        boolean update = self.updateById(routeStationsEO);
+        if (!update) {
+            MODIFICATION_FAILED.throwException();
+        }
     }
 
     @Override
@@ -91,9 +105,9 @@ public class IRouteStationsServiceImpl extends ServiceImpl<RouteStationsMapper, 
         //创建查询条件
         LambdaQueryWrapper<RouteStationsEO> queryWrapper = Wrappers.lambdaQuery();
 
-        queryWrapper.like(RouteStationsEO::getId, routeStationsPageQueryREQ.getId())
-                .like(RouteStationsEO::getRouteId, routeStationsPageQueryREQ.getRouteId())
-                .like(RouteStationsEO::getStationId, routeStationsPageQueryREQ.getStationId())
+        //查询条件
+        queryWrapper.eq(RouteStationsEO::getRouteId, routeStationsPageQueryREQ.getRouteId())
+                .eq(RouteStationsEO::getStationId, routeStationsPageQueryREQ.getStationId())
                 .like(RouteStationsEO::getStationSorting, routeStationsPageQueryREQ.getStationSorting());
 
         //执行分页查询
@@ -127,9 +141,9 @@ public class IRouteStationsServiceImpl extends ServiceImpl<RouteStationsMapper, 
         //创建查询条件
         LambdaQueryWrapper<RouteStationsEO> queryWrapper = Wrappers.lambdaQuery();
 
-        queryWrapper.like(RouteStationsEO::getId, routeStationsPageQueryREQ.getId())
-                .like(RouteStationsEO::getRouteId, routeStationsPageQueryREQ.getRouteId())
-                .like(RouteStationsEO::getStationId, routeStationsPageQueryREQ.getStationId())
+        //查询条件
+        queryWrapper.eq(RouteStationsEO::getRouteId, routeStationsPageQueryREQ.getRouteId())
+                .eq(RouteStationsEO::getStationId, routeStationsPageQueryREQ.getStationId())
                 .like(RouteStationsEO::getStationSorting, routeStationsPageQueryREQ.getStationSorting());
 
 
@@ -152,17 +166,24 @@ public class IRouteStationsServiceImpl extends ServiceImpl<RouteStationsMapper, 
         return pageResult ;
     }
 
+    /*
+    * 查询路线站点
+    * 校验路线站点是否存在
+    * add方法在使用
+    */
     private RouteStationsEO getRouteStationsEO(Long routeId, Long stationId) {
         LambdaQueryWrapper<RouteStationsEO> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(RouteStationsEO::getRouteId, routeId)
                 .eq(RouteStationsEO::getStationId, stationId);
         return routeStationsMapper.selectOne(queryWrapper);
     }
+
+
     private void validateRouteStationsIsExist(Long routeId, Long stationId) {
 
         RouteStationsEO routeStationsEO = getRouteStationsEO(routeId, stationId);
         if(routeStationsEO != null){
-            ROUTESTATIONS_ALREADY_EXISTS.throwException();
+            ROUTE_STATIONS_ALREADY_EXISTS.throwException();
         }
     }
 

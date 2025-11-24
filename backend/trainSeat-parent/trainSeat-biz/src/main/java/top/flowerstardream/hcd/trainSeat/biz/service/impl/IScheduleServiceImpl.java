@@ -127,9 +127,11 @@ public class IScheduleServiceImpl extends ServiceImpl<ScheduleMapper, ScheduleEO
         //创建查询条件
         LambdaQueryWrapper<ScheduleEO> queryWrapper = new LambdaQueryWrapper<>();
 
+        //查询条件
         queryWrapper.eq(ScheduleEO::getTrainId, schedulePageQueryREQ.getTrainId())
                 .eq(ScheduleEO::getRouteId, schedulePageQueryREQ.getRouteId())
                 .like(ScheduleEO::getConductor, schedulePageQueryREQ.getConductor())
+                //剩余座位数 TODO
                 .like(ScheduleEO::getAvailingTickets, schedulePageQueryREQ.getAvailingTickets())
                 .eq(ScheduleEO::getStartTime, schedulePageQueryREQ.getStartTime())
                 .eq(ScheduleEO::getEndTime, schedulePageQueryREQ.getEndTime());
@@ -164,9 +166,11 @@ public class IScheduleServiceImpl extends ServiceImpl<ScheduleMapper, ScheduleEO
         //创建查询条件
         LambdaQueryWrapper<ScheduleEO> queryWrapper = Wrappers.lambdaQuery();
 
+        //查询条件
         queryWrapper.eq(ScheduleEO::getTrainId, schedulePageQueryREQ.getTrainId())
                 .eq(ScheduleEO::getRouteId, schedulePageQueryREQ.getRouteId())
                 .like(ScheduleEO::getConductor, schedulePageQueryREQ.getConductor())
+                //剩余座位数 TODO
                 .like(ScheduleEO::getAvailingTickets, schedulePageQueryREQ.getAvailingTickets())
                 .eq(ScheduleEO::getStartTime, schedulePageQueryREQ.getStartTime())
                 .eq(ScheduleEO::getEndTime, schedulePageQueryREQ.getEndTime());
@@ -193,7 +197,11 @@ public class IScheduleServiceImpl extends ServiceImpl<ScheduleMapper, ScheduleEO
 
 
 
-    //查询班次
+    /*
+    * 查询班次
+    * 校验路线是否存在
+    * add方法在使用
+     */
     private ScheduleEO getSchedule(Long trainId, Long routeId, String startTime){
         LambdaQueryWrapper<ScheduleEO> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ScheduleEO::getTrainId, trainId)
@@ -202,7 +210,6 @@ public class IScheduleServiceImpl extends ServiceImpl<ScheduleMapper, ScheduleEO
         return scheduleMapper.selectOne(queryWrapper);
     }
 
-    //校验班次是否存在
     private void validateScheduleIsExist(Long trainId, Long routeId, String startTime) {
 
         ScheduleEO scheduleEO = getSchedule(trainId,routeId,startTime);
