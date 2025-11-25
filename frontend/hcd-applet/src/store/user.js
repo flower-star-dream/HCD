@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
-import { login, getUserInfo } from '@/api/user'
+import { ref, computed } from 'vue'
+import { login, wechatLogin, getUserInfo } from '@/api/user'
 
 export const useUserStore = defineStore('user', () => {
   const token = ref('')
@@ -12,6 +12,24 @@ export const useUserStore = defineStore('user', () => {
       token.value = response.token
       userInfo.value = response.user
       uni.setStorageSync('token', response.token)
+      if (response.user) {
+        uni.setStorageSync('userInfo', JSON.stringify(response.user))
+      }
+      return response
+    } catch (error) {
+      throw error
+    }
+  }
+
+  const wechatLoginAction = async (wechatData) => {
+    try {
+      const response = await wechatLogin(wechatData)
+      token.value = response.token
+      userInfo.value = response.user
+      uni.setStorageSync('token', response.token)
+      if (response.user) {
+        uni.setStorageSync('userInfo', JSON.stringify(response.user))
+      }
       return response
     } catch (error) {
       throw error
@@ -22,15 +40,28 @@ export const useUserStore = defineStore('user', () => {
     token.value = ''
     userInfo.value = null
     uni.removeStorageSync('token')
+    uni.removeStorageSync('userInfo')
   }
 
   const initUserInfo = async () => {
     const storedToken = uni.getStorageSync('token')
+    const storedUserInfo = uni.getStorageSync('userInfo')
+    
     if (storedToken) {
       token.value = storedToken
+      if (storedUserInfo) {
+        try {
+          userInfo.value = JSON.parse(storedUserInfo)
+        } catch (error) {
+          userInfo.value = null
+        }
+      }
+      
       try {
+        // 尝试从服务器获取最新用户信息
         const info = await getUserInfo()
         userInfo.value = info
+        uni.setStorageSync('userInfo', JSON.stringify(info))
       } catch (error) {
         // Token 过期或无效
         logoutAction()
@@ -45,6 +76,7 @@ export const useUserStore = defineStore('user', () => {
     userInfo,
     isLogin,
     loginAction,
+    wechatLoginAction,
     logoutAction,
     initUserInfo
   }

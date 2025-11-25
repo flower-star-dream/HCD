@@ -5,7 +5,6 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     name: 'Layout',
-<<<<<<< HEAD
     component: () => import('@/pages/Layout.vue'),
     redirect: '/dashboard',
     children: [
@@ -19,33 +18,15 @@ const routes: RouteRecordRaw[] = [
       //   path: '/train',
       //   name: 'Train',
       //   component: () => import('@/pages/Train/index.vue'),
-=======
-    component: () => import('@/views/Layout.vue'),
-    redirect: '/home',
-    children: [
-      {
-        path: '/home',
-        name: 'Home',
-        component: () => import('@/views/Home/Home.vue'),
-        meta: { title: '首页', icon: 'Home' }
-      },
-      // {
-      //   path: '/dashboard',
-      //   name: 'Dashboard',
-      //   component: () => import('@/views/Dashboard/index.vue'),
-      //   meta: { title: '仪表盘', icon: 'Odometer' }
-      // },
       // {
       //   path: '/train',
       //   name: 'Train',
       //   component: () => import('@/views/Train/index.vue'),
->>>>>>> 7194a667e73e05f6f820be501adf75d935dc6a3c
       //   meta: { title: '车次管理', icon: 'Train' }
       // },
       // {
       //   path: '/order',
       //   name: 'Order',
-<<<<<<< HEAD
       //   component: () => import('@/pages/Order/index.vue'),
       //   meta: { title: '订单管理', icon: 'Tickets' }
       // },
@@ -59,10 +40,6 @@ const routes: RouteRecordRaw[] = [
       //   path: '/station',
       //   name: 'Station',
       //   component: () => import('@/pages/Station/index.vue'),
-=======
-      //   component: () => import('@/views/Order/index.vue'),
-      //   meta: { title: '订单管理', icon: 'Tickets' }
-      // },
       {
         path: '/employee',
         name: 'Employee',
@@ -113,15 +90,52 @@ const routes: RouteRecordRaw[] = [
             meta: { title: '乘车人列表' }
           }
         ]
+      },
+      {
+        path: '/seat-reservation',
+        name: 'SeatReservation',
+        meta: { title: '座位预订管理', icon: 'OfficeBuilding' },
+        children: [
+          {
+            path: '/seat-reservation/list',
+            name: 'SeatReservationList',
+            component: () => import('@/views/SeatReservation/SeatReservation-list-view/SeatReservation-list-view.vue'),
+            meta: { title: '座位预订列表' }
+          },
+          {
+            path: '/seat-reservation/dialog-demo',
+            name: 'SeatReservationDialogDemo',
+            component: () => import('@/views/SeatReservation/SeatReservation-dialog-example.vue'),
+            meta: { title: '座位预订对话框演示' }
+          }
+        ]
+      },
+      {
+        path: '/route',
+        name: 'Route',
+        meta: { title: '线路管理', icon: 'Connection' },
+        children: [
+          {
+            path: '/route/list',
+            name: 'RouteList',
+            component: () => import('@/views/Route/Route-list-view/Route-list-view.vue'),
+            meta: { title: '线路列表' }
+          }
+        ]
+      },
+      {
+        path: '/station',
+        name: 'Station',
+        meta: { title: '站点管理', icon: 'Location' },
+        children: [
+          {
+            path: '/station/list',
+            name: 'StationList',
+            component: () => import('@/views/Station/Station-list-view/Station-list-view.vue'),
+            meta: { title: '站点列表' }
+          }
+        ]
       }
-      // {
-      //   path: '/station',
-      //   name: 'Station',
-      //   component: () => import('@/views/Station/index.vue'),
->>>>>>> 7194a667e73e05f6f820be501adf75d935dc6a3c
-      //   meta: { title: '站点管理', icon: 'Location' }
-      // },
-      
     ]
   },
   {

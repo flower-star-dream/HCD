@@ -18,7 +18,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <name>trainSeat-api</name>
-    <description>用户服务API模块 - 存放接口定义</description>
+    <description>班次服务API模块 - 存放接口定义</description>
 
     <dependencies>
         <dependency>

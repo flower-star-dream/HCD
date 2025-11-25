@@ -15,8 +15,7 @@ import java.util.List;
  * @Date: 2025/11/14/18:21
  * @Description: 用户服务客户端
  */
-@FeignClient("hcd-user")
-@RequestMapping("/api/v1/internal/user")
+@FeignClient(name = "hcd-user", path = "/api/v1/internal/user")
 public interface UserClient {
 
     @PostMapping("/user/")

@@ -6,7 +6,7 @@
 export interface Passenger {
   id: string
   realName: string
-  cardType: String
+  cardType: string
   idCard: string
   createdTime: string
   updatedTime: string
@@ -19,6 +19,6 @@ export interface Passenger {
  */
 export interface PassengerPageQueryREQ extends PageQuery {
   realName?: string
-  cardType?: String
+  cardType?: string
   idCard?: string
 }

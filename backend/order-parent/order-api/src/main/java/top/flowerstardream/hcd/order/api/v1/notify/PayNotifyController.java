@@ -15,6 +15,7 @@ import top.flowerstardream.hcd.order.biz.service.IOrderService;
 import top.flowerstardream.hcd.tools.properties.WeChatProperties;
 
 import java.io.BufferedReader;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 
@@ -51,12 +52,13 @@ public class PayNotifyController {
         JSONObject jsonObject = JSON.parseObject(plainText);
         Long outTradeNo = Long.valueOf(jsonObject.getString("out_trade_no"));//商户平台订单号
         String transactionId = jsonObject.getString("transaction_id");//微信支付交易号
+        BigDecimal amount = new BigDecimal(jsonObject.getJSONObject("amount").getString("total"));
 
         log.info("商户平台订单号：{}", outTradeNo);
         log.info("微信支付交易号：{}", transactionId);
 
         //业务处理，修改订单状态、来单提醒
-        orderService.paySuccess(outTradeNo);
+        orderService.paySuccess(outTradeNo, amount);
 
         //给微信响应
         responseToWeixin(response);

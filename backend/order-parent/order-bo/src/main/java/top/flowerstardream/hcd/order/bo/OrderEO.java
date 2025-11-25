@@ -43,4 +43,8 @@ public class OrderEO extends BaseEO implements Serializable {
     // 支付时间
     @TableField("pay_time")
     private LocalDateTime payTime;
+
+    // 已付金额
+    @TableField("amount_paid")
+    private BigDecimal amountPaid;
 }

@@ -3,7 +3,6 @@ package top.flowerstardream.hcd.order.constant;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import top.flowerstardream.hcd.tools.exception.CustomException;
-import top.flowerstardream.hcd.tools.exception.ExceptionEnum;
 import top.flowerstardream.hcd.tools.exception.ICustomError;
 
 /**
