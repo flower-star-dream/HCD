@@ -368,6 +368,11 @@
             </dependency>
             <dependency>
                 <groupId>top.flowerstardream.hcd</groupId>
+                <artifactId>trainSeat-boot</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>top.flowerstardream.hcd</groupId>
                 <artifactId>trainSeat-constant</artifactId>
                 <version>${revision}</version>
             </dependency>

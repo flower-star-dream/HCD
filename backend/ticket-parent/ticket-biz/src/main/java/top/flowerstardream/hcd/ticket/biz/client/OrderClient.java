@@ -3,11 +3,9 @@ package top.flowerstardream.hcd.ticket.biz.client;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import top.flowerstardream.hcd.tools.result.Result;
 
-import java.awt.image.RenderedImage;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -16,8 +14,7 @@ import java.util.List;
  * @Date: 2025/11/13/20:44
  * @Description: 订单服务客户端
  */
-@FeignClient("hcd-order")
-@RequestMapping("/api/v1/internal/order")
+@FeignClient(name = "hcd-order", path = "/api/v1/internal/order")
 public interface OrderClient {
     /**
      * 根据用户ID获取订单ID列表

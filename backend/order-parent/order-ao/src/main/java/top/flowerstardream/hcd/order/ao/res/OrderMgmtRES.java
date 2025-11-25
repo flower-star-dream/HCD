@@ -39,4 +39,7 @@ public class OrderMgmtRES extends BaseMgmtRES {
 
     @Schema(description = "支付时间")
     private LocalDateTime payTime;
+
+    @Schema(description = "已付金额")
+    private BigDecimal amountPaid;
 }

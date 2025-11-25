@@ -29,22 +29,46 @@ export const useAppStore = defineStore('app', () => {
         {
           path: '/schedule',
           title: '班次管理',
-          icon: 'TrainIcon'
+          icon: 'TrainIcon',
+          children: [
+            {
+              path: '/schedule/list',
+              title: '班次列表'
+            }
+          ]
         },
         {
           path: '/train',
           title: '列车管理',
-          icon: 'Train'
+          icon: 'Train',
+          children: [
+            {
+              path: '/train/list',
+              title: '列车列表'
+            }
+          ]
         },
         {
           path: '/route',
           title: '线路管理',
-          icon: 'TrainType'
+          icon: 'TrainType',
+          children: [
+            {
+              path: '/route/list',
+              title: '线路列表'
+            }
+          ]
         },
         {
           path: '/station',
           title: '站点管理',
-          icon: 'Location'
+          icon: 'Location',
+          children: [
+            {
+              path: '/station/list',
+              title: '站点列表'
+            }
+          ]
         },
       ]
     },
@@ -56,12 +80,24 @@ export const useAppStore = defineStore('app', () => {
         {
           path: '/ticket',
           title: '票务管理',
-          icon: 'Ticket'
+          icon: 'Ticket',
+          children: [
+            {
+              path: '/ticket/list',
+              title: '车票列表'
+            }
+          ]
         },
         {
           path: '/order',
           title: '订单管理',
-          icon: 'Tickets'
+          icon: 'Tickets',
+          children: [
+            {
+              path: '/order/list',
+              title: '订单列表'
+            }
+          ]
         },
       ]
     },

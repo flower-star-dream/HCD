@@ -6,9 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-
 /**
  * @Author: 花海
  * @Date: 2025/11/21/15:35
@@ -30,29 +27,5 @@ public class OrdersPaymentREQ {
      */
     @Schema(description = "订单状态")
     private Integer status;
-
-    /**
-     * 订单总价
-     */
-    @Schema(description = "订单总价")
-    private BigDecimal totalPrice;
-
-    /**
-     * 订单备注
-     */
-    @Schema(description = "订单备注")
-    private String remarks;
-
-    /**
-     * 支付时间
-     */
-    @Schema(description = "支付时间")
-    private LocalDateTime payTime;
-
-    /**
-     * 创建时间
-     */
-    @Schema(description = "创建时间")
-    private LocalDateTime createTime;
 
 }

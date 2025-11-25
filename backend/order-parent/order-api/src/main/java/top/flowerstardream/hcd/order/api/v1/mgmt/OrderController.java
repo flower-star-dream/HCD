@@ -10,7 +10,6 @@ import top.flowerstardream.hcd.order.ao.req.OrderStatusREQ;
 import top.flowerstardream.hcd.order.ao.res.OrderMgmtRES;
 import top.flowerstardream.hcd.order.bo.OrderEO;
 import top.flowerstardream.hcd.tools.result.PageResult;
-import top.flowerstardream.hcd.order.ao.dto.OrderDTO;
 import top.flowerstardream.hcd.order.ao.req.OrderPageQueryREQ;
 import top.flowerstardream.hcd.order.biz.service.IOrderService;
 import top.flowerstardream.hcd.tools.result.Result;
@@ -38,7 +37,7 @@ public class OrderController {
      */
     @Operation(summary = "分页查询订单列表", description = "B端分页查询所有订单")
     @GetMapping("/page")
-    public Result<PageResult<OrderMgmtRES>> pageQuery(@RequestBody OrderPageQueryREQ req) {
+    public Result<PageResult<OrderMgmtRES>> pageQuery(OrderPageQueryREQ req) {
         log.info("【订单】traceId:{}, 分页查询订单列表：{}", getTraceId(), req);
         return Result.successResult(orderService.pageQuery(req));
     }
