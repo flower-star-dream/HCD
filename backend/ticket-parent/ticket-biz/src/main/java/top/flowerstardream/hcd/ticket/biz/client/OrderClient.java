@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import top.flowerstardream.hcd.tools.result.Result;
 
+import java.awt.image.RenderedImage;
 import java.math.BigDecimal;
 import java.util.List;
 
