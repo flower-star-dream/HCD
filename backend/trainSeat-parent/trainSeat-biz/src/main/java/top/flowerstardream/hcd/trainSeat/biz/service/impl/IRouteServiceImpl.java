@@ -135,8 +135,8 @@ public class IRouteServiceImpl extends ServiceImpl<RouteMapper, RouteEO> impleme
 
         //模糊查询
         queryWrapper.like(RouteEO::getRouteName, routePageQueryREQ.getRouteName())
-                .like(RouteEO::getStartStation, routePageQueryREQ.getStartStation())
-                .like(RouteEO::getEndStation, routePageQueryREQ.getEndStation());
+                .eq(RouteEO::getStartStationId, routePageQueryREQ.getStartStationId())
+                .eq(RouteEO::getEndStationId, routePageQueryREQ.getEndStationId());
 
 
 
@@ -171,8 +171,8 @@ public class IRouteServiceImpl extends ServiceImpl<RouteMapper, RouteEO> impleme
 
         //查询条件
         queryWrapper.like(RouteEO::getRouteName, routePageQueryREQ.getRouteName())
-                .like(RouteEO::getStartStation, routePageQueryREQ.getStartStation())
-                .like(RouteEO::getEndStation, routePageQueryREQ.getEndStation());
+                .eq(RouteEO::getStartStationId, routePageQueryREQ.getStartStationId())
+                .eq(RouteEO::getEndStationId, routePageQueryREQ.getEndStationId());
 
 
 

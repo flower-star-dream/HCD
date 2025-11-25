@@ -1,4 +1,4 @@
-package top.flowerstardream.hcd.trainSeat.api.v1.common;
+package top.flowerstardream.hcd.trainSeat.api.v1.mgmt;
 
 /**
  * Created with IntelliJ IDEA.
@@ -18,7 +18,7 @@ import top.flowerstardream.hcd.trainSeat.biz.service.IRouteService;
 @RequestMapping("/api/v1/app/route")
 @Tag(name = "路线相关接口", description = "路线相关接口")
 @Slf4j
-public class RouteController {
+public class MgmtRouteController {
 
     @Resource
     private IRouteService IRouteService;

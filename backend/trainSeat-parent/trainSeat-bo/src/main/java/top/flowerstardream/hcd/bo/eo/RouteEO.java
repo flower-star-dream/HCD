@@ -29,14 +29,14 @@ public class RouteEO extends BaseEO implements Serializable {
 
     // 起点站
     @TableField("start_station")
-    private String startStation;
+    private Long startStationId;
 
     // 终点站
-    @TableField("end_station")
-    private String endStation;
+    @TableField("end_station_id")
+    private Long endStationId;
 
     // 站点数
-    @TableField("station_count")
+    @TableField("station_count_id")
     private Integer stationCount;
 
 

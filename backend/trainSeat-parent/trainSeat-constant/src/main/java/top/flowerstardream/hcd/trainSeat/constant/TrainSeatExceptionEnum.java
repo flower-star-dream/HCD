@@ -24,7 +24,9 @@ public enum TrainSeatExceptionEnum implements ICustomError {
     SEAT_RESERVATION_IS_USED(20007, "座位预订已被使用，无法被删除"),
     SEAT_RESERVATION_ALREADY_EXISTS(20008, "座位预订已存在"),
     STATION_IS_USED(20009, "站点已被使用，无法被删除"),
-    STATION_ALREADY_EXISTS(20010, "站点已存在");
+    STATION_ALREADY_EXISTS(20010, "站点已存在"),
+    TRAIN_IS_USED(20011, "列车已被使用，无法被删除"),
+    TRAIN_ALREADY_EXISTS(20012, "列车已存在");
     /**
      * 错误码
      */
@@ -45,6 +47,7 @@ public enum TrainSeatExceptionEnum implements ICustomError {
     }
 
     public void throwException() {
+
         throw new CustomException(TrainSeatExceptionEnum.this);
     }
 

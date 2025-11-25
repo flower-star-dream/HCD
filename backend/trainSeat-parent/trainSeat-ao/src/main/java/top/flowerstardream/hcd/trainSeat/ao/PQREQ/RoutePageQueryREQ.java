@@ -27,11 +27,11 @@ public class RoutePageQueryREQ extends BasePageQueryREQ {
     @Schema(description = "路线名")
     private String routeName;
 
-    @Schema(description = "起点站")
-    private String startStation;
+    @Schema(description = "起点站ID")
+    private String startStationId;
 
-    @Schema(description = "终点站")
-    private String endStation;
+    @Schema(description = "终点站ID")
+    private String endStationId;
 
     @Schema(description = "站点数")
     private Integer stationCount;

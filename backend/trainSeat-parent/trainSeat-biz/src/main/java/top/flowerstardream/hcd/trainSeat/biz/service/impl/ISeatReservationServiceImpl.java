@@ -12,15 +12,18 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import top.flowerstardream.hcd.bo.eo.SeatReservationEO;
 import top.flowerstardream.hcd.tools.result.PageResult;
+import top.flowerstardream.hcd.trainSeat.ao.DTO.OrderDTO;
 import top.flowerstardream.hcd.trainSeat.ao.PQREQ.SeatReservationPageQueryREQ;
 import top.flowerstardream.hcd.trainSeat.ao.REQ.SeatReservationREQ;
 import top.flowerstardream.hcd.trainSeat.ao.RES.SeatReservationRES;
+import top.flowerstardream.hcd.trainSeat.biz.client.OrderClient;
 import top.flowerstardream.hcd.trainSeat.biz.mapper.SeatReservationMapper;
 import top.flowerstardream.hcd.trainSeat.biz.service.ISeatReservationService;
 import java.util.List;
 import java.util.stream.Collectors;
 import static top.flowerstardream.hcd.tools.exception.ExceptionEnum.*;
 import static top.flowerstardream.hcd.trainSeat.constant.TrainSeatExceptionEnum.SEAT_RESERVATION_ALREADY_EXISTS;
+import static top.flowerstardream.hcd.trainSeat.constant.TrainSeatExceptionEnum.SEAT_RESERVATION_IS_USED;
 
 @Slf4j
 @Service
@@ -32,6 +35,9 @@ public class ISeatReservationServiceImpl extends ServiceImpl<SeatReservationMapp
     @Lazy
     @Resource
     private ISeatReservationServiceImpl self;
+
+    @Resource
+    private OrderClient orderClient;
 
 
     @Override
@@ -58,7 +64,22 @@ public class ISeatReservationServiceImpl extends ServiceImpl<SeatReservationMapp
             return;
         }
 
-        // TODO 是否有使用座位预订
+
+        ids.forEach(id -> {
+            //获取路线信息
+            SeatReservationEO seatReservationEO = self.getById(id);
+            if (seatReservationEO == null) {
+                return;
+            }
+
+            // TODO 是否有使用座位预订
+            List<OrderDTO> orders = orderClient.getOrders(id);
+
+            if (orders != null){
+                SEAT_RESERVATION_IS_USED.throwException();
+            }
+        });
+
 
         //批量删除座位预订
         boolean delete = self.removeByIds(ids);
