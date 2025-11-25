@@ -45,7 +45,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static top.flowerstardream.hcd.order.constant.OrderConstant.*;
 import static top.flowerstardream.hcd.order.constant.OrderExceptionEnum.*;
@@ -322,7 +321,9 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
                 ORDER_REFUND_FAILED.throwException();
             }
         } else if (newTotalPrice.compareTo(BigDecimal.ZERO) < 0) {
-            orderEO.setStatus(ORDER_STATUS_PENDING_PAY);
+            orderEO.setStatus(ORDER_STATUS_PENDING_PAY); // 设置为待支付状态
+            orderEO.setAmountPaid(orderEO.getAmountPaid().add(newTotalPrice));
+            log.info("订单 {} 需要补差价: {}元", orderId, newTotalPrice);
         } else {
             // 订单总价不变
             return;
@@ -347,11 +348,15 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
         Long userId = getTenantId();
         String openid = userClient.getUserByIds(Collections.singletonList(userId)).getData().get(0).getOpenId();
         OrderEO orderEO = self.getById(ordersPaymentREQ.getOrderId());
+        BigDecimal paymentAmount = orderEO.getTotalPrice().subtract(orderEO.getAmountPaid());
+        if (paymentAmount.compareTo(BigDecimal.ZERO) <= 0) {
+            ORDER_ALREADY_PAID.throwException();
+        }
 
         //调用微信支付接口，生成预支付交易单
         JSONObject jsonObject = weChatPayUtil.pay(
                 String.valueOf(ordersPaymentREQ.getOrderId()), //商户订单号
-                orderEO.getTotalPrice(), //支付金额，单位 元
+                paymentAmount, //支付金额，单位 元
                 "车票订单", //商品描述
                 openid //微信用户的openid
         );
@@ -360,12 +365,12 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
             ORDER_ALREADY_PAID.throwException();
         }
 
-        OrderPaymentRES res = jsonObject.toJavaObject(OrderPaymentRES.class);
-        res.setPackageStr(jsonObject.getString("package"));
+//        OrderPaymentRES res = jsonObject.toJavaObject(OrderPaymentRES.class);
+//        res.setPackageStr(jsonObject.getString("package"));
 
         // 用于测试，直接跳过预支付，交易单生成
-//        OrderPaymentRES res = new OrderPaymentRES();
-//        paySuccess(orderId);
+        OrderPaymentRES res = new OrderPaymentRES();
+        paySuccess(ordersPaymentREQ.getOrderId(), orderEO.getTotalPrice());
         return res;
     }
 
@@ -378,13 +383,16 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
     public void orderRefund(Long orderId) throws Exception {
         if (orderId == null) {
             PARAM_ERROR.throwException();
+            return;
         }
         OrderEO orderEO = self.getById(orderId);
         if (orderEO == null) {
             ORDER_NOT_FOUND.throwException();
+            return;
         }
         if (!Objects.equals(orderEO.getStatus(), ORDER_STATUS_PAID) && !Objects.equals(orderEO.getStatus(), ORDER_STATUS_TICKETED)) {
             ORDER_REFUND_FORBIDDEN.throwException();
+            return;
         }
         orderEO = refund(orderEO, orderEO.getTotalPrice(), orderEO.getTotalPrice());
         orderEO.setStatus(ORDER_STATUS_REFUNDED);
@@ -417,7 +425,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
      * @param outTradeNo
      */
     @Override
-    public void paySuccess(Long outTradeNo) {
+    public void paySuccess(Long outTradeNo, BigDecimal amount) {
         // 根据订单号查询订单
         OrderEO ordersDB = self.getById(outTradeNo);
 
@@ -426,6 +434,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
                 .id(ordersDB.getId())
                 .status(ORDER_STATUS_PAID)
                 .payTime(LocalDateTime.now())
+                .amountPaid(amount)
                 .build();
 
         self.updateById(orders);
@@ -439,14 +448,12 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
         // 订单处于已支付和已出票状态下取消，需要进行退款
         if (ordersDB.getStatus().equals(ORDER_STATUS_PAID) && ordersDB.getStatus().equals(ORDER_STATUS_TICKETED)) {
             //调用微信支付退款接口
-            weChatPayUtil.refund(
-                    ordersDB.getId().toString(), //商户订单号
-                    ordersDB.getId().toString(), //商户退款单号
-                    orderMoney,//退款金额，单位 元
-                    originalOrderMoney);//原订单金额
-
-            //支付状态修改为 退款
-            order.setStatus(ORDER_STATUS_REFUNDED);
+//            weChatPayUtil.refund(
+//                    ordersDB.getId().toString(), //商户订单号
+//                    ordersDB.getId().toString(), //商户退款单号
+//                    orderMoney,//退款金额，单位 元
+//                    originalOrderMoney);//原订单金额
+            order.setAmountPaid(originalOrderMoney.subtract(orderMoney));
         }
         return order;
     }

@@ -9,5 +9,6 @@ CREATE TABLE IF NOT EXISTS `hcd_order` (
   `create_person` varchar(30) NOT NULL COMMENT '创建人',
   `update_person` varchar(30) NOT NULL COMMENT '更新者',
   `pay_time` datetime DEFAULT NULL COMMENT '支付时间',
+  `amount_paid` decimal(10,2) DEFAULT NULL COMMENT '已付金额',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='hcd_订单';

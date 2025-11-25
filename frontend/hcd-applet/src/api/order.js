@@ -16,6 +16,14 @@ export const cancelOrder = (id) => {
   return request.put(`/order/cancel/${id}`)
 }
 
-export const payOrder = (id) => {
-  return request.put(`/order/pay/${id}`)
+export const payOrder = (id, data) => {
+  return request.put(`/order/pay/${id}`, data)
+}
+
+export const getPaymentParams = (orderId) => {
+  return request.get(`/order/payment-params/${orderId}`)
+}
+
+export const confirmPayment = (orderId, paymentResult) => {
+  return request.post(`/order/confirm-payment/${orderId}`, paymentResult)
 }

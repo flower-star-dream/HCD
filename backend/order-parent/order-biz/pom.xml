@@ -28,10 +28,6 @@
         </dependency>
         <dependency>
             <groupId>top.flowerstardream.hcd</groupId>
-            <artifactId>order-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>top.flowerstardream.hcd</groupId>
             <artifactId>order-bo</artifactId>
             <scope>provided</scope>
         </dependency>
