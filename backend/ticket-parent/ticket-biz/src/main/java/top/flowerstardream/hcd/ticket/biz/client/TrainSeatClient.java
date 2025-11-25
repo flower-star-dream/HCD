@@ -18,8 +18,7 @@ import java.util.List;
  * @Date: 2024/11/11
  * @Description: 列车座位服务Feign客户端
  */
-@FeignClient(name = "hcd-trainSeat")
-@RequestMapping("/api/v1/internal/trainSeat")
+@FeignClient(name = "hcd-trainSeat", path = "/api/v1/internal/trainSeat")
 public interface TrainSeatClient {
 
     /**

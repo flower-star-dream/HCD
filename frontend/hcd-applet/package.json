@@ -45,6 +45,7 @@
   },
   "dependencies": {
     "@dcloudio/uni-app": "3.0.0-4020420240722001",
+    "@dcloudio/uni-components": "3.0.0-alpha-3000020210521001",
     "@dcloudio/uni-h5": "3.0.0-4020420240722001",
     "@dcloudio/uni-mp-alipay": "3.0.0-4020420240722001",
     "@dcloudio/uni-mp-baidu": "3.0.0-4020420240722001",
@@ -54,6 +55,7 @@
     "@dcloudio/uni-mp-toutiao": "3.0.0-4020420240722001",
     "@dcloudio/uni-mp-weixin": "3.0.0-4020420240722001",
     "@dcloudio/uni-quickapp-webview": "3.0.0-4020420240722001",
+    "pinia": "^3.0.4",
     "uview-plus": "^3.3.8",
     "vue": "^3.4.21",
     "vue-i18n": "^9.1.9"
@@ -70,6 +72,7 @@
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.5.4",
     "mini-css-extract-plugin": "^2.7.6",
+    "rimraf": "^5.0.5",
     "sass": "^1.77.8",
     "sass-loader": "^13.3.2",
     "style-loader": "^3.3.3",
@@ -81,7 +84,6 @@
     "webpack": "^5.89.0",
     "webpack-bundle-analyzer": "^4.9.1",
     "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^4.15.1",
-    "rimraf": "^5.0.5"
+    "webpack-dev-server": "^4.15.1"
   }
 }

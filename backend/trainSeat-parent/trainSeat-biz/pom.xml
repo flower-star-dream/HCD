@@ -27,10 +27,6 @@
         </dependency>
         <dependency>
             <groupId>top.flowerstardream.hcd</groupId>
-            <artifactId>trainSeat-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>top.flowerstardream.hcd</groupId>
             <artifactId>trainSeat-bo</artifactId>
             <scope>provided</scope>
         </dependency>

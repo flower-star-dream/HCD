@@ -2,7 +2,6 @@ package top.flowerstardream.hcd.order.biz.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
-import top.flowerstardream.hcd.order.ao.dto.CalcTicketPriceDTO;
 import top.flowerstardream.hcd.order.ao.dto.CancelTicketDTO;
 import top.flowerstardream.hcd.order.ao.dto.TicketDTO;
 import top.flowerstardream.hcd.tools.result.Result;
@@ -12,8 +11,7 @@ import top.flowerstardream.hcd.tools.result.Result;
  * @Date: 2025/11/11/22:52
  * @Description: 票务服务客户端接口
  */
-@FeignClient("hcd-ticket")
-@RequestMapping("/api/v1/internal/ticket")
+@FeignClient(name = "hcd-ticket", path = "/api/v1/internal/ticket")
 public interface TicketClient {
 
     /**

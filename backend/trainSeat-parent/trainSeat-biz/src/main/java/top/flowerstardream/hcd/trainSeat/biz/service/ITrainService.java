@@ -1,10 +1,11 @@
 package top.flowerstardream.hcd.trainSeat.biz.service;
 
-import top.flowerstardream.hcd.bo.eo.TrainEO;
+import top.flowerstardream.hcd.trainSeat.ao.req.TrainREQ;
+import top.flowerstardream.hcd.trainSeat.ao.res.TrainRES;
+import top.flowerstardream.hcd.trainSeat.bo.TrainEO;
 import top.flowerstardream.hcd.tools.result.PageResult;
-import top.flowerstardream.hcd.trainSeat.ao.PQREQ.TrainPageQueryREQ;
-import top.flowerstardream.hcd.trainSeat.ao.REQ.TrainREQ;
-import top.flowerstardream.hcd.trainSeat.ao.RES.TrainRES;
+import top.flowerstardream.hcd.trainSeat.ao.pqreq.TrainPageQueryREQ;
+
 
 import java.util.List;
 

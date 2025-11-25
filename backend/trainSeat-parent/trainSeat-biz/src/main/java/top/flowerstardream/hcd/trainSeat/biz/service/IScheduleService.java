@@ -1,11 +1,10 @@
 package top.flowerstardream.hcd.trainSeat.biz.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
-import top.flowerstardream.hcd.bo.eo.ScheduleEO;
+import top.flowerstardream.hcd.trainSeat.ao.req.ScheduleREQ;
+import top.flowerstardream.hcd.trainSeat.ao.res.ScheduleRES;
+import top.flowerstardream.hcd.trainSeat.bo.ScheduleEO;
 import top.flowerstardream.hcd.tools.result.PageResult;
-import top.flowerstardream.hcd.trainSeat.ao.PQREQ.SchedulePageQueryREQ;
-import top.flowerstardream.hcd.trainSeat.ao.REQ.ScheduleREQ;
-import top.flowerstardream.hcd.trainSeat.ao.RES.ScheduleRES;
+import top.flowerstardream.hcd.trainSeat.ao.pqreq.SchedulePageQueryREQ;
 
 import java.util.List;
 

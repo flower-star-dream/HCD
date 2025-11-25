@@ -5,15 +5,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import top.flowerstardream.hcd.base.ao.req.StatusChangeREQ;
 import top.flowerstardream.hcd.ticket.ao.req.TicketPageQueryREQ;
 import top.flowerstardream.hcd.ticket.ao.req.TicketStatusChangeREQ;
 import top.flowerstardream.hcd.ticket.ao.res.TicketRES;
 import top.flowerstardream.hcd.ticket.biz.service.ITicketService;
-import top.flowerstardream.hcd.ticket.bo.TicketEO;
 import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.tools.result.Result;
-import top.flowerstardream.hcd.tools.utils.GetInfoUtil;
 
 import static top.flowerstardream.hcd.tools.utils.GetInfoUtil.*;
 

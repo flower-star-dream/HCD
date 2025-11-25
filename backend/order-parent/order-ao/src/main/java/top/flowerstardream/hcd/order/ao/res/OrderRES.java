@@ -41,6 +41,12 @@ public class OrderRES implements Serializable {
     private BigDecimal totalPrice;
 
     /**
+     * 已付金额
+     */
+    @Schema(description = "已付金额")
+    private BigDecimal amountPaid;
+
+    /**
      * 订单备注
      */
     @Schema(description = "订单备注")
