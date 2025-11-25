@@ -46,5 +46,27 @@ public class OrderDTO implements Serializable {
     @Schema(description = "订单总价")
     private BigDecimal totalPrice;
 
+    /**
+     * 创建时间
+     */
+    @Schema(description = "创建时间")
+    private LocalDateTime createTime;
 
+    /**
+     * 更新时间
+     */
+    @Schema(description = "更新时间")
+    private LocalDateTime updateTime;
+
+    /**
+     * 创建人
+     */
+    @Schema(description = "创建人")
+    private String createPerson;
+
+    /**
+     * 更新人
+     */
+    @Schema(description = "更新人")
+    private String updatePerson;
 }
