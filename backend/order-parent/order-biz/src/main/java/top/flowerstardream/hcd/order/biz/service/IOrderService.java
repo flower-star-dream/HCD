@@ -2,7 +2,6 @@ package top.flowerstardream.hcd.order.biz.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import top.flowerstardream.hcd.base.ao.req.StatusChangeREQ;
-import top.flowerstardream.hcd.order.ao.dto.OrderDTO;
 import top.flowerstardream.hcd.order.ao.req.OrderPageQueryREQ;
 import top.flowerstardream.hcd.order.ao.req.OrderREQ;
 import top.flowerstardream.hcd.order.ao.req.OrderStatusREQ;
@@ -74,8 +73,9 @@ public interface IOrderService extends IService<OrderEO> {
     /**
      * 支付成功，修改订单状态
      * @param outTradeNo
+     * @param amount
      */
-    void paySuccess(Long outTradeNo);
+    void paySuccess(Long outTradeNo, BigDecimal amount);
 
     /**
      * 订单支付
