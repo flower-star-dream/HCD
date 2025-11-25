@@ -5,8 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.io.Serializable;
 import java.math.BigDecimal;
 
 
@@ -15,7 +13,8 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "订单参数")
-public class OrderDTO implements Serializable {
+public class OrderDTO {
+
 
     @Schema(description = "订单ID")
     private Long id;
