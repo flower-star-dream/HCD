@@ -12,7 +12,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import top.flowerstardream.hcd.trainSeat.biz.service.IRouteService;
+
 
 @RestController
 @RequestMapping("/api/v1/app/route")
@@ -20,12 +20,5 @@ import top.flowerstardream.hcd.trainSeat.biz.service.IRouteService;
 @Slf4j
 public class MgmtRouteController {
 
-    @Resource
-    private IRouteService IRouteService;
-
-    /**
-     * 获取路线信息
-     * @return
-     */
 
 }
