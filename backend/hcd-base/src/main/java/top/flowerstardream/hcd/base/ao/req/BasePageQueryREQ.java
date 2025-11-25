@@ -6,8 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.io.Serializable;
-
 /**
  * @Author: 花海
  * @Date: 2025/11/08/15:01

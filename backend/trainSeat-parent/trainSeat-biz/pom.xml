@@ -48,6 +48,14 @@
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
         </dependency>
+        <dependency>
+            <groupId>top.flowerstardream.hcd</groupId>
+            <artifactId>trainSeat-ao</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>top.flowerstardream.hcd</groupId>
+            <artifactId>trainSeat-ao</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

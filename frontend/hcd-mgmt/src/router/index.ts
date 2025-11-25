@@ -5,73 +5,41 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     name: 'Layout',
-    component: () => import('@/views/Layout.vue'),
-    redirect: '/home',
+    component: () => import('@/pages/Layout.vue'),
+    redirect: '/dashboard',
     children: [
       {
-        path: '/home',
-        name: 'Home',
-        component: () => import('@/views/Home/Home.vue'),
-        meta: { title: '首页', icon: 'Home' }
+        path: '/dashboard',
+        name: 'Dashboard',
+        component: () => import('@/pages/Dashboard/index.vue'),
+        meta: { title: '仪表盘', icon: 'Odometer' }
       },
       // {
-      //   path: '/dashboard',
-      //   name: 'Dashboard',
-      //   component: () => import('@/views/Dashboard/index.vue'),
-      //   meta: { title: '仪表盘', icon: 'Odometer' }
+      //   path: '/train',
+      //   name: 'Train',
+      //   component: () => import('@/pages/Train/index.vue'),
+      // {
+      //   path: '/train',
+      //   name: 'Train',
+      //   component: () => import('@/views/Train/index.vue'),
+      //   meta: { title: '车次管理', icon: 'Train' }
       // },
-      {
-        path: '/train',
-        name: 'Train',
-        meta: { title: '列车管理', icon: 'Train' },
-        children: [
-          {
-            path: '/train/list',
-            name: 'TrainList',
-            component: () => import('@/views/Train/Train-list-view/Train-list-view.vue'),
-            meta: { title: '列车列表' }
-          }
-        ]
-      },
-      {
-        path: '/schedule',
-        name: 'Schedule',
-        meta: { title: '班次管理', icon: 'Calendar' },
-        children: [
-          {
-            path: '/schedule/list',
-            name: 'ScheduleList',
-            component: () => import('@/views/Schedule/Schedule-list-view/Schedule-list-view.vue'),
-            meta: { title: '班次列表' }
-          }
-        ]
-      },
-      {
-        path: '/order',
-        name: 'Order',
-        meta: { title: '订单管理', icon: 'Tickets' },
-        children: [
-          {
-            path: '/order/list',
-            name: 'OrderList',
-            component: () => import('@/views/Order/Order-list-view/Order-list-view.vue'),
-            meta: { title: '订单列表' }
-          }
-        ]
-      },
-      {
-        path: '/ticket',
-        name: 'Ticket',
-        meta: { title: '票务管理', icon: 'Tickets' },
-        children: [
-          {
-            path: '/ticket/list',
-            name: 'TicketList',
-            component: () => import('@/views/Ticket/Ticket-list-view/Ticket-list-view.vue'),
-            meta: { title: '车票列表' }
-          }
-        ]
-      },
+      // {
+      //   path: '/order',
+      //   name: 'Order',
+      //   component: () => import('@/pages/Order/index.vue'),
+      //   meta: { title: '订单管理', icon: 'Tickets' }
+      // },
+      // {
+      //   path: '/user',
+      //   name: 'User',
+      //   component: () => import('@/pages/User/index.vue'),
+      //   meta: { title: '用户管理', icon: 'User' }
+      // },
+      // {
+      //   path: '/station',
+      //   name: 'Station',
+      //   component: () => import('@/pages/Station/index.vue'),
       {
         path: '/employee',
         name: 'Employee',
@@ -168,19 +136,18 @@ const routes: RouteRecordRaw[] = [
           }
         ]
       }
-      
     ]
   },
   {
     path: '/login',
     name: 'Login',
-    component: () => import('@/views/Login.vue'),
+    component: () => import('@/pages/Login.vue'),
     meta: { title: '登录' }
   },
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
-    component: () => import('@/views/404.vue'),
+    component: () => import('@/pages/404.vue'),
     meta: { title: '404' }
   }
 ]
