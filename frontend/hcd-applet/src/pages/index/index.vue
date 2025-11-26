@@ -5,54 +5,57 @@
       <view class="search-form">
         <view class="form-item">
           <text class="label">出发地</text>
-          <u--input
+          <input
             v-model="searchForm.departure"
             placeholder="请选择出发地"
-            border="none"
-            @click="showStationPicker = true"            readonly
+            class="input"
+            @click="showStationPicker = true"
+            readonly
           />
         </view>
 
         <view class="exchange-btn" @click="exchangeStations">
-          <u-icon name="swap" size="24" color="#2979ff" />
+          <text class="swap-icon">⇄</text>
         </view>
 
         <view class="form-item">
           <text class="label">目的地</text>
-          <u--input
+          <input
             v-model="searchForm.arrival"
             placeholder="请选择目的地"
-            border="none"
-            @click="showStationPicker = true"            readonly
+            class="input"
+            @click="showStationPicker = true"
+            readonly
           />
         </view>
 
         <view class="form-item">
           <text class="label">出发日期</text>
-          <u--input
+          <input
             v-model="searchForm.date"
             placeholder="请选择日期"
-            border="none"
-            @click="showDatePicker = true"            readonly
+            class="input"
+            @click="showDatePicker = true"
+            readonly
           />
         </view>
 
-        <u-button type="primary" text="查询车票" @click="searchTickets" />
+        <button type="primary" class="search-btn" @click="searchTickets">查询车票</button>
       </view>
     </view>
 
     <!-- 快捷功能 -->
     <view class="quick-actions">
       <view class="action-item" @click="goToOrderList">
-        <u-icon name="order" size="32" color="#2979ff" />
+        <text class="action-icon">📋</text>
         <text>我的订单</text>
       </view>
       <view class="action-item" @click="goToPassenger">
-        <u-icon name="account" size="32" color="#19be6b" />
+        <text class="action-icon">👥</text>
         <text>常用乘客</text>
       </view>
       <view class="action-item" @click="goToProfile">
-        <u-icon name="setting" size="32" color="#ff9900" />
+        <text class="action-icon">👤</text>
         <text>个人中心</text>
       </view>
     </view>
@@ -66,12 +69,16 @@
 
       <view class="train-list">
         <view
-          v-for="train in recommendTrains"          :key="train.id"          class="train-item"          @click="selectTrain(train)"        >
+          v-for="train in recommendTrains"
+          :key="train.id"
+          class="train-item"
+          @click="selectTrain(train)"
+        >
           <view class="train-info">
             <text class="train-number">{{ train.trainNumber }}</text>
             <view class="train-route">
               <text>{{ train.departureStation }}</text>
-              <u-icon name="arrow-right" size="16" color="#999" />
+              <text class="arrow-icon">→</text>
               <text>{{ train.arrivalStation }}</text>
             </view>
             <view class="train-time">
@@ -89,20 +96,28 @@
     </view>
 
     <!-- 站点选择器 -->
-    <u-picker
-      :show="showStationPicker"
-      :columns="stationColumns"
-      @confirm="handleStationSelect"
-      @cancel="showStationPicker = false"    />
+    <picker
+      v-if="showStationPicker"
+      :range="stationColumns[0]"
+      @change="handleStationSelect"
+      @cancel="showStationPicker = false"
+      class="picker"
+    >
+      <view class="picker-mask"></view>
+    </picker>
 
     <!-- 日期选择器 -->
-    <u-datetime-picker
-      :show="showDatePicker"
+    <picker
+      v-if="showDatePicker"
       mode="date"
-      :min-date="minDate"
-      :max-date="maxDate"      @confirm="handleDateSelect"
+      :start="minDateStr"
+      :end="maxDateStr"
+      @change="handleDateSelect"
       @cancel="showDatePicker = false"
-    />
+      class="picker"
+    >
+      <view class="picker-mask"></view>
+    </picker>
   </view>
 </template>
 
@@ -127,6 +142,23 @@ const stations = ref([])
 // 日期范围
 const minDate = computed(() => Date.now())
 const maxDate = computed(() => Date.now() + 30 * 24 * 60 * 60 * 1000)
+
+// 日期范围字符串格式（用于picker组件）
+const minDateStr = computed(() => {
+  const date = new Date()
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+})
+
+const maxDateStr = computed(() => {
+  const date = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+})
 
 // 推荐车次
 const recommendTrains = ref([
@@ -194,18 +226,16 @@ const exchangeStations = () => {
 
 // 处理站点选择
 const handleStationSelect = (e) => {
-  const selectedStation = e.value[0]
+  const selectedIndex = e.detail.value
+  const selectedStation = stationColumns.value[0][selectedIndex]
   // 这里需要判断是选择出发地还是目的地
   showStationPicker.value = false
 }
 
 // 处理日期选择
 const handleDateSelect = (e) => {
-  const date = new Date(e.value)
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  searchForm.value.date = `${year}-${month}-${day}`
+  const selectedDate = e.detail.value
+  searchForm.value.date = selectedDate
   showDatePicker.value = false
 }
 
@@ -297,8 +327,13 @@ onShow(() => {
       color: #666;
     }
 
-    .u-input {
+    .input {
       flex: 1;
+      font-size: 28rpx;
+      color: #333;
+      padding: 0;
+      border: none;
+      background: transparent;
     }
   }
 
@@ -311,10 +346,30 @@ onShow(() => {
     justify-content: center;
     background: #f5f5f5;
     border-radius: 50%;
+
+    .swap-icon {
+      font-size: 24rpx;
+      color: #2979ff;
+    }
   }
 
-  .u-button {
+  .search-btn {
     margin-top: 30rpx;
+    width: 100%;
+    height: 80rpx;
+    font-size: 28rpx;
+    background-color: #2979ff;
+    color: #fff;
+    border: none;
+    border-radius: 40rpx;
+    transition: all 0.3s ease;
+    box-shadow: 0 2rpx 10rpx rgba(41, 121, 255, 0.3);
+
+    &:active {
+      background-color: #1a68e0;
+      transform: scale(0.98);
+      box-shadow: 0 1rpx 5rpx rgba(41, 121, 255, 0.5);
+    }
   }
 }
 
@@ -331,9 +386,21 @@ onShow(() => {
     display: flex;
     flex-direction: column;
     align-items: center;
+    transition: all 0.3s ease;
+    padding: 20rpx;
+    border-radius: 12rpx;
+
+    &:active {
+      background-color: #f0f5ff;
+      transform: scale(0.95);
+    }
+
+    .action-icon {
+      font-size: 32rpx;
+      margin-bottom: 10rpx;
+    }
 
     text {
-      margin-top: 10rpx;
       font-size: 24rpx;
       color: #666;
     }
@@ -371,9 +438,16 @@ onShow(() => {
       align-items: center;
       padding: 20rpx 0;
       border-bottom: 1rpx solid #eee;
+      transition: all 0.3s ease;
+      cursor: pointer;
 
       &:last-child {
         border-bottom: none;
+      }
+
+      &:active {
+        background-color: #f5f7fa;
+        padding-left: 10rpx;
       }
 
       .train-info {
@@ -395,6 +469,10 @@ onShow(() => {
 
           text {
             margin: 0 10rpx;
+          }
+
+          .arrow-icon {
+            color: #999;
           }
         }
 
@@ -427,5 +505,23 @@ onShow(() => {
       }
     }
   }
+}
+
+.picker {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+}
+
+.picker-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 998;
 }
 </style>

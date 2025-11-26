@@ -1,11 +1,11 @@
 <template>
   <view class="app-container">
-    <u-toast ref="uToast" />
-    <u-loading-page
+    <!-- <u-toast ref="uToast" /> -->
+    <!-- <u-loading-page
       :loading="loading"
       loading-text="加载中..."
       bg-color="#f8f8f8"
-    />
+    /> -->
     <router-view />
   </view>
 </template>
@@ -25,7 +25,39 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
+/* 暂时注释uview-plus样式导入，避免Sass变量作用域问题 */
+/* 
+// 定义uview-plus所需的Sass变量
+$u-primary: #3c9cff;
+$u-info: #909399;
+$u-default: #909399;
+$u-warning: #f9ae3d;
+$u-error: #f56c6c;
+$u-success: #5ac725;
+$u-main-color: #303133;
+$u-content-color: #606266;
+$u-tips-color: #909399;
+$u-light-color: #c0c4cc;
+$u-border-color: #e4e7ed;
+$u-primary-light: rgba(60, 156, 255, 0.1);
+$u-warning-light: rgba(249, 174, 61, 0.1);
+$u-success-light: rgba(90, 199, 37, 0.1);
+$u-error-light: rgba(245, 108, 108, 0.1);
+$u-info-light: rgba(144, 147, 153, 0.1);
+$u-primary-dark: #3688e6;
+$u-warning-dark: #e09628;
+$u-success-dark: #4fb81f;
+$u-error-dark: #dd6161;
+$u-info-dark: #7d8087;
+$u-primary-disabled: rgba(60, 156, 255, 0.5);
+$u-warning-disabled: rgba(249, 174, 61, 0.5);
+$u-success-disabled: rgba(90, 199, 37, 0.5);
+$u-error-disabled: rgba(245, 108, 108, 0.5);
+$u-info-disabled: rgba(144, 147, 153, 0.5);
+
+// 导入uview-plus样式
 @import 'uview-plus/index.scss';
+*/
 
 .app-container {
   width: 100%;

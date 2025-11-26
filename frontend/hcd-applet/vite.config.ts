@@ -7,7 +7,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
-      '@uview-plus': resolve(__dirname, 'uni_modules/uview-plus')
+      '@uview-plus': resolve(__dirname, 'node_modules/uview-plus')
     }
   },
   server: {
