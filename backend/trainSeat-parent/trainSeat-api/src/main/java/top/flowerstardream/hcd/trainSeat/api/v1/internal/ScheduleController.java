@@ -11,7 +11,7 @@ import top.flowerstardream.hcd.tools.result.Result;
 import top.flowerstardream.hcd.trainSeat.biz.service.impl.IScheduleServiceImpl;
 
 @RestController("internalScheduleController")
-@RequestMapping("/api/v1/internal/schedule")
+@RequestMapping("/api/v1/internal/trainSeat/schedule")
 @Tag(name = "班次接口服务")
 @Slf4j
 public class ScheduleController {
