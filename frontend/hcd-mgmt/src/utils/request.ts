@@ -3,8 +3,15 @@ import { ElMessage } from 'element-plus'
 import type { ApiResponse } from '@/types'
 import config from '@/config'
 
+<<<<<<< HEAD
+const request = axios.create({
+  baseURL: '/api/v1',
+  timeout: 10000
+})
+=======
 // 请求拦截器
 import type { InternalAxiosRequestConfig } from 'axios'
+>>>>>>> 7194a667e73e05f6f820be501adf75d935dc6a3c
 
 const requestInterceptor = (config: InternalAxiosRequestConfig) => {
   config.headers = config.headers || {}

@@ -22,7 +22,7 @@ public class SeatReservationPageQueryREQ extends BasePageQueryREQ implements Ser
     private Long scheduleId;
 
     @Schema(description= "座位id")
-    private Long seatId;
+    private Integer seatNum;
 
     @Schema(description= "预订状态")
     private Integer bookingStatus;

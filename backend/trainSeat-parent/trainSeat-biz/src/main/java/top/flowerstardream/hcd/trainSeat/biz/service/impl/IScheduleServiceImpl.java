@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import top.flowerstardream.hcd.trainSeat.ao.dto.SeatReservationDTO;
 import top.flowerstardream.hcd.trainSeat.ao.req.ScheduleREQ;
 import top.flowerstardream.hcd.trainSeat.ao.res.ScheduleRES;
 import top.flowerstardream.hcd.trainSeat.bo.ScheduleEO;
@@ -193,13 +194,6 @@ public class IScheduleServiceImpl extends ServiceImpl<ScheduleMapper, ScheduleEO
         return pageResult ;
     }
 
-
-
-    /*
-    * 查询班次
-    * 校验路线是否存在
-    * add方法在使用
-     */
     private ScheduleEO getSchedule(Long trainId, Long routeId, String startTime){
         LambdaQueryWrapper<ScheduleEO> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ScheduleEO::getTrainId, trainId)
@@ -214,6 +208,14 @@ public class IScheduleServiceImpl extends ServiceImpl<ScheduleMapper, ScheduleEO
         if (scheduleEO != null) {
             SCHEDULE_ALREADY_EXISTS.throwException();
         }
+    }
+
+
+
+    /**外部调用*/
+    public Integer getAvailingTickets(Long scheduleId){
+        ScheduleEO scheduleEO = scheduleMapper.selectById(scheduleId);
+        return scheduleEO.getAvailingTickets();
     }
 
 

@@ -10,6 +10,8 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import top.flowerstardream.hcd.tools.result.Result;
+import top.flowerstardream.hcd.trainSeat.ao.dto.StationsDTO;
 import top.flowerstardream.hcd.trainSeat.ao.req.StationREQ;
 import top.flowerstardream.hcd.trainSeat.ao.res.StationRES;
 import top.flowerstardream.hcd.trainSeat.bo.RouteStationsEO;
@@ -189,4 +191,46 @@ public class IStationServiceImpl extends ServiceImpl<StationMapper, StationEO> i
             STATION_ALREADY_EXISTS.throwException();
         }
     }
+
+
+
+    /**
+    * 外部调用
+    */
+    public List<Long> getStationIdsByName(String stationName) {
+
+        //参数检验
+        if (stationName == null || stationName.isEmpty()) {
+            THE_QUERY_PARAMETER_CANNOT_BE_EMPTY.throwException();
+        }
+        LambdaQueryWrapper<StationEO> queryWrapper = Wrappers.lambdaQuery();
+        queryWrapper.like(StationEO::getStationName, stationName);
+        List<Long> stationIds = stationMapper.selectList(queryWrapper)
+                .stream().map(StationEO::getId)
+                .collect(Collectors.toList());
+
+        return stationIds;
+    }
+    /**
+    * 外部调用
+    */
+    public List<StationsDTO> getStationDTOsByStationIds(List<Long> stationIds){
+        //参数检验
+        if (stationIds == null || stationIds.isEmpty()) {
+            THE_QUERY_PARAMETER_CANNOT_BE_EMPTY.throwException();
+        }
+        LambdaQueryWrapper<StationEO> queryWrapper = Wrappers.lambdaQuery();
+        queryWrapper.in(StationEO::getId, stationIds);
+        List<StationEO> stations = stationMapper.selectList(queryWrapper);
+
+        return stations.stream().map(stationEO -> {
+            StationsDTO stationsDTO = new StationsDTO();
+            stationsDTO.builder()
+                    .id(stationEO.getId())
+                    .name(stationEO.getStationName());
+            return stationsDTO;
+        }).collect(Collectors.toList());
+
+    }
+
 }

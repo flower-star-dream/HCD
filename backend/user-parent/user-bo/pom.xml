@@ -20,6 +20,11 @@
     <name>user-bo</name>
     <description>用户服务BO模块 - 存放实体对象</description>
     <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
 </project>
