@@ -28,13 +28,13 @@ public class SchedulePageQueryREQ extends BasePageQueryREQ implements Serializab
     @Schema(description = "列车长")
     private String conductor;
 
-    @TableField("availing_tickets")
+    @Schema(description = "可预订座位数")
     private Integer availingTickets;
 
-    @TableField("start_time")
+    @Schema(description = "出发时间")
     private String startTime;
 
-    @TableField("end_time")
+    @Schema(description = "到达时间")
     private String endTime;
 
 

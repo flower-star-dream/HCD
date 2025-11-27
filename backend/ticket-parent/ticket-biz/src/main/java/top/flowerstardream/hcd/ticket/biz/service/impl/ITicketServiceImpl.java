@@ -398,4 +398,25 @@ public class ITicketServiceImpl extends ServiceImpl<TicketMapper, TicketEO> impl
                          })
                          .toList();
     }
+
+    public List<TicketSeatReservationDTO> getTickets(Long seatReservationId) {
+        //参数校验
+        if (seatReservationId == null || seatReservationId <= 0) {
+            PARAM_ERROR.throwException();
+        }
+        LambdaQueryWrapper<TicketEO> queryWrapper = Wrappers.lambdaQuery();
+        queryWrapper.eq(TicketEO::getSeatReservationId, seatReservationId);
+        //将EO转换为DTO
+        List<TicketEO> ticketList = ticketMapper.selectList(queryWrapper);
+
+        return ticketList.stream()
+                .map(ticket -> {
+                    TicketSeatReservationDTO dto = new TicketSeatReservationDTO();
+                    BeanUtils.copyProperties(ticket, dto);
+                    return dto;
+                })
+                .toList();
+    }
+
 }
+

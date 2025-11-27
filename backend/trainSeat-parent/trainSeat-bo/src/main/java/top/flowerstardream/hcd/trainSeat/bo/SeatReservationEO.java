@@ -23,12 +23,12 @@ public class SeatReservationEO extends BaseEO implements Serializable {
     private Long scheduleId;
 
     // 座位号
-    @TableField("seat_id")
-    private Long seatId;
+    @TableField("seat_number")
+    private Integer seatNum;
 
     // 预订状态
     @TableField("booking_status")
-    private String bookingStatus;
+    private Integer bookingStatus;
 
 
 }
