@@ -7,10 +7,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import top.flowerstardream.hcd.ticket.ao.dto.CancelTicketDTO;
 import top.flowerstardream.hcd.ticket.ao.dto.TicketDTO;
+import top.flowerstardream.hcd.ticket.ao.dto.TicketSeatReservationDTO;
 import top.flowerstardream.hcd.ticket.biz.service.ITicketService;
+import top.flowerstardream.hcd.ticket.biz.service.impl.ITicketServiceImpl;
 import top.flowerstardream.hcd.tools.result.Result;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import static top.flowerstardream.hcd.tools.utils.GetInfoUtil.getTenantId;
 
@@ -27,6 +30,9 @@ public class TicketController {
 
     @Resource
     private ITicketService ticketService;
+
+    @Resource
+    private ITicketServiceImpl ticketServiceImpl;
 
     /**
      * 创建车票（由订单服务调用）
@@ -51,4 +57,15 @@ public class TicketController {
         ticketService.cancelTicketByOrder(cancelTicketDTO);
         return Result.successResult();
     }
+
+    /**
+     * 获取用户订单
+     * @param seatReservationId 座位预订ID
+     * @return 订单
+     */
+    @GetMapping("/order/getOrders")
+    Result<List<TicketSeatReservationDTO>> getOrders(@RequestParam Long seatReservationId){
+        List<TicketSeatReservationDTO> orders = ticketServiceImpl.getTickets(seatReservationId);
+        return Result.successResult(orders);
+    };
 }

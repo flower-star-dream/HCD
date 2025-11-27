@@ -6,6 +6,8 @@ import lombok.Getter;
 import top.flowerstardream.hcd.tools.exception.CustomException;
 import top.flowerstardream.hcd.tools.exception.ICustomError;
 
+import java.math.BigDecimal;
+
 /**
  * @Author: QAQ
  * @Date: 2025/11/21 18:05
@@ -27,6 +29,9 @@ public enum TrainSeatExceptionEnum implements ICustomError {
     STATION_ALREADY_EXISTS(20010, "站点已存在"),
     TRAIN_IS_USED(20011, "列车已被使用，无法被删除"),
     TRAIN_ALREADY_EXISTS(20012, "列车已存在");
+
+
+
     /**
      * 错误码
      */

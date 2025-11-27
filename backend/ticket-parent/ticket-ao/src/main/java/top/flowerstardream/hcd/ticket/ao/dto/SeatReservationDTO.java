@@ -27,5 +27,5 @@ public class SeatReservationDTO implements Serializable {
     private Long id;
 
     @Schema(description = "座位号")
-    private String seatNum;
+    private Integer seatNum;
 }

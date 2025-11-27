@@ -59,7 +59,7 @@ public class TicketRES implements Serializable {
      * 座位号
      */
     @Schema(description = "座位号")
-    private String seatNumber;
+    private Integer seatNumber;
 
     /**
      * 车票状态

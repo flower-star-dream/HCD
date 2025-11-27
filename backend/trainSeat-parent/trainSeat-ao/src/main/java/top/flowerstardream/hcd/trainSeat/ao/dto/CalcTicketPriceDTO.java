@@ -11,21 +11,24 @@ import java.io.Serializable;
 
 /**
  * @Author: 花海
- * @Date: 2025/11/14/03:30
- * @Description: 座位预约信息
+ * @Date: 2025/11/12/22:47
+ * @Description: 计算车票价格参数
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "座位预约信息")
-public class SeatReservationDTO implements Serializable {
+@Schema(description = "计算车票价格参数")
+public class CalcTicketPriceDTO implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "座位ID")
-    private Long id;
+    @Schema(description = "班次ID")
+    private Long scheduleId;
 
-    @Schema(description = "座位号")
-    private Integer seatNum;
+    @Schema(description = "出发站ID")
+    private Long startStationId;
+
+    @Schema(description = "到达站ID")
+    private Long endStationId;
 }
