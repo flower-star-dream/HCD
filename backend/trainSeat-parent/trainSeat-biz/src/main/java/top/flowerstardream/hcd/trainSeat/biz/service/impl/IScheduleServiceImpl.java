@@ -11,16 +11,26 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import top.flowerstardream.hcd.trainSeat.ao.dto.CalcTicketPriceDTO;
+import top.flowerstardream.hcd.trainSeat.ao.dto.ReserveSeatDTO;
 import top.flowerstardream.hcd.trainSeat.ao.dto.SeatReservationDTO;
+import top.flowerstardream.hcd.trainSeat.ao.dto.TimeDTO;
+import top.flowerstardream.hcd.trainSeat.ao.pqreq.RealTimeSchedulePageQueryREQ;
 import top.flowerstardream.hcd.trainSeat.ao.req.ScheduleREQ;
+import top.flowerstardream.hcd.trainSeat.ao.res.RealTimeScheduleRES;
 import top.flowerstardream.hcd.trainSeat.ao.res.ScheduleRES;
+import top.flowerstardream.hcd.trainSeat.biz.mapper.*;
+import top.flowerstardream.hcd.trainSeat.biz.tool.Calculation;
+import top.flowerstardream.hcd.trainSeat.bo.RouteEO;
+import top.flowerstardream.hcd.trainSeat.bo.RouteStationsEO;
 import top.flowerstardream.hcd.trainSeat.bo.ScheduleEO;
 import top.flowerstardream.hcd.trainSeat.bo.SeatReservationEO;
 import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.trainSeat.ao.pqreq.SchedulePageQueryREQ;
-import top.flowerstardream.hcd.trainSeat.biz.mapper.ScheduleMapper;
-import top.flowerstardream.hcd.trainSeat.biz.mapper.SeatReservationMapper;
 import top.flowerstardream.hcd.trainSeat.biz.service.IScheduleService;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,15 +42,21 @@ import static top.flowerstardream.hcd.trainSeat.constant.TrainSeatExceptionEnum.
 @Service
 public class IScheduleServiceImpl extends ServiceImpl<ScheduleMapper, ScheduleEO> implements IScheduleService {
 
-    @Resource
-    private ScheduleMapper scheduleMapper;
-
     @Lazy
     @Resource
     private IScheduleServiceImpl self;
 
     @Resource
+    private ScheduleMapper scheduleMapper;
+
+    @Resource
     private SeatReservationMapper seatReservationMapper;
+
+    @Resource
+    private RouteStationsMapper routeStationsMapper;
+
+    @Resource
+    private StationMapper stationMapper;
 
     @Override
     public void addSchedule(ScheduleREQ scheduleREQ) {
@@ -126,14 +142,20 @@ public class IScheduleServiceImpl extends ServiceImpl<ScheduleMapper, ScheduleEO
         //创建查询条件
         LambdaQueryWrapper<ScheduleEO> queryWrapper = new LambdaQueryWrapper<>();
 
+        //处理出发时间
+        LocalDateTime startTime = schedulePageQueryREQ.getStartTime().withHour(0).withMinute(0).withSecond(0);
+        LocalDateTime startTimeX = schedulePageQueryREQ.getStartTime().withHour(23).withMinute(59).withSecond(59);
+        LocalDateTime endTime = schedulePageQueryREQ.getEndTime().withHour(0).withMinute(0).withSecond(0);
+        LocalDateTime endTimeX = schedulePageQueryREQ.getEndTime().withHour(23).withMinute(59).withSecond(59);
+
         //查询条件
         queryWrapper.eq(ScheduleEO::getTrainId, schedulePageQueryREQ.getTrainId())
                 .eq(ScheduleEO::getRouteId, schedulePageQueryREQ.getRouteId())
                 .like(ScheduleEO::getConductor, schedulePageQueryREQ.getConductor())
                 //剩余座位数 TODO
                 .like(ScheduleEO::getAvailingTickets, schedulePageQueryREQ.getAvailingTickets())
-                .eq(ScheduleEO::getStartTime, schedulePageQueryREQ.getStartTime())
-                .eq(ScheduleEO::getEndTime, schedulePageQueryREQ.getEndTime());
+                .between(ScheduleEO::getStartTime, startTime, startTimeX)
+                .between(ScheduleEO::getEndTime, endTime, endTimeX);
 
         //执行分页查询
         Page<ScheduleEO> schedulePage = scheduleMapper.selectPage(page, queryWrapper);
@@ -194,7 +216,7 @@ public class IScheduleServiceImpl extends ServiceImpl<ScheduleMapper, ScheduleEO
         return pageResult ;
     }
 
-    private ScheduleEO getSchedule(Long trainId, Long routeId, String startTime){
+    private ScheduleEO getSchedule(Long trainId, Long routeId, LocalDateTime startTime){
         LambdaQueryWrapper<ScheduleEO> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ScheduleEO::getTrainId, trainId)
                 .eq(ScheduleEO::getRouteId, routeId)
@@ -202,7 +224,7 @@ public class IScheduleServiceImpl extends ServiceImpl<ScheduleMapper, ScheduleEO
         return scheduleMapper.selectOne(queryWrapper);
     }
 
-    private void validateScheduleIsExist(Long trainId, Long routeId, String startTime) {
+    private void validateScheduleIsExist(Long trainId, Long routeId, LocalDateTime startTime) {
 
         ScheduleEO scheduleEO = getSchedule(trainId,routeId,startTime);
         if (scheduleEO != null) {
@@ -216,6 +238,95 @@ public class IScheduleServiceImpl extends ServiceImpl<ScheduleMapper, ScheduleEO
     public Integer getAvailingTickets(Long scheduleId){
         ScheduleEO scheduleEO = scheduleMapper.selectById(scheduleId);
         return scheduleEO.getAvailingTickets();
+    }
+
+    /**外部调用*/
+    public PageResult<RealTimeScheduleRES> getRealTimeSchedule(RealTimeSchedulePageQueryREQ realTimeSchedulePageQueryREQ){
+        //参数校验
+        if (realTimeSchedulePageQueryREQ == null) {
+            THE_QUERY_PARAMETER_CANNOT_BE_EMPTY.throwException();
+        }
+        //设置分页参数默认值
+        if (realTimeSchedulePageQueryREQ.getPage() <= 0) {
+            realTimeSchedulePageQueryREQ.setPage(1);
+        }
+        if (realTimeSchedulePageQueryREQ.getPageSize() <= 0) {
+            realTimeSchedulePageQueryREQ.setPageSize(10);
+        }
+
+        /**
+         * 站点ID查站名
+         * */
+        String startStation = stationMapper.selectById(realTimeSchedulePageQueryREQ.getStartStationId()).getStationName();
+        String endStation = stationMapper.selectById(realTimeSchedulePageQueryREQ.getEndStationId()).getStationName();
+
+
+        /**查找班次*/
+        LambdaQueryWrapper<RouteStationsEO> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(RouteStationsEO::getStationId, realTimeSchedulePageQueryREQ.getStartStationId());
+        List<RouteStationsEO> routeStationsStart = routeStationsMapper.selectList(queryWrapper);
+
+        LambdaQueryWrapper<RouteStationsEO> queryWrapper1 = new LambdaQueryWrapper<>();
+        queryWrapper1.eq(RouteStationsEO::getStationId, realTimeSchedulePageQueryREQ.getEndStationId());
+        List<RouteStationsEO> routeStationsEnd = routeStationsMapper.selectList(queryWrapper1);
+
+        //找出同时包含出发站和终点站的路线ID
+        List<Long> startRouteIds = routeStationsStart.stream()
+                .map(RouteStationsEO::getRouteId)
+                .collect(Collectors.toList());
+
+        List<Long> commonRouteIds = routeStationsEnd.stream()
+                .map(RouteStationsEO::getRouteId)
+                .filter(startRouteIds::contains)
+                .collect(Collectors.toList());
+
+        //处理出发时间
+        LocalDateTime startTime = realTimeSchedulePageQueryREQ.getNowTime().withHour(0).withMinute(0).withSecond(0);
+        LocalDateTime endTime = realTimeSchedulePageQueryREQ.getNowTime().withHour(23).withMinute(59).withSecond(59);
+
+        //根据路线和出发时间查询班次
+        List<ScheduleEO> schedules = scheduleMapper.selectList(new LambdaQueryWrapper<ScheduleEO>()
+                .between(ScheduleEO::getStartTime, startTime, endTime)
+                .in(ScheduleEO::getRouteId, commonRouteIds));
+
+        //每个班次都封装出一个实时班次响应
+        List<RealTimeScheduleRES> resList = schedules.stream()
+                .map(schedule -> {
+                    RealTimeScheduleRES res = new RealTimeScheduleRES();
+                    //计算时间
+                    Calculation calculation = new Calculation();
+                    ReserveSeatDTO ReserveSeatDTO = new ReserveSeatDTO(
+                            schedule.getId(),
+                            realTimeSchedulePageQueryREQ.getStartStationId(),
+                            realTimeSchedulePageQueryREQ.getEndStationId());
+                    TimeDTO timeDTO = calculation.timeCalculation(ReserveSeatDTO);
+                    //计算价格
+                    BigDecimal price = calculation.ticketPriceCalculation(new CalcTicketPriceDTO(
+                            schedule.getId(),
+                            realTimeSchedulePageQueryREQ.getStartStationId(),
+                            realTimeSchedulePageQueryREQ.getEndStationId()));
+                    //封装结果
+                    res.setScheduleId(schedule.getId());
+                    res.setPrice(price);
+                    res.setStartTime(timeDTO.getStartStationTime());
+                    res.setEndTime(timeDTO.getEndStationTime());
+                    res.setStartStation(startStation);
+                    res.setEndStation(endStation);
+                    res.setRemainTicket(schedule.getAvailingTickets());
+                    return res;
+                }).collect(Collectors.toList());
+
+        // 将最终的结果转换为分页对象
+        Page<RealTimeScheduleRES> page = new Page<>(realTimeSchedulePageQueryREQ.getPage(), realTimeSchedulePageQueryREQ.getPageSize(), resList.size());
+        // 手动设置当前页的记录
+        int fromIndex = (int) ((page.getCurrent() - 1) * page.getSize());
+        int toIndex = (int) Math.min(fromIndex + page.getSize(), resList.size());
+        page.setRecords(resList.subList(fromIndex, toIndex));
+
+        PageResult<RealTimeScheduleRES> pageResult = new PageResult<>();
+        pageResult.setTotal(resList.size());
+        pageResult.setRecords(page.getRecords());
+        return pageResult;
     }
 
 
