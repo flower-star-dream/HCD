@@ -3,15 +3,13 @@
 CREATE TABLE IF NOT EXISTS  `hcd_route` (
   `id` bigint NOT NULL COMMENT '线路号',
   `route_name` varchar(20) NOT NULL COMMENT '线路名',
-  `start_station` varchar(50) NOT NULL COMMENT '起点站',
-  `end_station` varchar(50) NOT NULL COMMENT '终点站',
+  `start_station_id` bigint NOT NULL COMMENT '起点站id',
+  `end_station_id` bigint NOT NULL COMMENT '终点站id',
   `station_count` int NOT NULL COMMENT '站点数',
   `create_time` datetime NOT NULL COMMENT '创建时间',
   `update_time` datetime NOT NULL COMMENT '更新时间',
   `create_person` varchar(30) NOT NULL COMMENT '创建人',
   `update_person` varchar(30) NOT NULL COMMENT '更新者',
-  `start_station_id` bigint NOT NULL COMMENT '起点站id',
-  `end_station_id` bigint NOT NULL COMMENT '终点站id',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='hcd_线路';
 

@@ -198,7 +198,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { getOrderDetail, cancelOrder, deleteOrder } from '@/api/order'
+import { getOrderDetail, cancelOrder } from '@/api/order'
 
 const orderId = ref('')
 const orderInfo = ref({
@@ -444,7 +444,7 @@ const handleDelete = () => {
     success: async (res) => {
       if (res.confirm) {
         try {
-          await deleteOrder(orderId.value)
+          // await deleteOrder(orderId.value)
           uni.showToast({
             title: '删除成功',
             icon: 'success'

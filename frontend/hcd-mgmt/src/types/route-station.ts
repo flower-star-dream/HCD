@@ -1,4 +1,7 @@
 // 线路站点关联相关类型定义
+import type { PageQuery } from './index'
+import type { Route } from './route'
+import type { Station } from './station'
 
 /**
  * 线路站点关联基础类型（对应hcd_route_stations表）

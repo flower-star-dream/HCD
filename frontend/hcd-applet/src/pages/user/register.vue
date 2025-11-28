@@ -86,7 +86,8 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
-import { register, sendSmsCode } from '@/api/user'
+import { register } from '@/api/user'
+import { useUserStore } from '@/store/user'
 
 const formRef = ref(null)
 const loading = ref(false)
@@ -147,10 +148,10 @@ const sendCode = async () => {
     codeSending.value = true
     
     // 调用发送验证码接口
-    await sendSmsCode({
-      phone: registerForm.phone,
-      type: 'register'
-    })
+    // await sendSmsCode({
+    //   phone: registerForm.phone,
+    //   type: 'register'
+    // })
 
     uni.showToast({
       title: '验证码已发送',
