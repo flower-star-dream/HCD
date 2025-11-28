@@ -12,21 +12,16 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 import top.flowerstardream.hcd.tools.result.Result;
-import top.flowerstardream.hcd.trainSeat.ao.dto.ReserveSeatDTO;
-import top.flowerstardream.hcd.trainSeat.ao.dto.ReserveSeatResultDTO;
-import top.flowerstardream.hcd.trainSeat.ao.dto.SeatReservationDTO;
-import top.flowerstardream.hcd.trainSeat.ao.dto.TicketSeatReservationDTO;
+import top.flowerstardream.hcd.trainSeat.ao.dto.*;
 import top.flowerstardream.hcd.trainSeat.ao.req.SeatReservationREQ;
 import top.flowerstardream.hcd.trainSeat.ao.res.SeatReservationRES;
-import top.flowerstardream.hcd.trainSeat.biz.mapper.ScheduleMapper;
-import top.flowerstardream.hcd.trainSeat.bo.ScheduleEO;
 import top.flowerstardream.hcd.trainSeat.bo.SeatReservationEO;
 import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.trainSeat.ao.pqreq.SeatReservationPageQueryREQ;
 import top.flowerstardream.hcd.trainSeat.biz.client.TicketClient;
 import top.flowerstardream.hcd.trainSeat.biz.mapper.SeatReservationMapper;
 import top.flowerstardream.hcd.trainSeat.biz.service.ISeatReservationService;
-
+import top.flowerstardream.hcd.trainSeat.biz.tool.Calculation;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,9 +35,6 @@ public class ISeatReservationServiceImpl extends ServiceImpl<SeatReservationMapp
 
     @Resource
     private SeatReservationMapper seatReservationMapper;
-
-    @Resource
-    private ScheduleMapper scheduleMapper;
 
     @Lazy
     @Resource
@@ -256,24 +248,24 @@ public class ISeatReservationServiceImpl extends ServiceImpl<SeatReservationMapp
         if (reserveSeatDTO == null) {
             THE_QUERY_PARAMETER_CANNOT_BE_EMPTY.throwException();
         }
-        //查询起始时间与终止时间
-        LambdaQueryWrapper<ScheduleEO> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ScheduleEO::getId, reserveSeatDTO.getScheduleId());
-        ScheduleEO scheduleEO = scheduleMapper.selectOne(queryWrapper);
-        LocalDateTime startTime = LocalDateTime.parse(scheduleEO.getStartTime());
-        LocalDateTime endTime = LocalDateTime.parse(scheduleEO.getEndTime());
 
+        //根据用户的所选班次、起点站和终点站ID，计算上车时间和下车时间
+        Calculation calculation = new Calculation();
+        TimeDTO timeDTO = calculation.timeCalculation(reserveSeatDTO);
+        LocalDateTime startStationTime = timeDTO.getStartStationTime();
+        LocalDateTime endStationTime = timeDTO.getEndStationTime();
+        /**
+         * seatNumList
+         * */
         //根据班次号查询座位信息
-        LambdaQueryWrapper<SeatReservationEO> queryWrapper1 = new LambdaQueryWrapper<>();
-        queryWrapper1.eq(SeatReservationEO::getScheduleId, reserveSeatDTO.getScheduleId())
+        LambdaQueryWrapper<SeatReservationEO> queryWrapper0 = new LambdaQueryWrapper<>();
+        queryWrapper0.eq(SeatReservationEO::getScheduleId, reserveSeatDTO.getScheduleId())
                 .eq(SeatReservationEO::getBookingStatus, 1);
-
-        List<SeatReservationEO> seatReservationEOs = seatReservationMapper.selectList(queryWrapper1);
+        List<SeatReservationEO> seatReservationEOs = seatReservationMapper.selectList(queryWrapper0);
         //过滤符合条件的EO，收录座位号
         List<Long> seatNumList = seatReservationEOs.stream()
                 .map(SeatReservationEO::getId)
                 .collect(Collectors.toList());
-
         //修改座位预订状态
         for (SeatReservationEO seatReservationEO : seatReservationEOs) {
             seatReservationEO.setBookingStatus(1);
@@ -282,8 +274,8 @@ public class ISeatReservationServiceImpl extends ServiceImpl<SeatReservationMapp
 
         return  ReserveSeatResultDTO.builder()
                 .seatReservationIds(seatNumList)
-                .startTime(startTime)
-                .endTime(endTime)
+                .startTime(startStationTime)
+                .endTime(endStationTime)
                 .build();
     }
 

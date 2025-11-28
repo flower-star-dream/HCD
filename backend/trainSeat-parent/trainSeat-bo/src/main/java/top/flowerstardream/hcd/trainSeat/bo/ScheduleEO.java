@@ -9,6 +9,7 @@ import lombok.experimental.SuperBuilder;
 import top.flowerstardream.hcd.base.bo.BaseEO;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 
 @Data
@@ -36,11 +37,11 @@ public class ScheduleEO extends BaseEO implements Serializable {
 
     // 始发站
     @TableField("start_time")
-    private String startTime;
+    private LocalDateTime startTime;
 
     // 终点站
     @TableField("end_time")
-    private String endTime;
+    private LocalDateTime endTime;
 
 
 }

@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * @Author: QAQ
@@ -34,8 +35,8 @@ public class ScheduleREQ implements Serializable {
     private String conductor;
 
     @Schema(description = "出发时间")
-    private String startTime;
+    private LocalDateTime startTime;
 
     @Schema(description = "到达时间")
-    private String endTime;
+    private LocalDateTime endTime;
 }
