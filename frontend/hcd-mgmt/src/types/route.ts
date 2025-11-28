@@ -1,4 +1,5 @@
 // 线路相关类型定义
+import type { PageQuery } from './index'
 
 /**
  * 线路基础类型（对应hcd_route表）
@@ -57,7 +58,7 @@ export enum ROUTE_STATUS {
  * 获取线路状态文本
  */
 export const getRouteStatusText = (status: number): string => {
-  const statusMap = {
+  const statusMap: Record<number, string> = {
     [ROUTE_STATUS.ENABLED]: '已启用',
     [ROUTE_STATUS.DISABLED]: '已禁用'
   }
@@ -68,7 +69,7 @@ export const getRouteStatusText = (status: number): string => {
  * 获取线路状态标签类型
  */
 export const getRouteStatusTagType = (status: number): string => {
-  const typeMap = {
+  const typeMap: Record<number, string> = {
     [ROUTE_STATUS.ENABLED]: 'success',
     [ROUTE_STATUS.DISABLED]: 'danger'
   }

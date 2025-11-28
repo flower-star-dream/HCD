@@ -1,4 +1,5 @@
 // 站点相关类型定义
+import type { PageQuery } from './index'
 
 /**
  * 站点基础类型（对应hcd_station表）

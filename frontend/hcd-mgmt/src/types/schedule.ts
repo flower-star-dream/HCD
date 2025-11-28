@@ -1,4 +1,5 @@
 // 班次相关类型定义
+import type { PageQuery } from './index'
 
 /**
  * 班次基础类型（对应hcd_schedule表）

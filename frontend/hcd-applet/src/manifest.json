@@ -40,6 +40,14 @@
     }
   },
   "quickapp": {},
+  "h5": {
+    "router": {
+      "mode": "hash"
+    },
+    "devServer": {
+      "port": 5173
+    }
+  },
   "mp-weixin": {
     "appid": "",
     "setting": {
