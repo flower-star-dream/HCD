@@ -7,6 +7,7 @@ import lombok.experimental.SuperBuilder;
 import top.flowerstardream.hcd.base.ao.req.BasePageQueryREQ;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @Data
 @SuperBuilder
@@ -32,10 +33,10 @@ public class SchedulePageQueryREQ extends BasePageQueryREQ implements Serializab
     private Integer availingTickets;
 
     @Schema(description = "出发时间")
-    private String startTime;
+    private LocalDateTime startTime;
 
     @Schema(description = "到达时间")
-    private String endTime;
+    private LocalDateTime endTime;
 
 
 }

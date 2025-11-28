@@ -28,10 +28,10 @@ public class RouteRES implements Serializable {
     private String routeName;
 
     @Schema(description = "起始站ID")
-    private String startStationId;
+    private Long startStationId;
 
     @Schema(description = "终点站IDD")
-    private String endStationId;
+    private Long endStationId;
 
     @Schema(description = "站点数")
     private Integer stationCount;

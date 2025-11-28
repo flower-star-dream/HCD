@@ -16,7 +16,7 @@ import top.flowerstardream.hcd.trainSeat.biz.service.impl.IRouteStationsServiceI
 import java.math.BigDecimal;
 
 @RestController("internalRouteStationsController")
-@RequestMapping("/api/v1/internal/routeStations")
+@RequestMapping("/api/v1/internal/trainSeat/routeStations")
 @Tag(name = "路线站点接口服务")
 @Slf4j
 public class RouteStationsController {

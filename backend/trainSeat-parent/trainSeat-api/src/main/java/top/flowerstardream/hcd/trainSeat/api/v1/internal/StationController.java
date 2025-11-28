@@ -21,7 +21,7 @@ import java.util.List;
  */
 
 @RestController("internalStationController")
-@RequestMapping("/api/v1/internal/station/station")
+@RequestMapping("/api/v1/internal/trainSeat/station")
 @Tag(name = "站点数据服务")
 @Slf4j
 public class StationController {
