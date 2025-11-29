@@ -40,16 +40,6 @@ public interface IRouteService  {
      * @param routePageQueryREQ 查询条件
      * @return 路线查询分页结果
      */
-    PageResult<RouteEO> EmployeePageQuery(RoutePageQueryREQ routePageQueryREQ);
-
-    /**
-     * 分页查询路线列表（用户）
-     *
-     * @param routePageQueryREQ 站点查询条件
-     * @return 站点查询分页结果
-     */
-    PageResult<RouteRES> UserPageQuery(RoutePageQueryREQ routePageQueryREQ);
-    
-
+    PageResult<RouteRES> EmployeePageQuery(RoutePageQueryREQ routePageQueryREQ);
 
 }

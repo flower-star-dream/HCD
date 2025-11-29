@@ -2,6 +2,7 @@ package top.flowerstardream.hcd.trainSeat.biz.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -100,7 +101,7 @@ public class ITrainServiceImpl extends ServiceImpl<TrainMapper, TrainEO> impleme
     }
 
     @Override
-    public PageResult<TrainEO> EmployeePageQuery(TrainPageQueryREQ trainPageQueryREQ) {
+    public PageResult<TrainRES> EmployeePageQuery(TrainPageQueryREQ trainPageQueryREQ) {
         //参数校验
         if (trainPageQueryREQ == null) {
             THE_QUERY_PARAMETER_CANNOT_BE_EMPTY.throwException();
@@ -119,61 +120,33 @@ public class ITrainServiceImpl extends ServiceImpl<TrainMapper, TrainEO> impleme
         LambdaQueryWrapper<TrainEO> queryWrapper = new LambdaQueryWrapper<>();
 
         //查询条件
-        queryWrapper.eq(TrainEO::getTrainName, trainPageQueryREQ.getTrainName())
-                .like(TrainEO::getTrainModel, trainPageQueryREQ.getTrainModel())
-                .eq(TrainEO::getSeatNum, trainPageQueryREQ.getSeatNum())
-                .eq(TrainEO::getServiceYears, trainPageQueryREQ.getServiceYears());
+        if (trainPageQueryREQ.getId() != null) {
+            queryWrapper.eq(TrainEO::getId, trainPageQueryREQ.getId());
+        }
+        if (StrUtil.isNotBlank(trainPageQueryREQ.getTrainName())) {
+            queryWrapper.like(TrainEO::getTrainName, trainPageQueryREQ.getTrainName());
+        }
+        if (StrUtil.isNotBlank(trainPageQueryREQ.getTrainModel())) {
+            queryWrapper.like(TrainEO::getTrainModel, trainPageQueryREQ.getTrainModel());
+        }
+        if (trainPageQueryREQ.getServiceYears() != null) {
+            queryWrapper.like(TrainEO::getServiceYears, trainPageQueryREQ.getServiceYears());
+        }
 
         //执行分页查询
         Page<TrainEO> trainResult = trainMapper.selectPage(page, queryWrapper);
 
-        //封装返回结果
-        PageResult<TrainEO> pageResult = new PageResult<>();
-        pageResult.setTotal(trainResult.getTotal());
-        pageResult.setRecords(trainResult.getRecords());
-        return pageResult;
-    }
-
-    @Override
-    public PageResult<TrainRES> UserPageQuery(TrainPageQueryREQ trainPageQueryREQ) {
-        //参数校验
-        if (trainPageQueryREQ == null) {
-            THE_QUERY_PARAMETER_CANNOT_BE_EMPTY.throwException();
-        }
-        //设置分页参数默认值
-        if (trainPageQueryREQ.getPage() <= 0){
-            trainPageQueryREQ.setPage(1);
-        }
-        if(trainPageQueryREQ.getPageSize() <= 0){
-            trainPageQueryREQ.setPageSize(10);
-        }
-
-        //创建分页对象
-        Page<TrainEO> page = new Page<>(trainPageQueryREQ.getPage(), trainPageQueryREQ.getPageSize());
-        //创建查询条件
-        LambdaQueryWrapper<TrainEO> queryWrapper = new LambdaQueryWrapper<>();
-
-        //查询条件
-        queryWrapper.like(TrainEO::getTrainName, trainPageQueryREQ.getTrainName())
-                .like(TrainEO::getTrainModel, trainPageQueryREQ.getTrainModel())
-                .eq(TrainEO::getSeatNum, trainPageQueryREQ.getSeatNum())
-                .eq(TrainEO::getServiceYears, trainPageQueryREQ.getServiceYears());
-
-        //执行分页查询
-        Page<TrainEO> trainPage = trainMapper.selectPage(page, queryWrapper);
-
         //将EO转换为RES
-        List<TrainRES> trainList = trainPage.getRecords().stream()
+        List<TrainRES> trainList = trainResult.getRecords().stream()
                 .map(trainEO -> {
                     TrainRES res = new TrainRES();
                     BeanUtil.copyProperties(trainEO, res);
                     return res;
-                })
-                .collect(Collectors.toList());
+                }).toList();
 
         //封装返回结果
         PageResult<TrainRES> pageResult = new PageResult<>();
-        pageResult.setTotal(trainPage.getTotal());
+        pageResult.setTotal(trainResult.getTotal());
         pageResult.setRecords(trainList);
         return pageResult;
     }

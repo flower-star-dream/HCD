@@ -136,12 +136,14 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
         // 参数校验
         if (id == null || id <= 0) {
             ORDER_PERMISSION_DENIED.throwException();
+            return null;
         }
 
         // 查询订单
         OrderEO orderEO = getById(id);
         if (orderEO == null) {
             ORDER_NOT_FOUND.throwException();
+            return null;
         }
         OrderMgmtRES orderMgmtRES = new OrderMgmtRES();
         BeanUtils.copyProperties(orderEO, orderMgmtRES);
@@ -192,12 +194,14 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
         // 参数校验
         if (orderId == null || userId == null || userId <= 0) {
             ORDER_PERMISSION_DENIED.throwException();
+            return;
         }
 
         // 查询订单
         OrderEO orderEO = self.getById(orderId);
         if (orderEO == null) {
             ORDER_NOT_FOUND.throwException();
+            return;
         }
 
         // 验证订单归属
@@ -293,7 +297,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
             OrderRES orderRES = new OrderRES();
             BeanUtils.copyProperties(orderEO, orderRES);
             return orderRES;
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     /**
@@ -340,6 +344,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
     public OrderPaymentRES payment(OrdersPaymentREQ ordersPaymentREQ) throws Exception {
         if (ordersPaymentREQ == null) {
             PARAM_ERROR.throwException();
+            return null;
         }
         // 当前登录用户id
         Long userId = getTenantId();
@@ -408,10 +413,12 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
     public Integer getOrderStatus(Long orderId) {
         if (orderId == null) {
             PARAM_ERROR.throwException();
+            return null;
         }
         OrderEO orderEO = self.getById(orderId);
         if (orderEO == null) {
             ORDER_NOT_FOUND.throwException();
+            return null;
         }
         return orderEO.getStatus();
     }

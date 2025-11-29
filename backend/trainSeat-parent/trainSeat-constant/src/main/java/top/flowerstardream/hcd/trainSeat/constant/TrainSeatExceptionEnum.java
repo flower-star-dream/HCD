@@ -28,7 +28,10 @@ public enum TrainSeatExceptionEnum implements ICustomError {
     STATION_IS_USED(20009, "站点已被使用，无法被删除"),
     STATION_ALREADY_EXISTS(20010, "站点已存在"),
     TRAIN_IS_USED(20011, "列车已被使用，无法被删除"),
-    TRAIN_ALREADY_EXISTS(20012, "列车已存在");
+    TRAIN_ALREADY_EXISTS(20012, "列车已存在"),
+    THE_SORTING_INFORMATION_STATION_CANNOT_BE_FOUND(20013, "无法找到起始站或终点站的排序信息"),
+    THE_TERMINAL_STATION_IS_LOCATED_BEFORE_THE_STARTING_STATION(20014, "终点站位于起点站之前");
+
 
 
 

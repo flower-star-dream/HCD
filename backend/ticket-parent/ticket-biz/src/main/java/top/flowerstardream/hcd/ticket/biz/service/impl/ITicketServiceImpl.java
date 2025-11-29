@@ -220,12 +220,12 @@ public class ITicketServiceImpl extends ServiceImpl<TicketMapper, TicketEO> impl
                         .startStationId(req.getStartStationId())
                         .endStationId(req.getEndStationId())
                         .build();
-                ReserveSeatDTO reserveSeatDTO = ReserveSeatDTO.builder()
+                CalcTicketPriceDTO calcTicketPriceDTO = CalcTicketPriceDTO.builder()
                         .scheduleId(req.getScheduleId())
                         .startStationId(req.getStartStationId())
                         .endStationId(req.getEndStationId())
                         .build();
-                BigDecimal newPrice = trainSeatClient.calcTicketPrice(reserveSeatDTO).getData();
+                BigDecimal newPrice = trainSeatClient.calcTicketPrice(calcTicketPriceDTO).getData();
                 createTickets(ticketDTO);
                 BigDecimal newTotalPrice = newPrice.subtract(oldTicket.getMoney());
                 orderClient.updateTotalPrice(oldTicket.getOrderId(), newTotalPrice);

@@ -8,6 +8,8 @@ import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.tools.result.Result;
 import top.flowerstardream.hcd.trainSeat.ao.pqreq.TrainPageQueryREQ;
 import top.flowerstardream.hcd.trainSeat.ao.req.TrainREQ;
+import top.flowerstardream.hcd.trainSeat.ao.res.TrainRES;
+import top.flowerstardream.hcd.trainSeat.biz.service.ITrainService;
 import top.flowerstardream.hcd.trainSeat.biz.service.impl.ITrainServiceImpl;
 import top.flowerstardream.hcd.trainSeat.bo.TrainEO;
 
@@ -20,31 +22,31 @@ import java.util.List;
 public class MgmtTrainController {
 
     @Resource
-    private ITrainServiceImpl trainServiceImpl;
+    private ITrainService trainService;
 
     @PostMapping("/addTrain")
-    public Result<Void> addTrain(TrainREQ trainREQ) {
+    public Result<Void> addTrain(@RequestBody TrainREQ trainREQ) {
         log.info("【管理端-列车接口】添加列车，参数: {}", trainREQ);
-        trainServiceImpl.addTrain(trainREQ);
+        trainService.addTrain(trainREQ);
         return Result.successResult();
     }
 
     @PutMapping("/updateTrain")
-    public Result<Void> updateTrain(TrainREQ trainREQ) {
+    public Result<Void> updateTrain(@RequestBody TrainREQ trainREQ) {
         log.info("【管理端-列车接口】更新列车，参数: {}", trainREQ);
-        trainServiceImpl.updateTrain(trainREQ);
+        trainService.updateTrain(trainREQ);
         return Result.successResult();
     }
     @DeleteMapping("/deleteTrain")
-    public Result<Void> deleteTrain(@RequestParam("ids") List<Long> ids) {
+    public Result<Void> deleteTrain(@RequestBody List<Long> ids) {
         log.info("【管理端-列车接口】删除列车，参数: {}", ids);
-        trainServiceImpl.deleteTrain(ids);
+        trainService.deleteTrain(ids);
         return Result.successResult();
     }
     @GetMapping("/getTrain")
-    public Result<PageResult<TrainEO>> EmployeePageQuery(TrainPageQueryREQ trainPageQueryREQ) {
+    public Result<PageResult<TrainRES>> EmployeePageQuery(TrainPageQueryREQ trainPageQueryREQ) {
         log.info("【管理端-列车接口】查询列车，参数: {}", trainPageQueryREQ);
-        PageResult<TrainEO> result = trainServiceImpl.EmployeePageQuery(trainPageQueryREQ);
+        PageResult<TrainRES> result = trainService.EmployeePageQuery(trainPageQueryREQ);
         return Result.successResult(result);
     }
 }

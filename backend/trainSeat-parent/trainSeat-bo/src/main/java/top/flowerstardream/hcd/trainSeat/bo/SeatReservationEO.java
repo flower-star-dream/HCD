@@ -17,7 +17,6 @@ import java.io.Serializable;
 @TableName("hcd_seat_reservation")
 public class SeatReservationEO extends BaseEO implements Serializable {
 
-
     // 班次号
     @TableField("schedule_id")
     private Long scheduleId;

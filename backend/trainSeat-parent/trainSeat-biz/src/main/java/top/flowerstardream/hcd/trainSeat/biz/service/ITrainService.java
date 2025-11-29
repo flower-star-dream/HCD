@@ -40,13 +40,6 @@ public interface ITrainService {
      * @param trainPageQueryREQ 火车查询条件
      * @return 火车查询分页结果
      */
-    PageResult<TrainEO> EmployeePageQuery(TrainPageQueryREQ trainPageQueryREQ);
+    PageResult<TrainRES> EmployeePageQuery(TrainPageQueryREQ trainPageQueryREQ);
 
-    /**
-     * 分页查询火车列表（用户）
-     *
-     * @param trainPageQueryREQ 火车查询条件
-     * @return 火车查询分页结果
-     */
-    PageResult<TrainRES> UserPageQuery(TrainPageQueryREQ trainPageQueryREQ);
 }

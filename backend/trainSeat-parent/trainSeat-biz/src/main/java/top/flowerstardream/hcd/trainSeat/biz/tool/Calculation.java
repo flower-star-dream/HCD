@@ -21,6 +21,7 @@ import java.time.ZoneOffset;
 import java.util.List;
 
 import static top.flowerstardream.hcd.trainSeat.constant.Common.PRICE_EACH_STATION;
+import static top.flowerstardream.hcd.trainSeat.constant.TrainSeatExceptionEnum.*;
 
 
 @Component
@@ -101,10 +102,10 @@ public class Calculation {
                 .findFirst()
                 .orElse(null);
         if (startStationSorting == null || endStationSorting == null) {
-            throw new IllegalArgumentException("无法找到起始站或终点站的排序信息");
+            THE_SORTING_INFORMATION_STATION_CANNOT_BE_FOUND.throwException();
         }
         if (endStationSorting <= startStationSorting ){
-            throw new IllegalArgumentException("出现错误，起点站位于终点站之前");
+            THE_TERMINAL_STATION_IS_LOCATED_BEFORE_THE_STARTING_STATION.throwException();
         }
         BigDecimal stationCount = new BigDecimal(endStationSorting - startStationSorting);
         return stationCount.multiply(PRICE_EACH_STATION);

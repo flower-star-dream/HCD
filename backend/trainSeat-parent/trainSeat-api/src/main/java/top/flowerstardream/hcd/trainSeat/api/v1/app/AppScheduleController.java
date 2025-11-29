@@ -10,8 +10,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.tools.result.Result;
+import top.flowerstardream.hcd.trainSeat.ao.pqreq.RealTimeSchedulePageQueryREQ;
 import top.flowerstardream.hcd.trainSeat.ao.pqreq.SchedulePageQueryREQ;
+import top.flowerstardream.hcd.trainSeat.ao.req.RealTimeScheduleREQ;
+import top.flowerstardream.hcd.trainSeat.ao.res.RealTimeScheduleRES;
 import top.flowerstardream.hcd.trainSeat.ao.res.ScheduleRES;
+import top.flowerstardream.hcd.trainSeat.biz.service.IScheduleService;
 import top.flowerstardream.hcd.trainSeat.biz.service.impl.IScheduleServiceImpl;
 
 @RestController("appScheduleController")
@@ -21,13 +25,20 @@ import top.flowerstardream.hcd.trainSeat.biz.service.impl.IScheduleServiceImpl;
 public class AppScheduleController {
 
     @Resource
-    private IScheduleServiceImpl scheduleServiceImpl;
+    private IScheduleService scheduleService;
 
-    @GetMapping("/getSchedules")
-    public Result<PageResult<ScheduleRES>> UserPageQuery(@RequestBody SchedulePageQueryREQ schedulePageQueryREQ) {
-        log.info("【小程序端-班次服务】查询班次，参数: {}", schedulePageQueryREQ);
-        PageResult<ScheduleRES> result = scheduleServiceImpl.UserPageQuery(schedulePageQueryREQ);
+    @GetMapping("/getSchedule")
+    public Result<RealTimeScheduleRES> getSchedule(RealTimeScheduleREQ realTimeScheduleREQ) {
+        log.info("【小程序端-班次服务】查询班次，参数: {}", realTimeScheduleREQ);
+        RealTimeScheduleRES result = scheduleService.getSchedule(realTimeScheduleREQ);
         return Result.successResult(result);
     }
+
+    @GetMapping("/realTimeSchedule")
+    public Result<PageResult<RealTimeScheduleRES>> getRealTimeSchedule(RealTimeSchedulePageQueryREQ realTimeSchedulePageQueryREQ){
+        log.info("【小程序端-班次服务】查询实时班次，参数: {}", realTimeSchedulePageQueryREQ);
+        PageResult<RealTimeScheduleRES> realTimeScheduleRes = scheduleService.getRealTimeSchedule(realTimeSchedulePageQueryREQ);
+        return Result.successResult(realTimeScheduleRes);
+    };
 
 }

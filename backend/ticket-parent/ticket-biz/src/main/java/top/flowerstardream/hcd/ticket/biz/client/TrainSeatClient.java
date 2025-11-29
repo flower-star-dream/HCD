@@ -2,10 +2,7 @@ package top.flowerstardream.hcd.ticket.biz.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
-import top.flowerstardream.hcd.ticket.ao.dto.ReserveSeatDTO;
-import top.flowerstardream.hcd.ticket.ao.dto.ReserveSeatResultDTO;
-import top.flowerstardream.hcd.ticket.ao.dto.SeatReservationDTO;
-import top.flowerstardream.hcd.ticket.ao.dto.StationsDTO;
+import top.flowerstardream.hcd.ticket.ao.dto.*;
 import top.flowerstardream.hcd.tools.result.Result;
 
 import java.awt.image.RenderedImage;
@@ -42,7 +39,7 @@ public interface TrainSeatClient {
      * @param scheduleId 班次ID
      * @return 余票数量
      */
-    @GetMapping("/trainSeat/remaining-count")
+    @GetMapping("/schedule/remaining-count")
     Result<Integer> getRemainingTicketCount(@RequestParam("scheduleId") Integer scheduleId);
 
     /**
@@ -51,14 +48,14 @@ public interface TrainSeatClient {
      * @return
      */
     @GetMapping("/routeStations/calc")
-    Result<BigDecimal> calcTicketPrice(@RequestBody ReserveSeatDTO reserveSeatDTO);
+    Result<BigDecimal> calcTicketPrice(CalcTicketPriceDTO reserveSeatDTO);
 
     /**
      * 根据站名获取站ID
      * @param stationName
      * @return
      */
-    @GetMapping("/stations/by-name")
+    @GetMapping("/station/by-name")
     Result<List<Long>> getStationIdsByName(@RequestParam("stationName") String stationName);
 
     /**
@@ -74,6 +71,6 @@ public interface TrainSeatClient {
      * @param stationIds
      * @return
      */
-    @PostMapping("/stations/by-ids")
+    @PostMapping("/station/by-ids")
     Result<List<StationsDTO>> getStationNamesByStationIds(@RequestParam List<Long> stationIds);
 }

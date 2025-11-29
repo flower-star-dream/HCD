@@ -2,6 +2,7 @@ package top.flowerstardream.hcd.trainSeat.biz.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -13,15 +14,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.flowerstardream.hcd.trainSeat.ao.req.RouteREQ;
 import top.flowerstardream.hcd.trainSeat.ao.res.RouteRES;
+import top.flowerstardream.hcd.trainSeat.biz.mapper.StationMapper;
 import top.flowerstardream.hcd.trainSeat.bo.RouteEO;
+import top.flowerstardream.hcd.trainSeat.bo.RouteStationsEO;
 import top.flowerstardream.hcd.trainSeat.bo.ScheduleEO;
 import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.trainSeat.ao.pqreq.RoutePageQueryREQ;
 import top.flowerstardream.hcd.trainSeat.biz.mapper.RouteMapper;
 import top.flowerstardream.hcd.trainSeat.biz.mapper.ScheduleMapper;
 import top.flowerstardream.hcd.trainSeat.biz.service.IRouteService;
+import top.flowerstardream.hcd.trainSeat.bo.StationEO;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static top.flowerstardream.hcd.tools.exception.ExceptionEnum.*;
@@ -40,6 +45,9 @@ public class IRouteServiceImpl extends ServiceImpl<RouteMapper, RouteEO> impleme
 
     @Resource
     private RouteMapper routeMapper;
+
+    @Resource
+    private StationMapper stationMapper;
 
     @Lazy
     @Resource
@@ -114,7 +122,7 @@ public class IRouteServiceImpl extends ServiceImpl<RouteMapper, RouteEO> impleme
     }
 
     @Override
-    public PageResult<RouteEO> EmployeePageQuery(RoutePageQueryREQ routePageQueryREQ) {
+    public PageResult<RouteRES> EmployeePageQuery(RoutePageQueryREQ routePageQueryREQ) {
         //参数校验
         if (routePageQueryREQ == null) {
             THE_QUERY_PARAMETER_CANNOT_BE_EMPTY.throwException();
@@ -134,68 +142,57 @@ public class IRouteServiceImpl extends ServiceImpl<RouteMapper, RouteEO> impleme
         LambdaQueryWrapper<RouteEO> queryWrapper = Wrappers.lambdaQuery();
 
         //模糊查询
-        queryWrapper.like(RouteEO::getRouteName, routePageQueryREQ.getRouteName())
-                .eq(RouteEO::getStartStationId, routePageQueryREQ.getStartStationId())
-                .eq(RouteEO::getEndStationId, routePageQueryREQ.getEndStationId());
-
-
+        if (routePageQueryREQ.getId() != null) {
+            queryWrapper.eq(RouteEO::getId, routePageQueryREQ.getId());
+        }
+        if (StrUtil.isNotBlank(routePageQueryREQ.getRouteName())) {
+            queryWrapper.like(RouteEO::getRouteName, routePageQueryREQ.getRouteName());
+        }
+        if (StrUtil.isNotBlank(routePageQueryREQ.getStartStationName())) {
+            LambdaQueryWrapper<StationEO> stationQueryWrapper = Wrappers.lambdaQuery();
+            stationQueryWrapper.like(StationEO::getStationName, routePageQueryREQ.getStartStationName());
+            List<Long> stationIds = stationMapper.selectList(stationQueryWrapper).stream().map(StationEO::getId).toList();
+            queryWrapper.in(RouteEO::getStartStationId, stationIds);
+        }
+        if (StrUtil.isNotBlank(routePageQueryREQ.getEndStationName())) {
+            LambdaQueryWrapper<StationEO> stationQueryWrapper = Wrappers.lambdaQuery();
+            stationQueryWrapper.like(StationEO::getStationName, routePageQueryREQ.getEndStationName());
+            List<Long> stationIds = stationMapper.selectList(stationQueryWrapper).stream().map(StationEO::getId).toList();
+            queryWrapper.in(RouteEO::getEndStationId, stationIds);
+        }
 
         //执行分页查询
         Page<RouteEO> routePage = routeMapper.selectPage(page, queryWrapper);
+        List<RouteEO> records = routePage.getRecords();
+        // 提取所有起始站点ID和终点站点ID
+        List<Long> startStationIds = records.stream()
+                .map(RouteEO::getStartStationId)
+                .distinct()
+                .toList();
+        List<Long> endStationIds = records.stream()
+                .map(RouteEO::getEndStationId)
+                .distinct()
+                .toList();
 
-        //封装返回结果
-        PageResult<RouteEO> pageResult = new PageResult<>();
-        pageResult.setTotal(routePage.getTotal());
-        pageResult.setRecords(routePage.getRecords());
-        return pageResult;
-    }
-    @Override
-    public PageResult<RouteRES> UserPageQuery(RoutePageQueryREQ routePageQueryREQ) {
-        //参数校验
-        if (routePageQueryREQ == null) {
-            THE_QUERY_PARAMETER_CANNOT_BE_EMPTY.throwException();
-        }
-
-        // 设置分页参数默认值
-        if (routePageQueryREQ.getPage() <= 0) {
-            routePageQueryREQ.setPage(1);
-        }
-        if (routePageQueryREQ.getPageSize() <= 0) {
-            routePageQueryREQ.setPageSize(10);
-        }
-
-        //创建分页对象
-        Page<RouteEO> page = new Page<>(routePageQueryREQ.getPage(), routePageQueryREQ.getPageSize());
-        //创建查询条件
-        LambdaQueryWrapper<RouteEO> queryWrapper = Wrappers.lambdaQuery();
-
-        //查询条件
-        queryWrapper.like(RouteEO::getRouteName, routePageQueryREQ.getRouteName())
-                .eq(RouteEO::getStartStationId, routePageQueryREQ.getStartStationId())
-                .eq(RouteEO::getEndStationId, routePageQueryREQ.getEndStationId());
-
-
-
-        //执行分页查询
-        Page<RouteEO> routePage =  routeMapper.selectPage(page, queryWrapper);
-
-        //将EO转换为RES
-        List<RouteRES> resList = routePage.getRecords().stream()
-                .map(eo -> {
-                    RouteRES res = new RouteRES();
-                    BeanUtil.copyProperties(eo, res);
-                    return res;
-                })
-                .collect(Collectors.toList());
+        List<StationEO> startStations = stationMapper.selectBatchIds(startStationIds);
+        List<StationEO> endStations = stationMapper.selectBatchIds(endStationIds);
+        Map<Long, String> startStationMap = startStations.stream()
+                .collect(Collectors.toMap(StationEO::getId, StationEO::getStationName));
+        Map<Long, String> endStationMap = endStations.stream()
+                .collect(Collectors.toMap(StationEO::getId, StationEO::getStationName));
 
         //封装返回结果
         PageResult<RouteRES> pageResult = new PageResult<>();
         pageResult.setTotal(routePage.getTotal());
-        pageResult.setRecords(resList);
-        return pageResult ;
-
+        pageResult.setRecords(routePage.getRecords().stream().map(eo -> {
+            RouteRES res = new RouteRES();
+            BeanUtil.copyProperties(eo, res);
+            res.setStartStationName(startStationMap.get(eo.getStartStationId()));
+            res.setEndStationName(endStationMap.get(eo.getEndStationId()));
+            return res;
+        }).toList());
+        return pageResult;
     }
-
 
     /*
     * 查询路线

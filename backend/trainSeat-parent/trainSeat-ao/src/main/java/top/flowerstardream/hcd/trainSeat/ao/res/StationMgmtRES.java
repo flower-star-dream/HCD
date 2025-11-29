@@ -2,7 +2,10 @@ package top.flowerstardream.hcd.trainSeat.ao.res;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import top.flowerstardream.hcd.base.ao.res.BaseMgmtRES;
 
@@ -14,14 +17,12 @@ import java.io.Serializable;
  * @Description: 站点返回参数
  */
 @Data
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @Schema(description = "站点返回参数")
-public class StationRES implements Serializable {
-
-    @Schema(description = "站点号")
-    private Long id;
+public class StationMgmtRES extends BaseMgmtRES implements Serializable {
 
     @Schema(description = "站点名称")
     private String stationName;
