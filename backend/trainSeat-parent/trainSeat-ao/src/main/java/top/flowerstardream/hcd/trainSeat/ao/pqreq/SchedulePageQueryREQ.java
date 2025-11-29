@@ -20,17 +20,14 @@ public class SchedulePageQueryREQ extends BasePageQueryREQ implements Serializab
     @Schema(description = "班次号")
     private Long id;
 
-    @Schema(description = "列车号")
-    private Long trainId;
+    @Schema(description = "列车名")
+    private String trainName;
 
-    @Schema(description = "路线号")
-    private Long routeId;
+    @Schema(description = "路线名")
+    private String routeName;
 
     @Schema(description = "列车长")
     private String conductor;
-
-    @Schema(description = "可预订座位数")
-    private Integer availingTickets;
 
     @Schema(description = "出发时间")
     private LocalDateTime startTime;

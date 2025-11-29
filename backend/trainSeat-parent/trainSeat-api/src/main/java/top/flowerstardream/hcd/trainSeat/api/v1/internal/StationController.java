@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import top.flowerstardream.hcd.tools.result.Result;
 import top.flowerstardream.hcd.trainSeat.ao.dto.StationsDTO;
+import top.flowerstardream.hcd.trainSeat.biz.service.IStationService;
 import top.flowerstardream.hcd.trainSeat.biz.service.impl.IStationServiceImpl;
 
 import java.util.List;
@@ -27,14 +28,14 @@ import java.util.List;
 public class StationController {
 
     @Resource
-    private IStationServiceImpl stationServiceImpl;
+    private IStationService stationService;
 
 
     @Operation(summary = "根据站名获取站ID", description = "站点数据服务接口，根据站名获取站ID")
-    @GetMapping("/stations/by-name")
+    @GetMapping("/by-name")
     public Result<List<Long>> getStationIdsByName(@RequestParam("stationName") String stationName){
         log.info("【站点数据服务】根据站名获取站ID，站名: {}", stationName);
-        List<Long> stationIds = stationServiceImpl.getStationIdsByName(stationName);
+        List<Long> stationIds = stationService.getStationIdsByName(stationName);
         return Result.successResult(stationIds);
     }
 
@@ -42,10 +43,10 @@ public class StationController {
      * 功能是用于查站名，但是要求返回的是DTO
      */
     @Operation(summary = "根据站ID获取站名", description = "站点数据服务接口，根据站ID获取站名")
-    @GetMapping("/seatReservation/by-ids")
-    public Result<List<StationsDTO>> getStationNamesByStationIds( List<Long> stationIds){
+    @GetMapping("/by-ids")
+    public Result<List<StationsDTO>> getStationNamesByStationIds(List<Long> stationIds){
         log.info("【站点数据服务】根据站ID获取站名，站ID: {}", stationIds);
-        List<StationsDTO> stationDTOs = stationServiceImpl.getStationDTOsByStationIds(stationIds);
+        List<StationsDTO> stationDTOs = stationService.getStationDTOsByStationIds(stationIds);
         return Result.successResult(stationDTOs);
     }
 }

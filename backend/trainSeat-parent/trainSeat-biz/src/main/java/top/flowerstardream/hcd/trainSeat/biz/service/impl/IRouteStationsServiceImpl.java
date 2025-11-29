@@ -2,6 +2,7 @@ package top.flowerstardream.hcd.trainSeat.biz.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -15,17 +16,22 @@ import top.flowerstardream.hcd.trainSeat.ao.dto.CalcTicketPriceDTO;
 import top.flowerstardream.hcd.trainSeat.ao.dto.ReserveSeatDTO;
 import top.flowerstardream.hcd.trainSeat.ao.req.RouteStationsREQ;
 import top.flowerstardream.hcd.trainSeat.ao.res.RouteStationsRES;
+import top.flowerstardream.hcd.trainSeat.biz.mapper.RouteMapper;
 import top.flowerstardream.hcd.trainSeat.biz.mapper.ScheduleMapper;
+import top.flowerstardream.hcd.trainSeat.biz.mapper.StationMapper;
 import top.flowerstardream.hcd.trainSeat.biz.tool.Calculation;
+import top.flowerstardream.hcd.trainSeat.bo.RouteEO;
 import top.flowerstardream.hcd.trainSeat.bo.RouteStationsEO;
 import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.trainSeat.ao.pqreq.RouteStationsPageQueryREQ;
 import top.flowerstardream.hcd.trainSeat.biz.mapper.RouteStationsMapper;
 import top.flowerstardream.hcd.trainSeat.biz.service.IRouteStationsService;
 import top.flowerstardream.hcd.trainSeat.bo.ScheduleEO;
+import top.flowerstardream.hcd.trainSeat.bo.StationEO;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static top.flowerstardream.hcd.tools.exception.ExceptionEnum.*;
@@ -40,7 +46,13 @@ public class IRouteStationsServiceImpl extends ServiceImpl<RouteStationsMapper, 
     private RouteStationsMapper routeStationsMapper;
 
     @Resource
-    private ScheduleMapper scheduleMapper;
+    private RouteMapper routeMapper;
+
+    @Resource
+    private StationMapper stationMapper;
+
+    @Resource
+    private Calculation calculation;
 
     @Lazy
     @Resource
@@ -98,7 +110,7 @@ public class IRouteStationsServiceImpl extends ServiceImpl<RouteStationsMapper, 
     }
 
     @Override
-    public PageResult<RouteStationsEO> EmployeePageQuery(RouteStationsPageQueryREQ routeStationsPageQueryREQ) {
+    public PageResult<RouteStationsRES> EmployeePageQuery(RouteStationsPageQueryREQ routeStationsPageQueryREQ) {
         //参数校验
         if (routeStationsPageQueryREQ == null) {
             THE_QUERY_PARAMETER_CANNOT_BE_EMPTY.throwException();
@@ -113,68 +125,60 @@ public class IRouteStationsServiceImpl extends ServiceImpl<RouteStationsMapper, 
 
         //创建分页对象
         Page<RouteStationsEO> page = new Page<>(routeStationsPageQueryREQ.getPage(), routeStationsPageQueryREQ.getPageSize());
+
         //创建查询条件
         LambdaQueryWrapper<RouteStationsEO> queryWrapper = Wrappers.lambdaQuery();
-
-        //查询条件
-        queryWrapper.eq(RouteStationsEO::getRouteId, routeStationsPageQueryREQ.getRouteId())
-                .eq(RouteStationsEO::getStationId, routeStationsPageQueryREQ.getStationId())
-                .like(RouteStationsEO::getStationSorting, routeStationsPageQueryREQ.getStationSorting());
+        if (StrUtil.isNotBlank(routeStationsPageQueryREQ.getRouteName())) {
+            LambdaQueryWrapper<RouteEO> routeQueryWrapper = Wrappers.lambdaQuery();
+            routeQueryWrapper.like(RouteEO::getRouteName, routeStationsPageQueryREQ.getRouteName());
+            List<Long> routeIds = routeMapper.selectList(routeQueryWrapper).stream().map(RouteEO::getId).toList();
+            queryWrapper.in(RouteStationsEO::getRouteId, routeIds);
+        }
+        if (StrUtil.isNotBlank(routeStationsPageQueryREQ.getStationName())) {
+            // 查询站点名
+            LambdaQueryWrapper<StationEO> stationQueryWrapper = Wrappers.lambdaQuery();
+            stationQueryWrapper.like(StationEO::getStationName, routeStationsPageQueryREQ.getStationName());
+            List<Long> stationIds = stationMapper.selectList(stationQueryWrapper).stream().map(StationEO::getId).toList();
+            queryWrapper.in(RouteStationsEO::getStationId, stationIds);
+        }
+        if (routeStationsPageQueryREQ.getStationSorting() != null) {
+            queryWrapper.like(RouteStationsEO::getStationSorting, routeStationsPageQueryREQ.getStationSorting());
+        }
 
         //执行分页查询
         Page<RouteStationsEO> routeStationsResult = routeStationsMapper.selectPage(page, queryWrapper);
 
-        //封装返回结果
-        PageResult<RouteStationsEO> pageResult = new PageResult<>();
-        pageResult.setTotal(routeStationsResult.getTotal());
-        pageResult.setRecords(routeStationsResult.getRecords());
-        return pageResult;
+        List<RouteStationsEO> records = routeStationsResult.getRecords();
+        // 提取所有路线ID和站点ID
+        List<Long> recordsRouteIds = records.stream()
+                .map(RouteStationsEO::getRouteId)
+                .distinct()
+                .toList();
+        List<Long> recordsStationIds = records.stream()
+                .map(RouteStationsEO::getStationId)
+                .distinct()
+                .toList();
 
-    }
+        // 批量查询路线和站点信息
+        List<RouteEO> routeList = recordsRouteIds.isEmpty() ? CollUtil.newArrayList() : routeMapper.selectBatchIds(recordsRouteIds);
+        List<StationEO> stationList = recordsStationIds.isEmpty() ? CollUtil.newArrayList() : stationMapper.selectBatchIds(recordsStationIds);
 
-    @Override
-    public PageResult<RouteStationsRES> UserPageQuery(RouteStationsPageQueryREQ routeStationsPageQueryREQ) {
-        //参数校验
-        if (routeStationsPageQueryREQ == null) {
-            THE_QUERY_PARAMETER_CANNOT_BE_EMPTY.throwException();
-        }
+        // 构建Map便于快速查找
+        Map<Long, String> routeNameMap = routeList.stream()
+                .collect(Collectors.toMap(RouteEO::getId, RouteEO::getRouteName));
+        Map<Long, String> stationNameMap = stationList.stream()
+                .collect(Collectors.toMap(StationEO::getId, StationEO::getStationName));
 
-        // 设置分页参数默认值
-        if (routeStationsPageQueryREQ.getPage() <= 0) {
-            routeStationsPageQueryREQ.setPage(1);
-        }
-        if (routeStationsPageQueryREQ.getPageSize() <= 0) {
-            routeStationsPageQueryREQ.setPageSize(10);
-        }
-
-        //创建分页对象
-        Page<RouteStationsEO> page = new Page<>(routeStationsPageQueryREQ.getPage(), routeStationsPageQueryREQ.getPageSize());
-        //创建查询条件
-        LambdaQueryWrapper<RouteStationsEO> queryWrapper = Wrappers.lambdaQuery();
-
-        //查询条件
-        queryWrapper.eq(RouteStationsEO::getRouteId, routeStationsPageQueryREQ.getRouteId())
-                .eq(RouteStationsEO::getStationId, routeStationsPageQueryREQ.getStationId())
-                .like(RouteStationsEO::getStationSorting, routeStationsPageQueryREQ.getStationSorting());
-
-
-        //执行分页查询
-        Page<RouteStationsEO> routeStationsPage = routeStationsMapper.selectPage(page, queryWrapper);
-
-        //将EO转换为RES
-        List<RouteStationsRES> resList = routeStationsPage.getRecords().stream()
-                .map(eo -> {
-                    RouteStationsRES res = new RouteStationsRES();
-                    BeanUtil.copyProperties(eo, res);
-                    return res;
-                })
-                .collect(Collectors.toList());
-
+        // 转换为RES对象并设置名称属性
+        List<RouteStationsRES> routeStationsRESList = records.stream()
+            .map(record -> convertToRES(record, routeNameMap, stationNameMap))
+            .toList();
         //封装返回结果
         PageResult<RouteStationsRES> pageResult = new PageResult<>();
-        pageResult.setTotal(routeStationsPage.getTotal());
-        pageResult.setRecords(resList);
-        return pageResult ;
+        pageResult.setTotal(routeStationsResult.getTotal());
+        pageResult.setRecords(routeStationsRESList);
+        return pageResult;
+
     }
 
     /*
@@ -205,26 +209,18 @@ public class IRouteStationsServiceImpl extends ServiceImpl<RouteStationsMapper, 
         if (calcTicketPriceDTO == null) {
             THE_QUERY_PARAMETER_CANNOT_BE_EMPTY.throwException();
         }
-        Calculation calculation = new Calculation();
 
         return calculation.ticketPriceCalculation(calcTicketPriceDTO);
     }
-    /**
-     * 外部调用
-     * */
-    public BigDecimal calcTicketPrice(ReserveSeatDTO reserveSeatDTO){
-        //参数校验
-        if (reserveSeatDTO == null) {
-            THE_QUERY_PARAMETER_CANNOT_BE_EMPTY.throwException();
-        }
-        //Calculation的票价计算传入参数是CalcTicketPriceDTO，俩DTO参数一致，所以直接调用
-        CalcTicketPriceDTO calcTicketPriceDTO = new CalcTicketPriceDTO(
-                reserveSeatDTO.getScheduleId(),
-                reserveSeatDTO.getStartStationId(),
-                reserveSeatDTO.getEndStationId()
-        );
-        Calculation calculation = new Calculation();
-        return calculation.ticketPriceCalculation(calcTicketPriceDTO);
+
+    private RouteStationsRES convertToRES(RouteStationsEO routeStationsEO,
+                                     Map<Long, String> routeNameMap,
+                                     Map<Long, String> stationNameMap) {
+        RouteStationsRES res = new RouteStationsRES();
+        BeanUtil.copyProperties(routeStationsEO, res);
+        res.setRouteName(routeNameMap.get(routeStationsEO.getRouteId()));
+        res.setStationName(stationNameMap.get(routeStationsEO.getStationId()));
+        return res;
     }
 
 }

@@ -13,21 +13,16 @@ import java.util.List;
 /**
  * @author: QAQ
  * @date: 2025/11/25 16:28
- * @description: 订单服务客户端接口
+ * @description: 车票服务客户端接口
  */
-@FeignClient(name = "hcd-ticket")
-@RequestMapping("/api/v1/internal/ticket")
+@FeignClient(name = "hcd-ticket", path = "/api/v1/internal/ticket")
 public interface TicketClient {
     /**
-     * 获取订单对象
+     * 获取车票对象
      *
      */
 
-    @GetMapping( "/tickets/getTickets")
+    @GetMapping( "/ticket/getTickets")
     Result<List<TicketSeatReservationDTO>> getTickets(@RequestParam Long seatReservationId);
-
-
-
-
 
 }

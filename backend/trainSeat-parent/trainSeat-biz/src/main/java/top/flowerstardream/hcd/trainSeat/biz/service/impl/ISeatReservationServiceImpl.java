@@ -36,6 +36,9 @@ public class ISeatReservationServiceImpl extends ServiceImpl<SeatReservationMapp
     @Resource
     private SeatReservationMapper seatReservationMapper;
 
+    @Resource
+    private Calculation calculation;
+
     @Lazy
     @Resource
     private ISeatReservationServiceImpl self;
@@ -49,6 +52,7 @@ public class ISeatReservationServiceImpl extends ServiceImpl<SeatReservationMapp
         //参数校验
         if (seatReservationREQ == null) {
             THE_QUERY_PARAMETER_CANNOT_BE_EMPTY.throwException();
+            return;
         }
 
         //判断座位预订存在，存在则中断
@@ -67,7 +71,6 @@ public class ISeatReservationServiceImpl extends ServiceImpl<SeatReservationMapp
         if(CollUtil.isEmpty(ids)){
             return;
         }
-
 
         ids.forEach(id -> {
             //获取路线信息
@@ -107,7 +110,7 @@ public class ISeatReservationServiceImpl extends ServiceImpl<SeatReservationMapp
     }
 
     @Override
-    public PageResult<SeatReservationEO> EmployeePageQuery(SeatReservationPageQueryREQ seatReservationPageQueryREQ) {
+    public PageResult<SeatReservationRES> EmployeePageQuery(SeatReservationPageQueryREQ seatReservationPageQueryREQ) {
         //参数校验
         if (seatReservationPageQueryREQ == null) {
             THE_QUERY_PARAMETER_CANNOT_BE_EMPTY.throwException();
@@ -126,44 +129,18 @@ public class ISeatReservationServiceImpl extends ServiceImpl<SeatReservationMapp
         LambdaQueryWrapper<SeatReservationEO> queryWrapper = Wrappers.lambdaQuery();
 
         //查询条件
-        queryWrapper.eq(SeatReservationEO::getScheduleId, seatReservationPageQueryREQ.getScheduleId())
-                .eq(SeatReservationEO::getSeatNum, seatReservationPageQueryREQ.getSeatNum())
-                .eq(SeatReservationEO::getBookingStatus, seatReservationPageQueryREQ.getBookingStatus());
-
-        //执行分页查询
-        Page<SeatReservationEO> seatReservationResult = seatReservationMapper.selectPage(page, queryWrapper);
-
-        //封装返回结果
-        PageResult<SeatReservationEO> pageResult = new PageResult<>();
-        pageResult.setTotal(seatReservationResult.getTotal());
-        pageResult.setRecords(seatReservationResult.getRecords());
-        return pageResult;
-    }
-
-    @Override
-    public PageResult<SeatReservationRES> UserPageQuery(SeatReservationPageQueryREQ seatReservationPageQueryREQ) {
-        //参数校验
-        if (seatReservationPageQueryREQ == null) {
-            THE_QUERY_PARAMETER_CANNOT_BE_EMPTY.throwException();
+        if (seatReservationPageQueryREQ.getId() != null) {
+            queryWrapper.eq(SeatReservationEO::getId, seatReservationPageQueryREQ.getId());
         }
-
-        //设置分页参数默认值
-        if (seatReservationPageQueryREQ.getPage() <= 0) {
-            seatReservationPageQueryREQ.setPage(1);
+        if (seatReservationPageQueryREQ.getScheduleId() != null) {
+            queryWrapper.eq(SeatReservationEO::getScheduleId, seatReservationPageQueryREQ.getScheduleId());
         }
-        if (seatReservationPageQueryREQ.getPageSize() <= 0) {
-            seatReservationPageQueryREQ.setPageSize(10);
+        if (seatReservationPageQueryREQ.getSeatNum() != null) {
+            queryWrapper.eq(SeatReservationEO::getSeatNum, seatReservationPageQueryREQ.getSeatNum());
         }
-
-        //创建分页对象
-        Page<SeatReservationEO> page = new Page<>(seatReservationPageQueryREQ.getPage(), seatReservationPageQueryREQ.getPageSize());
-        //创建查询条件
-        LambdaQueryWrapper<SeatReservationEO> queryWrapper = Wrappers.lambdaQuery();
-
-        //查询条件
-        queryWrapper.eq(SeatReservationEO::getScheduleId, seatReservationPageQueryREQ.getScheduleId())
-                .eq(SeatReservationEO::getSeatNum, seatReservationPageQueryREQ.getSeatNum())
-                .eq(SeatReservationEO::getBookingStatus, seatReservationPageQueryREQ.getBookingStatus());
+        if (seatReservationPageQueryREQ.getBookingStatus() != null) {
+            queryWrapper.eq(SeatReservationEO::getBookingStatus, seatReservationPageQueryREQ.getBookingStatus());
+        }
 
         //执行分页查询
         Page<SeatReservationEO> seatReservationResult = seatReservationMapper.selectPage(page, queryWrapper);
@@ -174,8 +151,7 @@ public class ISeatReservationServiceImpl extends ServiceImpl<SeatReservationMapp
                     SeatReservationRES res = new SeatReservationRES();
                     BeanUtil.copyProperties(eo, res);
                     return res;
-                })
-                .collect(Collectors.toList());
+                }).toList();
 
         //封装返回结果
         PageResult<SeatReservationRES> pageResult = new PageResult<>();
@@ -212,18 +188,15 @@ public class ISeatReservationServiceImpl extends ServiceImpl<SeatReservationMapp
         queryWrapper.in(SeatReservationEO::getId, seatReservationIds);
         List<SeatReservationEO> seatReservationEOs = seatReservationMapper.selectList(queryWrapper);
 
-        return seatReservationEOs.stream().map(seatReservationEO -> {
-            SeatReservationDTO seatReservationDTO = new SeatReservationDTO();
-            seatReservationDTO.builder()
-                    .id(seatReservationEO.getId())
-                    .seatNum(seatReservationEO.getSeatNum());
-            return seatReservationDTO;
-        }).collect(Collectors.toList());
+        return seatReservationEOs.stream().map(seatReservationEO -> SeatReservationDTO.builder()
+                .id(seatReservationEO.getId())
+                .seatNum(seatReservationEO.getSeatNum())
+                .build()).toList();
     }
     /**
      * 外部调用
      * */
-    public Result<Void> releaseSeat(@RequestParam("seatReservationIds") List<Long> seatReservationIds){
+    public void releaseSeat(@RequestParam("seatReservationIds") List<Long> seatReservationIds){
 
         //参数校验
         if (seatReservationIds == null || seatReservationIds.isEmpty()) {
@@ -238,7 +211,6 @@ public class ISeatReservationServiceImpl extends ServiceImpl<SeatReservationMapp
             seatReservationEO.setBookingStatus(0);
             seatReservationMapper.updateById(seatReservationEO);
         }
-        return Result.successResult();
     }
     /**
      * 外部调用
@@ -247,10 +219,10 @@ public class ISeatReservationServiceImpl extends ServiceImpl<SeatReservationMapp
         //参数校验
         if (reserveSeatDTO == null) {
             THE_QUERY_PARAMETER_CANNOT_BE_EMPTY.throwException();
+            return null;
         }
 
         //根据用户的所选班次、起点站和终点站ID，计算上车时间和下车时间
-        Calculation calculation = new Calculation();
         TimeDTO timeDTO = calculation.timeCalculation(reserveSeatDTO);
         LocalDateTime startStationTime = timeDTO.getStartStationTime();
         LocalDateTime endStationTime = timeDTO.getEndStationTime();
@@ -265,7 +237,7 @@ public class ISeatReservationServiceImpl extends ServiceImpl<SeatReservationMapp
         //过滤符合条件的EO，收录座位号
         List<Long> seatNumList = seatReservationEOs.stream()
                 .map(SeatReservationEO::getId)
-                .collect(Collectors.toList());
+                .toList();
         //修改座位预订状态
         for (SeatReservationEO seatReservationEO : seatReservationEOs) {
             seatReservationEO.setBookingStatus(1);

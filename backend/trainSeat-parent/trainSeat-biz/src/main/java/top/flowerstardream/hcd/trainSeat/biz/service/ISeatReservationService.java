@@ -1,6 +1,9 @@
 package top.flowerstardream.hcd.trainSeat.biz.service;
 
 
+import top.flowerstardream.hcd.trainSeat.ao.dto.ReserveSeatDTO;
+import top.flowerstardream.hcd.trainSeat.ao.dto.ReserveSeatResultDTO;
+import top.flowerstardream.hcd.trainSeat.ao.dto.SeatReservationDTO;
 import top.flowerstardream.hcd.trainSeat.ao.req.SeatReservationREQ;
 import top.flowerstardream.hcd.trainSeat.ao.res.SeatReservationRES;
 import top.flowerstardream.hcd.trainSeat.bo.SeatReservationEO;
@@ -35,18 +38,33 @@ public interface ISeatReservationService {
     void updateSeatReservation(SeatReservationREQ seatReservationREQ);
 
     /**
-     * 分页查询座位预约列表（通用）
+     * 分页查询座位预约列表（后管）
      *
      * @param seatReservationPageQueryREQ 座位预约查询条件
      * @return 座位预约查询分页结果
      */
-    PageResult<SeatReservationEO> EmployeePageQuery(SeatReservationPageQueryREQ seatReservationPageQueryREQ);
+    PageResult<SeatReservationRES> EmployeePageQuery(SeatReservationPageQueryREQ seatReservationPageQueryREQ);
 
     /**
-     * 分页查询座位预约列表（用户）
+     * 根据座位预约ID列表获取座位预约列表
      *
-     * @param seatReservationPageQueryREQ 座位预约查询条件
-     * @return 座位预约查询分页结果
+     * @param seatReservationIds 座位预约ID列表
+     * @return 座位预约列表
      */
-    PageResult<SeatReservationRES> UserPageQuery(SeatReservationPageQueryREQ seatReservationPageQueryREQ);
+    List<SeatReservationDTO> getSeatReservationByIds(List<Long> seatReservationIds);
+
+    /**
+     * 释放座位
+     *
+     * @param seatReservationIds 座位预约ID列表
+     */
+    void releaseSeat(List<Long> seatReservationIds);
+
+    /**
+     * 预订座位
+     *
+     * @param reserveSeatDTO 预订座位参数
+     * @return 座位预约结果
+     */
+    ReserveSeatResultDTO reserveSeat(ReserveSeatDTO reserveSeatDTO);
 }

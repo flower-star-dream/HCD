@@ -23,8 +23,6 @@ public class OrderController {
     @Resource
     private IOrderService orderService;
 
-
-
     /**
      * 根据用户ID获取订单ID列表
      * @param userId 用户ID
@@ -65,7 +63,7 @@ public class OrderController {
      * @param orderId 订单ID
      * @return 订单状态
      */
-    @GetMapping("/order/status")
+    @GetMapping("/status")
     @Operation(summary = "获取订单状态", description = "获取订单状态")
     Result<Integer> getOrderStatus(@RequestParam("orderId") Long orderId) {
         Integer status = orderService.getOrderStatus(orderId);

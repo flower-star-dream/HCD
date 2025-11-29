@@ -1,10 +1,9 @@
 package top.flowerstardream.hcd.trainSeat.ao.res;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
+import top.flowerstardream.hcd.base.ao.res.BaseMgmtRES;
 
 import java.io.Serializable;
 
@@ -14,19 +13,17 @@ import java.io.Serializable;
  * @Description: 座位预订返回参数
  */
 @Data
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @Schema(description = "座位预订返回参数")
-public class SeatReservationRES implements Serializable {
-
-    @Schema(description = "座位预订号")
-    private Long id;
+public class SeatReservationRES extends BaseMgmtRES implements Serializable {
 
     @Schema(description = "班次id")
     private Long scheduleId;
 
-    @Schema(description = "座位id")
+    @Schema(description = "座位号")
     private Integer seatNum;
 
     @Schema(description = "预订状态")

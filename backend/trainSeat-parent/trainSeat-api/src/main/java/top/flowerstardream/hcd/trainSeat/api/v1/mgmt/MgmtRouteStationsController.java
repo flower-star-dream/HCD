@@ -8,6 +8,8 @@ import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.tools.result.Result;
 import top.flowerstardream.hcd.trainSeat.ao.pqreq.RouteStationsPageQueryREQ;
 import top.flowerstardream.hcd.trainSeat.ao.req.RouteStationsREQ;
+import top.flowerstardream.hcd.trainSeat.ao.res.RouteStationsRES;
+import top.flowerstardream.hcd.trainSeat.biz.service.IRouteStationsService;
 import top.flowerstardream.hcd.trainSeat.biz.service.impl.IRouteStationsServiceImpl;
 import top.flowerstardream.hcd.trainSeat.bo.RouteStationsEO;
 
@@ -20,33 +22,33 @@ import java.util.List;
 public class MgmtRouteStationsController {
 
     @Resource
-    private IRouteStationsServiceImpl routeStationsServiceImpl;
+    private IRouteStationsService routeStationsService;
 
     @PostMapping("/addRouteStations")
-    public Result<Void> addRouteStations(RouteStationsREQ routeStationsREQ) {
+    public Result<Void> addRouteStations(@RequestBody RouteStationsREQ routeStationsREQ) {
         log.info("【后管端-路线站点服务】添加路线站点，参数: {}", routeStationsREQ);
-        routeStationsServiceImpl.addRouteStations(routeStationsREQ);
+        routeStationsService.addRouteStations(routeStationsREQ);
         return Result.successResult();
     }
 
     @PutMapping("/updateRouteStations")
-    public Result<Void> updateRouteStations(RouteStationsREQ routeStationsREQ) {
+    public Result<Void> updateRouteStations(@RequestBody RouteStationsREQ routeStationsREQ) {
         log.info("【后管端-路线站点服务】修改路线站点，参数: {}", routeStationsREQ);
-        routeStationsServiceImpl.updateRouteStations(routeStationsREQ);
+        routeStationsService.updateRouteStations(routeStationsREQ);
         return Result.successResult();
     }
 
     @DeleteMapping("/deleteRouteStations")
-    public Result<Void> deleteRouteStations(List<Long> ids) {
+    public Result<Void> deleteRouteStations(@RequestBody List<Long> ids) {
         log.info("【后管端-路线站点服务】删除路线站点，参数: {}", ids);
-        routeStationsServiceImpl.deleteRouteStations(ids);
+        routeStationsService.deleteRouteStations(ids);
         return Result.successResult();
     }
 
     @GetMapping("/getRouteStations")
-    public Result<PageResult<RouteStationsEO>> EmployeePageQuery(RouteStationsPageQueryREQ routeStationsPageQueryREQ){
+    public Result<PageResult<RouteStationsRES>> EmployeePageQuery(RouteStationsPageQueryREQ routeStationsPageQueryREQ){
         log.info("【后管端-路线站点服务】获取路线站点列表，参数: {}", routeStationsPageQueryREQ);
-        routeStationsServiceImpl.EmployeePageQuery(routeStationsPageQueryREQ);
-        return Result.successResult();
+        PageResult<RouteStationsRES> routeStationsRESPageResult = routeStationsService.EmployeePageQuery(routeStationsPageQueryREQ);
+        return Result.successResult(routeStationsRESPageResult);
     }
 }

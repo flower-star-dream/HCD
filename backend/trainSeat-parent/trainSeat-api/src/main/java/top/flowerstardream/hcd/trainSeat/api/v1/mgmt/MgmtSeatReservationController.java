@@ -8,6 +8,8 @@ import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.tools.result.Result;
 import top.flowerstardream.hcd.trainSeat.ao.pqreq.SeatReservationPageQueryREQ;
 import top.flowerstardream.hcd.trainSeat.ao.req.SeatReservationREQ;
+import top.flowerstardream.hcd.trainSeat.ao.res.SeatReservationRES;
+import top.flowerstardream.hcd.trainSeat.biz.service.ISeatReservationService;
 import top.flowerstardream.hcd.trainSeat.biz.service.impl.ISeatReservationServiceImpl;
 import top.flowerstardream.hcd.trainSeat.bo.SeatReservationEO;
 
@@ -20,33 +22,33 @@ import java.util.List;
 public class MgmtSeatReservationController {
 
     @Resource
-    private ISeatReservationServiceImpl seatReservationServiceImpl;
+    private ISeatReservationService seatReservationService;
 
     @PostMapping("/addSeatReservation")
-    public Result<Void> addSeatReservation(SeatReservationREQ seatReservationREQ) {
+    public Result<Void> addSeatReservation(@RequestBody SeatReservationREQ seatReservationREQ) {
         log.info("【管理端-座位预订服务】添加座位预订，参数: {}", seatReservationREQ);
-        seatReservationServiceImpl.addSeatReservation(seatReservationREQ);
+        seatReservationService.addSeatReservation(seatReservationREQ);
         return Result.successResult();
     }
 
     @PutMapping("/updateSeatReservation")
-    public Result<Void> updateSeatReservation(SeatReservationREQ seatReservationREQ) {
+    public Result<Void> updateSeatReservation(@RequestBody SeatReservationREQ seatReservationREQ) {
         log.info("【管理端-座位预订服务】更新座位预订，参数: {}", seatReservationREQ);
-        seatReservationServiceImpl.updateSeatReservation(seatReservationREQ);
+        seatReservationService.updateSeatReservation(seatReservationREQ);
         return Result.successResult();
     }
 
     @DeleteMapping("/deleteSeatReservation")
-    public Result<Void> deleteSeatReservation(@RequestParam("seatReservationIds") List<Long> seatReservationIds) {
+    public Result<Void> deleteSeatReservation(@RequestBody List<Long> seatReservationIds) {
         log.info("【管理端-座位预订服务】删除座位预订，参数: {}", seatReservationIds);
-        seatReservationServiceImpl.deleteSeatReservation(seatReservationIds);
+        seatReservationService.deleteSeatReservation(seatReservationIds);
         return Result.successResult();
     }
 
     @GetMapping("/getSeatReservation")
-    public Result<PageResult<SeatReservationEO>> EmployeePageQuery(SeatReservationPageQueryREQ seatReservationPageQueryREQ) {
+    public Result<PageResult<SeatReservationRES>> EmployeePageQuery(SeatReservationPageQueryREQ seatReservationPageQueryREQ) {
         log.info("【管理端-座位预订服务】获取座位预订，参数: {}", seatReservationPageQueryREQ);
-        PageResult<SeatReservationEO> pageResult = seatReservationServiceImpl.EmployeePageQuery(seatReservationPageQueryREQ);
+        PageResult<SeatReservationRES> pageResult = seatReservationService.EmployeePageQuery(seatReservationPageQueryREQ);
         return Result.successResult(pageResult);
     }
 }

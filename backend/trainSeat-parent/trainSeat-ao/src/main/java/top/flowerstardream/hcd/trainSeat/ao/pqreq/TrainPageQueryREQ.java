@@ -24,9 +24,6 @@ public class TrainPageQueryREQ extends BasePageQueryREQ implements Serializable 
     @Schema(description = "列车型号")
     private String trainModel;
 
-    @Schema(description = "座位数")
-    private Integer seatNum;
-
     @Schema(description = "服务年数")
     private Integer serviceYears;
 }
