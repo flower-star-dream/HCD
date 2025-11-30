@@ -76,6 +76,7 @@ public class ITicketServiceImpl extends ServiceImpl<TicketMapper, TicketEO> impl
                 .scheduleId(ticketDTO.getScheduleId())
                 .startStationId(ticketDTO.getStartStationId())
                 .endStationId(ticketDTO.getEndStationId())
+                .ticketCount(ticketDTO.getPassengerIds().size())
                 .build();
         ReserveSeatResultDTO reserveSeatResultDTO = trainSeatClient.reserveSeat(reserveSeatDTO).getData();
         List<Long> seatReservationIds = reserveSeatResultDTO.getSeatReservationIds();
@@ -160,9 +161,7 @@ public class ITicketServiceImpl extends ServiceImpl<TicketMapper, TicketEO> impl
         // 根据乘车人姓名查询
         if (StringUtils.isNotBlank((req.getPassengerName()))) {
             List<Long> passengerIds = userClient.getPassengerIdsByName(req.getPassengerName()).getData();
-            if (CollUtil.isNotEmpty(passengerIds)) {
-                queryWrapper.in(TicketEO::getPassengerId, passengerIds);
-            }
+            queryWrapper.in(TicketEO::getPassengerId, passengerIds);
         }
         if (StringUtils.isNotBlank((req.getStartStation()))) {
             List<Long> startStationIds = trainSeatClient.getStationIdsByName(req.getStartStation()).getData();

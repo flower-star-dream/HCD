@@ -129,7 +129,9 @@
 import { computed, onMounted, defineAsyncComponent, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { useEmployeeStore, useAppStore, ossUrl } from '@/stores'
+import { useEmployeeStore } from '@/stores/employee'
+import { useAppStore } from '@/stores/app'
+import { ossUrl } from '@/stores'
 import { getEmployeeInfoService } from '@/api/employee'
 import type { EmployeeInfo } from '@/types/employee'
 

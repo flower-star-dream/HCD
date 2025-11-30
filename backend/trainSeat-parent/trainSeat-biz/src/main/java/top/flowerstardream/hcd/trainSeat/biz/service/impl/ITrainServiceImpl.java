@@ -8,7 +8,9 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.flowerstardream.hcd.trainSeat.ao.req.TrainREQ;
 import top.flowerstardream.hcd.trainSeat.ao.res.TrainRES;
@@ -27,6 +29,8 @@ import static top.flowerstardream.hcd.tools.exception.ExceptionEnum.*;
 import static top.flowerstardream.hcd.trainSeat.constant.TrainSeatExceptionEnum.TRAIN_ALREADY_EXISTS;
 import static top.flowerstardream.hcd.trainSeat.constant.TrainSeatExceptionEnum.TRAIN_IS_USED;
 
+@Service
+@Slf4j
 public class ITrainServiceImpl extends ServiceImpl<TrainMapper, TrainEO> implements ITrainService {
 
     @Lazy

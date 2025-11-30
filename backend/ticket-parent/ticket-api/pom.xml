@@ -29,6 +29,10 @@
             <groupId>top.flowerstardream.hcd</groupId>
             <artifactId>ticket-bo</artifactId>
         </dependency>
+        <dependency>
+            <groupId>top.flowerstardream.hcd</groupId>
+            <artifactId>ticket-biz</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

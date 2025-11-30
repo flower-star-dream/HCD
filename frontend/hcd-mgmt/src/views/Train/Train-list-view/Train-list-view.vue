@@ -70,7 +70,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { getTrainList, createTrain, updateTrain, deleteTrain, updateTrainStatus } from '@/api/train'
+import { getTrainList, addTrain, updateTrain, deleteTrain } from '@/api/train'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useEmployeeStore } from '@/stores'
 import DialogForm from '@/components/DialogForm/DialogForm.vue'
@@ -579,12 +579,12 @@ const handleFormSubmit = async (formData) => {
     }
     
     if (isEdit.value) {
-      // 编辑列车
-      await updateTrain(submitData.id, submitData)
-      ElMessage.success('更新列车成功')
-    } else {
-      // 新增列车
-      await createTrain(submitData)
+        // 编辑列车
+        await updateTrain(submitData)
+        ElMessage.success('更新列车成功')
+      } else {
+        // 新增列车
+        await addTrain(submitData)
       ElMessage.success('新增列车成功')
     }
     
@@ -600,37 +600,37 @@ const handleFormSubmit = async (formData) => {
 }
 
 /**
- * 切换列车状态
- * @param {Object} row - 列车数据
- */
-const handleStatusChange = async (row) => {
-  const newStatus = row.status === TRAIN_STATUS.ENABLED ? TRAIN_STATUS.DISABLED : TRAIN_STATUS.ENABLED
-  const actionText = newStatus === TRAIN_STATUS.ENABLED ? '启用' : '禁用'
-  
-  try {
-    await ElMessageBox.confirm(
-      `确定要${actionText}列车「${row.trainName}」吗？`,
-      '操作确认',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
+   * 切换列车状态
+   * @param {Object} row - 列车数据
+   */
+  const handleStatusChange = async (row) => {
+    const newStatus = row.status === TRAIN_STATUS.ENABLED ? TRAIN_STATUS.DISABLED : TRAIN_STATUS.ENABLED
+    const actionText = newStatus === TRAIN_STATUS.ENABLED ? '启用' : '禁用'
+
+    try {
+      await ElMessageBox.confirm(
+        `确定要${actionText}列车「${row.trainName}」吗？`,
+        '操作确认',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }
+      )
+      const data = { ...row, status: newStatus }
+
+      await updateTrain(data)
+      ElMessage.success(`${actionText}成功`)
+
+      // 刷新列表
+      fetchTrainList()
+    } catch (error) {
+      // 用户取消操作或发生错误
+      if (error !== 'cancel') {
+        ElMessage.error(`${actionText}失败`)
       }
-    )
-    const data = { id: row.id, status: newStatus }
-    
-    await updateTrainStatus(data)
-    ElMessage.success(`${actionText}成功`)
-    
-    // 刷新列表
-    fetchTrainList()
-  } catch (error) {
-    // 用户取消操作或发生错误
-    if (error !== 'cancel') {
-      ElMessage.error(`${actionText}失败`)
     }
   }
-}
 
 /**
  * 删除列车
@@ -649,7 +649,7 @@ const handleDelete = async (row) => {
     )
     
     // 调用删除接口
-    await deleteTrain(row.id)
+    await deleteTrain([row.id])
     ElMessage.success('删除成功')
     // 删除成功后刷新列表
     fetchTrainList()

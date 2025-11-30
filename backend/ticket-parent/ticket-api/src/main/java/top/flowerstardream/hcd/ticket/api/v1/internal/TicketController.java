@@ -31,9 +31,6 @@ public class TicketController {
     @Resource
     private ITicketService ticketService;
 
-    @Resource
-    private ITicketServiceImpl ticketServiceImpl;
-
     /**
      * 创建车票（由订单服务调用）
      * @param ticketDTO 车票请求信息
@@ -65,7 +62,7 @@ public class TicketController {
      */
     @GetMapping("/getTickets")
     Result<List<TicketSeatReservationDTO>> getTickets(@RequestParam Long seatReservationId){
-        List<TicketSeatReservationDTO> tickets = ticketServiceImpl.getTickets(seatReservationId);
+        List<TicketSeatReservationDTO> tickets = ticketService.getTickets(seatReservationId);
         return Result.successResult(tickets);
     }
 }

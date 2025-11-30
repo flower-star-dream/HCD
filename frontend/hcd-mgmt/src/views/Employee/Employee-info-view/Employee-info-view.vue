@@ -19,7 +19,7 @@
                             :auto-upload="true"
                             action="/api/v1/common/user/upload" 
                             name="file"
-                            :headers="{ 'Authorization': employeeStore.token, 'biz_side': 'admin' }"
+                            :headers="{ 'Authorization': employeeStore.token, 'X-Biz-Side': 'admin' }"
                             :on-success="uploadSuccess"
                             accept=".jpg,.jpeg,.png,.gif"
                             :before-upload="beforeUpload">
