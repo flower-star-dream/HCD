@@ -24,7 +24,7 @@ import java.util.List;
 
 
 @RestController("mgmtRouteController")
-@RequestMapping("/api/v1/app/trainSeat/route")
+@RequestMapping("/api/v1/mgmt/trainSeat/route")
 @Tag(name = "后管端-路线管理")
 @Slf4j
 public class MgmtRouteController {

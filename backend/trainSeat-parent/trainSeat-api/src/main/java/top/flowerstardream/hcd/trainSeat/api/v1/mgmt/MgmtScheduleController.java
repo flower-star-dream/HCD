@@ -15,7 +15,7 @@ import top.flowerstardream.hcd.trainSeat.bo.ScheduleEO;
 import java.util.List;
 
 @RestController("MgmtScheduleController")
-@RequestMapping("/api/v1/app/trainSeat/schedule")
+@RequestMapping("/api/v1/mgmt/trainSeat/schedule")
 @Tag(name = "后管端-班次管理")
 @Slf4j
 public class MgmtScheduleController {

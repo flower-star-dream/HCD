@@ -16,7 +16,7 @@ import top.flowerstardream.hcd.trainSeat.bo.RouteStationsEO;
 import java.util.List;
 
 @RestController("mgmtRouteStationsController")
-@RequestMapping("/api/v1/app/trainSeat/routeStations")
+@RequestMapping("/api/v1/mgmt/trainSeat/routeStations")
 @Tag(name = "后管端-路线站点管理")
 @Slf4j
 public class MgmtRouteStationsController {

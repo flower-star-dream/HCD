@@ -16,7 +16,7 @@ import top.flowerstardream.hcd.trainSeat.bo.SeatReservationEO;
 import java.util.List;
 
 @RestController("mgmtSeatReservationController")
-@RequestMapping("/api/v1/app/trainSeat/seatReservation")
+@RequestMapping("/api/v1/mgmt/trainSeat/seatReservation")
 @Tag(name = "后管端-座位预订管理")
 @Slf4j
 public class MgmtSeatReservationController {
