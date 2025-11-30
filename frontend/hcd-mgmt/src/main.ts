@@ -6,7 +6,7 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import { createPersistedState } from 'pinia-persistedstate-plugin'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import './styles/global.scss'
-import * as components from './components/index'
+import components from './components/index'
 
 import App from './App.vue'
 import router from './router'

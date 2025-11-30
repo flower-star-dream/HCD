@@ -61,7 +61,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { useEmployeeStore } from '@/stores'
 import DialogForm from '@/components/DialogForm/DialogForm.vue'
 import ListPage from '@/components/ListPage/ListPage.vue'
-import { getStationList, createStation, updateStation, deleteStation } from '@/api/station'
+import { getStationList, addStation, updateStation, deleteStation } from '@/api/station'
 
 const employeeStore = useEmployeeStore()
 const employeeInfo = computed(() => employeeStore.employeeInfo)
@@ -334,9 +334,7 @@ const handleBatchDelete = async () => {
     )
     
     const ids = selectedRows.value.map(row => row.id)
-    for (const id of ids) {
-      await deleteStation(id)
-    }
+    await deleteStation(ids)
     ElMessage.success(`成功删除 ${selectedRows.value.length} 个站点`)
     
     fetchStationList()
@@ -370,14 +368,14 @@ const handleFormSubmit = async (formData) => {
     const submitData = { ...formData }
     
     if (isEdit.value) {
-      submitData.updatePerson = employeeInfo.value?.nickname || employeeInfo.value?.username
-      await updateStation(submitData.id, submitData)
-      ElMessage.success('更新站点成功')
-    } else {
-      submitData.createPerson = employeeInfo.value?.nickname || employeeInfo.value?.username
-      await createStation(submitData)
-      ElMessage.success('新增站点成功')
-    }
+        submitData.updatePerson = employeeInfo.value?.nickname || employeeInfo.value?.username
+        await updateStation(submitData)
+        ElMessage.success('更新站点成功')
+      } else {
+        submitData.createPerson = employeeInfo.value?.nickname || employeeInfo.value?.username
+        await addStation(submitData)
+        ElMessage.success('新增站点成功')
+      }
     
     dialogVisible.value = false
     fetchStationList()
@@ -403,7 +401,7 @@ const handleDelete = async (row) => {
       }
     )
     
-    await deleteStation(row.id)
+    await deleteStation([row.id])
     ElMessage.success('删除成功')
     fetchStationList()
   } catch (error) {

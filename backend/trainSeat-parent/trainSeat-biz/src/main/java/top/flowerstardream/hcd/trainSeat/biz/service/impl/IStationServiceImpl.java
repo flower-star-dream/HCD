@@ -103,7 +103,7 @@ public class IStationServiceImpl extends ServiceImpl<StationMapper, StationEO> i
         }
         StationEO stationEO = new StationEO();
         BeanUtil.copyProperties(stationREQ, stationEO);
-        boolean update = self.update(stationEO, Wrappers.lambdaQuery());
+        boolean update = self.updateById(stationEO);
         if (!update) {
             MODIFICATION_FAILED.throwException();
         }

@@ -16,7 +16,7 @@ import top.flowerstardream.hcd.trainSeat.biz.service.impl.ISeatReservationServic
 
 import java.util.List;
 
-@RestController("internalScheduleController")
+@RestController("internalSeatReservationController")
 @RequestMapping("/api/v1/internal/trainSeat/seatReservation")
 @Tag(name = "座位预订接口服务")
 @Slf4j

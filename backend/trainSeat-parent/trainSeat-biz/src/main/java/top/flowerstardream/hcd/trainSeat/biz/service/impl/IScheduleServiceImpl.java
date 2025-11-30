@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -139,6 +140,7 @@ public class IScheduleServiceImpl extends ServiceImpl<ScheduleMapper, ScheduleEO
         //参数校验
         if (schedulePageQueryREQ == null) {
             THE_QUERY_PARAMETER_CANNOT_BE_EMPTY.throwException();
+            return null;
         }
         //设置分页参数默认值
         if (schedulePageQueryREQ.getPage() <= 0) {
@@ -184,7 +186,7 @@ public class IScheduleServiceImpl extends ServiceImpl<ScheduleMapper, ScheduleEO
         }
 
         //执行分页查询
-        Page<ScheduleEO> schedulePage = scheduleMapper.selectPage(page, queryWrapper);
+        IPage<ScheduleEO> schedulePage = scheduleMapper.selectPage(page, queryWrapper);
         List<ScheduleEO> records = schedulePage.getRecords();
 
         List<Long> trainIds = records.stream().map(ScheduleEO::getTrainId).distinct().toList();
@@ -215,6 +217,7 @@ public class IScheduleServiceImpl extends ServiceImpl<ScheduleMapper, ScheduleEO
     public RealTimeScheduleRES getSchedule(RealTimeScheduleREQ realTimeScheduleREQ) {
         if (realTimeScheduleREQ == null) {
             THE_QUERY_PARAMETER_CANNOT_BE_EMPTY.throwException();
+            return null;
         }
         ScheduleEO scheduleEO = self.getById(realTimeScheduleREQ.getScheduleId());
 
@@ -284,6 +287,7 @@ public class IScheduleServiceImpl extends ServiceImpl<ScheduleMapper, ScheduleEO
         //参数校验
         if (realTimeSchedulePageQueryREQ == null) {
             THE_QUERY_PARAMETER_CANNOT_BE_EMPTY.throwException();
+            return null;
         }
         //设置分页参数默认值
         if (realTimeSchedulePageQueryREQ.getPage() <= 0) {
@@ -324,20 +328,25 @@ public class IScheduleServiceImpl extends ServiceImpl<ScheduleMapper, ScheduleEO
         LocalDateTime endTime = realTimeSchedulePageQueryREQ.getNowTime().withHour(23).withMinute(59).withSecond(59);
 
         //根据路线和出发时间查询班次
-        List<ScheduleEO> schedules = scheduleMapper.selectList(new LambdaQueryWrapper<ScheduleEO>()
-                .between(ScheduleEO::getStartTime, startTime, endTime)
-                .in(ScheduleEO::getRouteId, commonRouteIds));
+        Page<ScheduleEO> page = new Page<>(realTimeSchedulePageQueryREQ.getPage(), realTimeSchedulePageQueryREQ.getPageSize());
+        LambdaQueryWrapper<ScheduleEO> schedulequeryWrapper = new LambdaQueryWrapper<>();
+        schedulequeryWrapper.between(ScheduleEO::getStartTime, startTime, endTime)
+                .in(ScheduleEO::getRouteId, commonRouteIds);
+
+        IPage<ScheduleEO> schedules = scheduleMapper.selectPage(page, schedulequeryWrapper);
+        List<ScheduleEO> records = schedules.getRecords();
 
         //每个班次都封装出一个实时班次响应
-        List<RealTimeScheduleRES> resList = schedules.stream()
+        List<RealTimeScheduleRES> resList = records.stream()
                 .map(schedule -> {
                     RealTimeScheduleRES res = new RealTimeScheduleRES();
                     //计算时间
-                    ReserveSeatDTO ReserveSeatDTO = new ReserveSeatDTO(
-                            schedule.getId(),
-                            realTimeSchedulePageQueryREQ.getStartStationId(),
-                            realTimeSchedulePageQueryREQ.getEndStationId());
-                    TimeDTO timeDTO = calculation.timeCalculation(ReserveSeatDTO);
+                    ReserveSeatDTO reserveSeatDTO = ReserveSeatDTO.builder()
+                            .scheduleId(schedule.getId())
+                            .startStationId(realTimeSchedulePageQueryREQ.getStartStationId())
+                            .endStationId(realTimeSchedulePageQueryREQ.getEndStationId())
+                            .build();
+                    TimeDTO timeDTO = calculation.timeCalculation(reserveSeatDTO);
                     //计算价格
                     BigDecimal price = calculation.ticketPriceCalculation(new CalcTicketPriceDTO(
                             schedule.getId(),
@@ -354,16 +363,9 @@ public class IScheduleServiceImpl extends ServiceImpl<ScheduleMapper, ScheduleEO
                     return res;
                 }).toList();
 
-        // 将最终的结果转换为分页对象
-        Page<RealTimeScheduleRES> page = new Page<>(realTimeSchedulePageQueryREQ.getPage(), realTimeSchedulePageQueryREQ.getPageSize(), resList.size());
-        // 手动设置当前页的记录
-        int fromIndex = (int) ((page.getCurrent() - 1) * page.getSize());
-        int toIndex = (int) Math.min(fromIndex + page.getSize(), resList.size());
-        page.setRecords(resList.subList(fromIndex, toIndex));
-
         PageResult<RealTimeScheduleRES> pageResult = new PageResult<>();
         pageResult.setTotal(resList.size());
-        pageResult.setRecords(page.getRecords());
+        pageResult.setRecords(resList);
         return pageResult;
     }
 

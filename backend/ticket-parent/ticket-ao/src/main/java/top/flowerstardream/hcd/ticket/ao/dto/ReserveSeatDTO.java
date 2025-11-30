@@ -31,4 +31,7 @@ public class ReserveSeatDTO implements Serializable {
 
     @Schema(description = "到达站ID")
     private Long endStationId;
+
+    @Schema(description = "预定票数")
+    private Integer ticketCount;
 }

@@ -112,7 +112,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { getScheduleList, createSchedule, updateSchedule, deleteSchedule, getTrainOptions, getRouteOptions } from '@/api/schedule'
+import { getScheduleList, addSchedule, updateSchedule, deleteSchedule, getTrainOptions, getRouteOptions } from '@/api/schedule'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useEmployeeStore } from '@/stores'
 import DialogForm from '@/components/DialogForm/DialogForm.vue'
@@ -518,9 +518,7 @@ const handleBatchDelete = async () => {
     )
     
     const ids = selectedRows.value.map(row => row.id)
-    for (const id of ids) {
-      await deleteSchedule(id)
-    }
+    await deleteSchedule(ids)
     ElMessage.success(`成功删除 ${selectedRows.value.length} 个班次`)
     
     // 删除成功后刷新列表
@@ -571,14 +569,14 @@ const handleFormSubmit = async (formData) => {
     }
     
     if (isEdit.value) {
-      // 编辑班次
-      await updateSchedule(submitData.id, submitData)
-      ElMessage.success('更新班次成功')
-    } else {
-      // 新增班次
-      await createSchedule(submitData)
-      ElMessage.success('新增班次成功')
-    }
+        // 编辑班次
+        await updateSchedule(submitData)
+        ElMessage.success('更新班次成功')
+      } else {
+        // 新增班次
+        await addSchedule(submitData)
+        ElMessage.success('新增班次成功')
+      }
     
     // 关闭弹窗
     dialogVisible.value = false
@@ -608,7 +606,7 @@ const handleDelete = async (row) => {
     )
     
     // 调用删除接口
-    await deleteSchedule(row.id)
+    await deleteSchedule([row.id])
     ElMessage.success('删除成功')
     // 删除成功后刷新列表
     fetchScheduleList()

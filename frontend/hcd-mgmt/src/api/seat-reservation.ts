@@ -1,59 +1,49 @@
 import { trainSeatRequest } from '@/utils/request'
-import type { 
-  SeatReservation, 
-  SeatReservationList, 
-  SeatReservationQuery, 
-  SeatReservationForm, 
+import type {
+  SeatReservation,
+  SeatReservationList,
+  SeatReservationQuery,
+  SeatReservationForm,
   ScheduleOption,
   SeatStatusStats,
-  ApiResponse, 
-  PageResult 
+  ApiResponse,
+  PageResult
 } from '@/types/seat-reservation'
 
 /**
- * 获取座位预订列表（基于hcd_seat_reservation表）
+ * 获取座位预订列表
  * @param params 分页查询参数
  * @returns 座位预订分页列表
  */
 export const getSeatReservationList = (params: SeatReservationQuery): Promise<PageResult<SeatReservationList>> => {
-  return trainSeatRequest.get('/seat-reservation/list', { params })
+  return trainSeatRequest.get('/seatReservation/getSeatReservation', { params })
 }
 
 /**
- * 获取座位预订详情
- * @param id 座位预订ID
- * @returns 座位预订详情
- */
-export const getSeatReservationDetail = (id: number): Promise<SeatReservation> => {
-  return trainSeatRequest.get(`/seat-reservation/detail/${id}`)
-}
-
-/**
- * 创建座位预订
+ * 添加座位预订
  * @param data 座位预订信息
- * @returns 创建响应
+ * @returns 添加响应
  */
-export const createSeatReservation = (data: Partial<SeatReservationForm>): Promise<ApiResponse> => {
-  return trainSeatRequest.post('/seat-reservation/create', data)
+export const addSeatReservation = (data: Partial<SeatReservationForm>): Promise<void> => {
+  return trainSeatRequest.post('/seatReservation/addSeatReservation', data)
 }
 
 /**
  * 更新座位预订
- * @param id 座位预订ID
  * @param data 座位预订信息
  * @returns 更新响应
  */
-export const updateSeatReservation = (id: number, data: Partial<SeatReservationForm>): Promise<ApiResponse> => {
-  return trainSeatRequest.put(`/seat-reservation/update/${id}`, data)
+export const updateSeatReservation = (data: Partial<SeatReservationForm>): Promise<void> => {
+  return trainSeatRequest.put('/seatReservation/updateSeatReservation', data)
 }
 
 /**
  * 删除座位预订
- * @param id 座位预订ID
+ * @param ids 座位预订ID列表
  * @returns 删除响应
  */
-export const deleteSeatReservation = (id: number): Promise<ApiResponse> => {
-  return trainSeatRequest.delete(`/seat-reservation/delete/${id}`)
+export const deleteSeatReservation = (ids: number[]): Promise<void> => {
+  return trainSeatRequest.delete('/seatReservation/deleteSeatReservation', { data: ids })
 }
 
 /**
@@ -62,7 +52,7 @@ export const deleteSeatReservation = (id: number): Promise<ApiResponse> => {
  * @returns 删除响应
  */
 export const batchDeleteSeatReservation = (ids: number[]): Promise<ApiResponse> => {
-  return trainSeatRequest.delete('/seat-reservation/batch-delete', { data: { ids } })
+  return trainSeatRequest.delete('/seatReservation/batch-delete', { data: { ids } })
 }
 
 /**
@@ -70,7 +60,7 @@ export const batchDeleteSeatReservation = (ids: number[]): Promise<ApiResponse> 
  * @returns 班次选项列表
  */
 export const getScheduleOptions = (): Promise<ScheduleOption[]> => {
-  return trainSeatRequest.get('/seat-reservation/schedule-options')
+  return trainSeatRequest.get('/seatReservation/schedule-options')
 }
 
 /**
@@ -80,16 +70,17 @@ export const getScheduleOptions = (): Promise<ScheduleOption[]> => {
  * @returns 更新响应
  */
 export const updateSeatStatus = (id: number, status: number): Promise<ApiResponse> => {
-  return trainSeatRequest.put(`/seat-reservation/update-status/${id}`, { bookingStatus: status })
+  return trainSeatRequest.put(`/seatReservation/update-status/${id}`, { bookingStatus: status })
 }
 
 /**
- * 获取座位状态统计
- * @param scheduleId 班次ID（可选）
- * @returns 座位状态统计信息
+ * 批量更新座位状态
+ * @param ids 座位预订ID数组
+ * @param status 新的状态
+ * @returns 更新响应
  */
-export const getSeatStatusStats = (scheduleId?: number): Promise<SeatStatusStats> => {
-  return trainSeatRequest.get('/seat-reservation/status-stats', { params: { scheduleId } })
+export const batchUpdateSeatStatus = (ids: number[], status: number): Promise<ApiResponse> => {
+  return trainSeatRequest.put('/seatReservation/batch-update-status', { ids, bookingStatus: status })
 }
 
 /**
@@ -100,26 +91,16 @@ export const getSeatStatusStats = (scheduleId?: number): Promise<SeatStatusStats
  * @returns 检查结果
  */
 export const checkSeatAvailability = (scheduleId: number, seatNumber: number, excludeId?: number): Promise<boolean> => {
-  return trainSeatRequest.get('/seat-reservation/check-availability', { 
-    params: { scheduleId, seatNumber, excludeId } 
+  return trainSeatRequest.get('/seatReservation/check-availability', {
+    params: { scheduleId, seatNumber, excludeId }
   })
 }
 
 /**
- * 获取指定班次的座位预订列表
- * @param scheduleId 班次ID
- * @returns 座位预订列表
+ * 获取座位状态统计
+ * @param scheduleId 班次ID（可选）
+ * @returns 座位状态统计信息
  */
-export const getSeatReservationsBySchedule = (scheduleId: number): Promise<SeatReservationList[]> => {
-  return trainSeatRequest.get(`/seat-reservation/schedule/${scheduleId}`)
-}
-
-/**
- * 批量更新座位状态
- * @param ids 座位预订ID数组
- * @param status 新的状态
- * @returns 更新响应
- */
-export const batchUpdateSeatStatus = (ids: number[], status: number): Promise<ApiResponse> => {
-  return trainSeatRequest.put('/seat-reservation/batch-update-status', { ids, bookingStatus: status })
+export const getSeatStatusStats = (scheduleId?: number): Promise<SeatStatusStats> => {
+  return trainSeatRequest.get('/seatReservation/status-stats', { params: { scheduleId } })
 }

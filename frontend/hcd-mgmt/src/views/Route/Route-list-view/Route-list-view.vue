@@ -71,8 +71,7 @@ import { useEmployeeStore } from '@/stores'
 import DialogForm from '@/components/DialogForm/DialogForm.vue'
 import RouteStationDialog from '@/components/RouteStationDialog/RouteStationDialog.vue'
 import ListPage from '@/components/ListPage/ListPage.vue'
-import { getRouteList, createRoute, updateRoute, deleteRoute } from '@/api/route'
-import { getAllStations } from '@/api/station'
+import { getRouteList, addRoute, updateRoute, deleteRoute } from '@/api/route'
 
 const employeeStore = useEmployeeStore()
 const employeeInfo = computed(() => employeeStore.employeeInfo)
@@ -386,7 +385,7 @@ const handleBatchDelete = async () => {
     ElMessage.warning('请选择要删除的线路')
     return
   }
-  
+
   try {
     await ElMessageBox.confirm(
       `确定要删除选中的 ${selectedRows.value.length} 个线路吗？`,
@@ -397,13 +396,11 @@ const handleBatchDelete = async () => {
         type: 'warning'
       }
     )
-    
+
     const ids = selectedRows.value.map(row => row.id)
-    for (const id of ids) {
-      await deleteRoute(id)
-    }
+    await deleteRoute(ids)
     ElMessage.success(`成功删除 ${selectedRows.value.length} 个线路`)
-    
+
     fetchRouteList()
   } catch (error) {
     if (error !== 'cancel') {
@@ -446,11 +443,11 @@ const handleFormSubmit = async (formData) => {
     
     if (isEdit.value) {
       submitData.updatePerson = employeeInfo.value?.nickname || employeeInfo.value?.username
-      await updateRoute(submitData.id, submitData)
+      await updateRoute(submitData)
       ElMessage.success('更新线路成功')
     } else {
       submitData.createPerson = employeeInfo.value?.nickname || employeeInfo.value?.username
-      await createRoute(submitData)
+      await addRoute(submitData)
       ElMessage.success('新增线路成功')
     }
     
@@ -477,8 +474,8 @@ const handleDelete = async (row) => {
         type: 'warning'
       }
     )
-    
-    await deleteRoute(row.id)
+
+    await deleteRoute([row.id])
     ElMessage.success('删除成功')
     fetchRouteList()
   } catch (error) {

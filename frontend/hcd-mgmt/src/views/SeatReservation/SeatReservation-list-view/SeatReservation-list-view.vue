@@ -182,9 +182,9 @@
 
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
-import { 
+import {
   getSeatReservationList, 
-  createSeatReservation, 
+  addSeatReservation, 
   updateSeatReservation, 
   deleteSeatReservation, 
   batchDeleteSeatReservation,
@@ -630,14 +630,14 @@ const handleFormSubmit = async (formData) => {
     }
     
     if (isEdit.value) {
-      // 编辑座位预订
-      await updateSeatReservation(submitData.id, submitData)
-      ElMessage.success('更新座位预订成功')
-    } else {
-      // 新增座位预订
-      await createSeatReservation(submitData)
-      ElMessage.success('新增座位预订成功')
-    }
+        // 编辑座位预订
+        await updateSeatReservation(submitData)
+        ElMessage.success('更新座位预订成功')
+      } else {
+        // 新增座位预订
+        await addSeatReservation(submitData)
+        ElMessage.success('新增座位预订成功')
+      }
     
     // 关闭弹窗
     dialogVisible.value = false
@@ -697,7 +697,7 @@ const handleDelete = async (row) => {
     )
     
     // 调用删除接口
-    await deleteSeatReservation(row.id)
+    await deleteSeatReservation([row.id])
     ElMessage.success('删除成功')
     // 删除成功后刷新列表
     fetchSeatReservationList()
