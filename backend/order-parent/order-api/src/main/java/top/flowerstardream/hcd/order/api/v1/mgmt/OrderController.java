@@ -6,6 +6,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
+import top.flowerstardream.hcd.base.ao.res.StatusRES;
 import top.flowerstardream.hcd.order.ao.req.OrderStatusREQ;
 import top.flowerstardream.hcd.order.ao.res.OrderMgmtRES;
 import top.flowerstardream.hcd.order.bo.OrderEO;
@@ -13,6 +14,8 @@ import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.order.ao.req.OrderPageQueryREQ;
 import top.flowerstardream.hcd.order.biz.service.IOrderService;
 import top.flowerstardream.hcd.tools.result.Result;
+
+import java.util.List;
 
 import static top.flowerstardream.hcd.tools.utils.GetInfoUtil.getTraceId;
 
@@ -64,5 +67,17 @@ public class OrderController {
         log.info("【订单】traceId:{}, 修改订单状态：{}", getTraceId(), req);
         orderService.updateOrderStatus(req);
         return Result.successResult();
+    }
+
+    /**
+     * 获取订单状态列表
+     * @return 订单状态列表
+     */
+    @Operation(summary = "获取订单状态列表", description = "获取订单状态列表")
+    @GetMapping("/getStatus")
+    public Result<List<StatusRES>> getStatus() {
+        log.info("【订单】traceId:{}, 获取订单状态列表", getTraceId());
+        List<StatusRES> statusRES = orderService.getStatus();
+        return Result.successResult(statusRES);
     }
 }

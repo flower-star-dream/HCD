@@ -30,7 +30,7 @@
   // 标签页和操作按钮容器 - 修复与表格的连接
   .tabs-actions-container {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end; // 默认靠右对齐
     align-items: center;
     margin-bottom: 0;
     padding: 5px 16px;
@@ -40,6 +40,8 @@
 
     // 状态标签页样式
     .status-tabs {
+      margin-right: auto; // 将标签页推到左侧
+      flex-shrink: 0; // 防止标签页被压缩
       .el-tabs__nav {
         border-bottom: none;
         display: flex;

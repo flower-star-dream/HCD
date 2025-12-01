@@ -12,15 +12,6 @@ export const getRouteStationList = (params: RouteStationQuery): Promise<PageResu
 }
 
 /**
- * 获取线路所有站点（按顺序）
- * @param routeId 线路ID
- * @returns 线路站点列表（按stationSorting排序）
- */
-export const getRouteStations = (routeId: number): Promise<RouteStationList[]> => {
-  return trainSeatRequest.get(`/routeStations/route/${routeId}`)
-}
-
-/**
  * 添加路线站点
  * @param data 路线站点信息
  * @returns 添加响应

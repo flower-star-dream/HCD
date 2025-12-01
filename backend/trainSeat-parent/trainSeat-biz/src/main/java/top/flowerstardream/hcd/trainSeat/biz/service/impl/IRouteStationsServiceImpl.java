@@ -14,11 +14,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.flowerstardream.hcd.trainSeat.ao.dto.CalcTicketPriceDTO;
 import top.flowerstardream.hcd.trainSeat.ao.dto.ReserveSeatDTO;
+import top.flowerstardream.hcd.trainSeat.ao.req.RouteREQ;
 import top.flowerstardream.hcd.trainSeat.ao.req.RouteStationsREQ;
+import top.flowerstardream.hcd.trainSeat.ao.req.SortREQ;
 import top.flowerstardream.hcd.trainSeat.ao.res.RouteStationsRES;
 import top.flowerstardream.hcd.trainSeat.biz.mapper.RouteMapper;
 import top.flowerstardream.hcd.trainSeat.biz.mapper.ScheduleMapper;
 import top.flowerstardream.hcd.trainSeat.biz.mapper.StationMapper;
+import top.flowerstardream.hcd.trainSeat.biz.service.IRouteService;
 import top.flowerstardream.hcd.trainSeat.biz.tool.Calculation;
 import top.flowerstardream.hcd.trainSeat.bo.RouteEO;
 import top.flowerstardream.hcd.trainSeat.bo.RouteStationsEO;
@@ -34,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static top.flowerstardream.hcd.base.constant.CommonConstant.PAGE_TOTAL;
 import static top.flowerstardream.hcd.tools.exception.ExceptionEnum.*;
 import static top.flowerstardream.hcd.trainSeat.constant.Common.PRICE_EACH_STATION;
 import static top.flowerstardream.hcd.trainSeat.constant.TrainSeatExceptionEnum.*;
@@ -50,6 +54,9 @@ public class IRouteStationsServiceImpl extends ServiceImpl<RouteStationsMapper, 
 
     @Resource
     private StationMapper stationMapper;
+
+    @Resource
+    private IRouteService routeService;
 
     @Resource
     private Calculation calculation;
@@ -69,6 +76,15 @@ public class IRouteStationsServiceImpl extends ServiceImpl<RouteStationsMapper, 
         //判断路线站点存在，存在则中断
         validateRouteStationsIsExist(routeStationsREQ.getRouteId(), routeStationsREQ.getStationId());
 
+        RouteEO routeEO = routeMapper.selectById(routeStationsREQ.getRouteId());
+        if (routeEO == null) {
+            ROUTE_NOT_EXIST.throwException();
+        }
+        if (routeStationsREQ.getInit() &&
+                (routeStationsREQ.getStationSorting() <= 1 ||
+                        routeStationsREQ.getStationSorting() > routeEO.getStationCount())) {
+            INCORRECT_SORTING.throwException();
+        }
 
         RouteStationsEO routeStationsEO = new RouteStationsEO();
         BeanUtil.copyProperties(routeStationsREQ, routeStationsEO);
@@ -76,6 +92,15 @@ public class IRouteStationsServiceImpl extends ServiceImpl<RouteStationsMapper, 
         if (!insert) {
             INSERTION_FAILED.throwException();
         }
+        if (routeStationsREQ.getInit()) {
+            return;
+        }
+
+        RouteREQ route = RouteREQ.builder()
+                .id(routeStationsREQ.getRouteId())
+                .stationCount(routeEO.getStationCount() + 1)
+                .build();
+        routeService.updateRoute(route);
     }
 
 
@@ -86,12 +111,48 @@ public class IRouteStationsServiceImpl extends ServiceImpl<RouteStationsMapper, 
             return;
         }
 
-        //不存在路线站点占用
+        // 查询要删除的路线站点信息，用于后续更新排序
+        List<RouteStationsEO> toDeleteStations = routeStationsMapper.selectBatchIds(ids);
+        if (CollUtil.isEmpty(toDeleteStations)) {
+            return;
+        }
 
-        //批量删除路线站点
+        // 批量删除路线站点
         boolean delete = self.removeByIds(ids);
         if (!delete) {
             DELETION_FAILED.throwException();
+        }
+
+        // 按路线分组，重新排序剩余站点并更新路线站点总数
+        Map<Long, List<RouteStationsEO>> routeStationsMap = toDeleteStations.stream()
+                .collect(Collectors.groupingBy(RouteStationsEO::getRouteId));
+
+        for (Map.Entry<Long, List<RouteStationsEO>> entry : routeStationsMap.entrySet()) {
+            Long routeId = entry.getKey();
+            List<RouteStationsEO> deletedStationsInRoute = entry.getValue();
+
+            // 获取该路线剩余的所有站点
+            LambdaQueryWrapper<RouteStationsEO> queryWrapper = Wrappers.lambdaQuery();
+            queryWrapper.eq(RouteStationsEO::getRouteId, routeId);
+            queryWrapper.orderByAsc(RouteStationsEO::getStationSorting);
+            List<RouteStationsEO> remainingStations = routeStationsMapper.selectList(queryWrapper);
+
+            // 重新排序
+            for (int i = 0; i < remainingStations.size(); i++) {
+                RouteStationsEO station = remainingStations.get(i);
+                station.setStationSorting(i + 1);
+                routeStationsMapper.updateById(station);
+            }
+
+            // 更新路线的站点总数
+            RouteEO routeEO = routeMapper.selectById(routeId);
+            if (routeEO != null) {
+                RouteREQ routeREQ = RouteREQ.builder()
+                        .id(routeId)
+                        .stationCount(routeEO.getStationCount() - deletedStationsInRoute.size())
+                        .build();
+                routeService.updateRoute(routeREQ);
+            }
         }
     }
 
@@ -114,6 +175,7 @@ public class IRouteStationsServiceImpl extends ServiceImpl<RouteStationsMapper, 
         //参数校验
         if (routeStationsPageQueryREQ == null) {
             THE_QUERY_PARAMETER_CANNOT_BE_EMPTY.throwException();
+            return null;
         }
         //设置分页参数默认值
         if (routeStationsPageQueryREQ.getPage() <= 0) {
@@ -128,18 +190,11 @@ public class IRouteStationsServiceImpl extends ServiceImpl<RouteStationsMapper, 
 
         //创建查询条件
         LambdaQueryWrapper<RouteStationsEO> queryWrapper = Wrappers.lambdaQuery();
-        if (StrUtil.isNotBlank(routeStationsPageQueryREQ.getRouteName())) {
-            LambdaQueryWrapper<RouteEO> routeQueryWrapper = Wrappers.lambdaQuery();
-            routeQueryWrapper.like(RouteEO::getRouteName, routeStationsPageQueryREQ.getRouteName());
-            List<Long> routeIds = routeMapper.selectList(routeQueryWrapper).stream().map(RouteEO::getId).toList();
-            queryWrapper.in(RouteStationsEO::getRouteId, routeIds);
+        if (routeStationsPageQueryREQ.getRouteId() != null) {
+            queryWrapper.eq(RouteStationsEO::getRouteId, routeStationsPageQueryREQ.getRouteId());
         }
-        if (StrUtil.isNotBlank(routeStationsPageQueryREQ.getStationName())) {
-            // 查询站点名
-            LambdaQueryWrapper<StationEO> stationQueryWrapper = Wrappers.lambdaQuery();
-            stationQueryWrapper.like(StationEO::getStationName, routeStationsPageQueryREQ.getStationName());
-            List<Long> stationIds = stationMapper.selectList(stationQueryWrapper).stream().map(StationEO::getId).toList();
-            queryWrapper.in(RouteStationsEO::getStationId, stationIds);
+        if (routeStationsPageQueryREQ.getStationId() != null) {
+            queryWrapper.eq(RouteStationsEO::getStationId, routeStationsPageQueryREQ.getStationId());
         }
         if (routeStationsPageQueryREQ.getStationSorting() != null) {
             queryWrapper.like(RouteStationsEO::getStationSorting, routeStationsPageQueryREQ.getStationSorting());
@@ -175,7 +230,8 @@ public class IRouteStationsServiceImpl extends ServiceImpl<RouteStationsMapper, 
             .toList();
         //封装返回结果
         PageResult<RouteStationsRES> pageResult = new PageResult<>();
-        pageResult.setTotal(routeStationsResult.getTotal());
+        Long total = routeStationsMapper.selectCount(Wrappers.lambdaQuery(RouteStationsEO.class));
+        pageResult.setTotal(total > PAGE_TOTAL ? PAGE_TOTAL : total);
         pageResult.setRecords(routeStationsRESList);
         return pageResult;
 
@@ -211,6 +267,43 @@ public class IRouteStationsServiceImpl extends ServiceImpl<RouteStationsMapper, 
         }
 
         return calculation.ticketPriceCalculation(calcTicketPriceDTO);
+    }
+
+    /**
+     * 根据id排序路线站点
+     *
+     * @param sortREQ
+     */
+    @Override
+    @Transactional
+    public void sort(SortREQ sortREQ) {
+        // 参数校验
+        if (sortREQ == null || CollUtil.isEmpty(sortREQ.getRouteStationsIds())) {
+            THE_QUERY_PARAMETER_CANNOT_BE_EMPTY.throwException();
+        }
+
+        List<Long> ids = sortREQ.getRouteStationsIds();
+
+        // 批量查询需要更新的路线站点信息
+        List<RouteStationsEO> routeStationsList = routeStationsMapper.selectBatchIds(ids);
+
+        if (CollUtil.isEmpty(routeStationsList)) {
+            return;
+        }
+
+        // 按照传入的ID顺序设置新的排序值
+        for (int i = 0; i < ids.size(); i++) {
+            Long id = ids.get(i);
+            RouteStationsEO routeStationsEO = routeStationsList.stream()
+                    .filter(item -> item.getId().equals(id))
+                    .findFirst()
+                    .orElse(null);
+
+            if (routeStationsEO != null) {
+                routeStationsEO.setStationSorting(i + 1);
+                routeStationsMapper.updateById(routeStationsEO);
+            }
+        }
     }
 
     private RouteStationsRES convertToRES(RouteStationsEO routeStationsEO,

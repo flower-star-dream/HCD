@@ -2,6 +2,7 @@ package top.flowerstardream.hcd.order.biz.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import top.flowerstardream.hcd.base.ao.req.StatusChangeREQ;
+import top.flowerstardream.hcd.base.ao.res.StatusRES;
 import top.flowerstardream.hcd.order.ao.req.OrderPageQueryREQ;
 import top.flowerstardream.hcd.order.ao.req.OrderREQ;
 import top.flowerstardream.hcd.order.ao.req.OrderStatusREQ;
@@ -96,4 +97,10 @@ public interface IOrderService extends IService<OrderEO> {
      * @return
      */
     Integer getOrderStatus(Long orderId);
+
+    /**
+     * 获取订单状态列表
+     * @return
+     */
+    List<StatusRES> getStatus();
 }

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.flowerstardream.hcd.trainSeat.ao.req.TrainREQ;
 import top.flowerstardream.hcd.trainSeat.ao.res.TrainRES;
+import top.flowerstardream.hcd.trainSeat.bo.RouteEO;
 import top.flowerstardream.hcd.trainSeat.bo.ScheduleEO;
 import top.flowerstardream.hcd.trainSeat.bo.TrainEO;
 import top.flowerstardream.hcd.tools.result.PageResult;
@@ -25,6 +26,7 @@ import top.flowerstardream.hcd.trainSeat.biz.service.ITrainService;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static top.flowerstardream.hcd.base.constant.CommonConstant.PAGE_TOTAL;
 import static top.flowerstardream.hcd.tools.exception.ExceptionEnum.*;
 import static top.flowerstardream.hcd.trainSeat.constant.TrainSeatExceptionEnum.TRAIN_ALREADY_EXISTS;
 import static top.flowerstardream.hcd.trainSeat.constant.TrainSeatExceptionEnum.TRAIN_IS_USED;
@@ -79,9 +81,9 @@ public class ITrainServiceImpl extends ServiceImpl<TrainMapper, TrainEO> impleme
 
             LambdaQueryWrapper<ScheduleEO> queryWrapper = Wrappers.lambdaQuery();
             queryWrapper.eq(ScheduleEO::getTrainId,id);
-            List<ScheduleEO> schedules = scheduleMapper.selectList(Wrappers.lambdaQuery());
+            List<ScheduleEO> schedules = scheduleMapper.selectList(queryWrapper);
 
-            if (schedules != null){
+            if (CollUtil.isNotEmpty(schedules)){
                 TRAIN_IS_USED.throwException();
             }
         });
@@ -150,7 +152,8 @@ public class ITrainServiceImpl extends ServiceImpl<TrainMapper, TrainEO> impleme
 
         //封装返回结果
         PageResult<TrainRES> pageResult = new PageResult<>();
-        pageResult.setTotal(trainResult.getTotal());
+        Long total = trainMapper.selectCount(Wrappers.lambdaQuery(TrainEO.class));
+        pageResult.setTotal(total > PAGE_TOTAL ? PAGE_TOTAL : total);
         pageResult.setRecords(trainList);
         return pageResult;
     }

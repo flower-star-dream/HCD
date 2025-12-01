@@ -3,6 +3,7 @@ package top.flowerstardream.hcd.trainSeat.biz.service;
 
 import top.flowerstardream.hcd.trainSeat.ao.dto.CalcTicketPriceDTO;
 import top.flowerstardream.hcd.trainSeat.ao.req.RouteStationsREQ;
+import top.flowerstardream.hcd.trainSeat.ao.req.SortREQ;
 import top.flowerstardream.hcd.trainSeat.ao.res.RouteStationsRES;
 import top.flowerstardream.hcd.trainSeat.bo.RouteStationsEO;
 import top.flowerstardream.hcd.tools.result.PageResult;
@@ -46,4 +47,10 @@ public interface IRouteStationsService {
      * @return
      */
     BigDecimal calcTicketPrice(CalcTicketPriceDTO calcTicketPriceDTO);
+
+    /**
+     * 根据id排序路线站点
+     * @param sortREQ
+     */
+    void sort(SortREQ sortREQ);
 }

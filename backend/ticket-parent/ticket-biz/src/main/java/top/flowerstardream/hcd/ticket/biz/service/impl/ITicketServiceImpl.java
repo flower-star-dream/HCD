@@ -15,6 +15,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.flowerstardream.hcd.base.ao.req.StatusChangeREQ;
+import top.flowerstardream.hcd.base.ao.res.StatusRES;
 import top.flowerstardream.hcd.ticket.ao.dto.*;
 import top.flowerstardream.hcd.ticket.ao.req.TicketPageQueryREQ;
 import top.flowerstardream.hcd.ticket.ao.req.TicketStatusChangeREQ;
@@ -38,6 +39,7 @@ import java.util.stream.Stream;
 
 import static top.flowerstardream.hcd.ticket.constant.OrderConstant.*;
 import static top.flowerstardream.hcd.ticket.constant.TicketExceptionEnum.*;
+import static top.flowerstardream.hcd.ticket.constant.TicketStatusEnum.getNameByCode;
 import static top.flowerstardream.hcd.tools.exception.ExceptionEnum.*;
 import static top.flowerstardream.hcd.tools.utils.GetInfoUtil.*;
 
@@ -161,15 +163,27 @@ public class ITicketServiceImpl extends ServiceImpl<TicketMapper, TicketEO> impl
         // 根据乘车人姓名查询
         if (StringUtils.isNotBlank((req.getPassengerName()))) {
             List<Long> passengerIds = userClient.getPassengerIdsByName(req.getPassengerName()).getData();
-            queryWrapper.in(TicketEO::getPassengerId, passengerIds);
+            if (CollUtil.isNotEmpty(passengerIds)) {
+                queryWrapper.in(TicketEO::getPassengerId, passengerIds);
+            } else {
+                queryWrapper.eq(TicketEO::getPassengerId, -1L);
+            }
         }
         if (StringUtils.isNotBlank((req.getStartStation()))) {
             List<Long> startStationIds = trainSeatClient.getStationIdsByName(req.getStartStation()).getData();
-            queryWrapper.in(TicketEO::getStartStationId, startStationIds);
+            if (CollUtil.isNotEmpty(startStationIds)) {
+                queryWrapper.in(TicketEO::getStartStationId, startStationIds);
+            } else {
+                queryWrapper.eq(TicketEO::getStartStationId, -1L);
+            }
         }
         if (StringUtils.isNotBlank((req.getEndStation()))) {
             List<Long> endStationIds = trainSeatClient.getStationIdsByName(req.getEndStation()).getData();
-            queryWrapper.in(TicketEO::getEndStationId, endStationIds);
+            if (CollUtil.isNotEmpty(endStationIds)) {
+                queryWrapper.in(TicketEO::getEndStationId, endStationIds);
+            } else {
+                queryWrapper.eq(TicketEO::getEndStationId, -1L);
+            }
         }
         if (ObjectUtil.isNotEmpty((req.getRideDateStart()))) {
             queryWrapper.ge(TicketEO::getStartTime, req.getRideDateStart());
@@ -192,6 +206,7 @@ public class ITicketServiceImpl extends ServiceImpl<TicketMapper, TicketEO> impl
     public void updateTicketStatus(TicketStatusChangeREQ req) {
         if (req == null) {
             PARAM_ERROR.throwException();
+            return;
         }
         TicketEO ticketEO = new TicketEO();
         ticketEO.setId(req.getId());
@@ -417,5 +432,25 @@ public class ITicketServiceImpl extends ServiceImpl<TicketMapper, TicketEO> impl
                 .toList();
     }
 
+    @Override
+    public List<StatusRES> getStatus() {
+        // 使用LambdaQueryWrapper进行分组统计
+        List<Map<String, Object>> statusCounts = ticketMapper.count();
+
+        // 将统计结果转换为StatusRES列表
+        return statusCounts.stream()
+            .map(map -> {
+                StatusRES statusRES = new StatusRES();
+                statusRES.setStatus((Integer) map.get("status"));
+                statusRES.setCount((Integer) map.get("count"));
+                statusRES.setDescription(getStatusDescription(statusRES.getStatus()));
+                return statusRES;
+            })
+            .collect(Collectors.toList());
+    }
+
+    private String getStatusDescription(Integer status) {
+        return getNameByCode(status);
+    }
 }
 

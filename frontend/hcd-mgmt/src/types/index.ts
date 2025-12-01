@@ -12,6 +12,12 @@ export interface PageResult<T> {
   records: T[]
 }
 
+export interface StatusCount {
+  status: number // 0, 1, 2, ... 表示不同的状态
+  count: number // 该状态的数量
+  description: string // 状态描述
+}
+
 // API响应类型
 export interface ApiResponse<T = any> {
   code: number

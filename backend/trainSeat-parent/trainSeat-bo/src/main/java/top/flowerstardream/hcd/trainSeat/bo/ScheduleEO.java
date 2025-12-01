@@ -32,8 +32,8 @@ public class ScheduleEO extends BaseEO implements Serializable {
     private String conductor;
 
     // 余票
-    @TableField("availing_tickets")
-    private Integer availingTickets;
+    @TableField("available_tickets")
+    private Integer availableTickets;
 
     // 始发站
     @TableField("start_time")

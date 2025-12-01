@@ -16,6 +16,7 @@ import top.flowerstardream.hcd.trainSeat.ao.req.StationREQ;
 import top.flowerstardream.hcd.trainSeat.ao.res.StationMgmtRES;
 import top.flowerstardream.hcd.trainSeat.ao.res.StationRES;
 import top.flowerstardream.hcd.trainSeat.bo.RouteStationsEO;
+import top.flowerstardream.hcd.trainSeat.bo.ScheduleEO;
 import top.flowerstardream.hcd.trainSeat.bo.StationEO;
 import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.trainSeat.ao.pqreq.StationPageQueryREQ;
@@ -26,6 +27,7 @@ import top.flowerstardream.hcd.trainSeat.biz.service.IStationService;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static top.flowerstardream.hcd.base.constant.CommonConstant.PAGE_TOTAL;
 import static top.flowerstardream.hcd.tools.exception.ExceptionEnum.*;
 import static top.flowerstardream.hcd.trainSeat.constant.TrainSeatExceptionEnum.STATION_ALREADY_EXISTS;
 import static top.flowerstardream.hcd.trainSeat.constant.TrainSeatExceptionEnum.STATION_IS_USED;
@@ -82,7 +84,7 @@ public class IStationServiceImpl extends ServiceImpl<StationMapper, StationEO> i
             queryWrapper.eq(RouteStationsEO::getStationId, id);
             List<RouteStationsEO> routeStations = routeStationsMapper.selectList(queryWrapper);
 
-            if(routeStations != null){
+            if(CollUtil.isNotEmpty(routeStations)){
                 STATION_IS_USED.throwException();
             }
         });
@@ -151,7 +153,8 @@ public class IStationServiceImpl extends ServiceImpl<StationMapper, StationEO> i
 
         //封装返回结果
         PageResult<StationMgmtRES> pageResult = new PageResult<>();
-        pageResult.setTotal(stationPage.getTotal());
+        Long total = stationMapper.selectCount(Wrappers.lambdaQuery(StationEO.class));
+        pageResult.setTotal(total > PAGE_TOTAL ? PAGE_TOTAL : total);
         pageResult.setRecords(resList);
         return pageResult;
     }
@@ -197,7 +200,8 @@ public class IStationServiceImpl extends ServiceImpl<StationMapper, StationEO> i
 
         //封装返回结果
         PageResult<StationRES> pageResult = new PageResult<>();
-        pageResult.setTotal(stationPage.getTotal());
+        Long total = stationMapper.selectCount(Wrappers.lambdaQuery(StationEO.class));
+        pageResult.setTotal(total > PAGE_TOTAL ? PAGE_TOTAL : total);
         pageResult.setRecords(resList);
         return pageResult;
     }

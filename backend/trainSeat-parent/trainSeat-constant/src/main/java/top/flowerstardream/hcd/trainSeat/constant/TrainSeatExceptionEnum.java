@@ -33,7 +33,10 @@ public enum TrainSeatExceptionEnum implements ICustomError {
     THE_SORTING_INFORMATION_STATION_CANNOT_BE_FOUND(20013, "无法找到起始站或终点站的排序信息"),
     THE_TERMINAL_STATION_IS_LOCATED_BEFORE_THE_STARTING_STATION(20014, "终点站位于起点站之前"),
     NOT_ENOUGH_SEATS(20015, "没有足够的座位"),
-    NOT_ENOUGH_TICKETS(20016, "没有足够的余票");
+    NOT_ENOUGH_TICKETS(20016, "没有足够的余票"),
+    ROUTE_NOT_EXIST(20017, "路线不存在"),
+    INCORRECT_SORTING(20018, "错误的排序"),
+    THE_TRAIN_NOT_EXIST(20019, "列车不存在");
     /**
      * 错误码
      */

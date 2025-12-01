@@ -32,13 +32,16 @@ import top.flowerstardream.hcd.trainSeat.biz.service.IScheduleService;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static top.flowerstardream.hcd.base.constant.CommonConstant.PAGE_TOTAL;
 import static top.flowerstardream.hcd.tools.exception.ExceptionEnum.*;
-import static top.flowerstardream.hcd.trainSeat.constant.TrainSeatExceptionEnum.SCHEDULE_ALREADY_EXISTS;
-import static top.flowerstardream.hcd.trainSeat.constant.TrainSeatExceptionEnum.SCHEDULE_IS_USED;
+import static top.flowerstardream.hcd.trainSeat.constant.BookingStatus.NOT_BOOKED;
+import static top.flowerstardream.hcd.trainSeat.constant.TrainSeatExceptionEnum.*;
 
 @Slf4j
 @Service
@@ -70,6 +73,7 @@ public class IScheduleServiceImpl extends ServiceImpl<ScheduleMapper, ScheduleEO
     private RouteMapper routeMapper;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void addSchedule(ScheduleREQ scheduleREQ) {
         //参数校验
         if (scheduleREQ == null) {
@@ -80,12 +84,34 @@ public class IScheduleServiceImpl extends ServiceImpl<ScheduleMapper, ScheduleEO
         //判断班次存在，存在则中断
         validateScheduleIsExist(scheduleREQ.getTrainId(), scheduleREQ.getRouteId(), scheduleREQ.getStartTime());
 
+        //获取列车信息，包括座位总数
+        TrainEO trainEO = trainMapper.selectById(scheduleREQ.getTrainId());
+        if (trainEO == null) {
+            THE_TRAIN_NOT_EXIST.throwException();
+        }
+
         //打包req的属性进入EO，然后插入数据库
         ScheduleEO scheduleEO = new ScheduleEO();
         BeanUtil.copyProperties(scheduleREQ, scheduleEO);
+        scheduleEO.setAvailableTickets(trainEO.getSeatNum()); // 设置余票数量为列车座位数
         boolean insert = self.save(scheduleEO);
         if (!insert) {
             INSERTION_FAILED.throwException();
+        }
+
+        // 为该班次生成对应数量的座位预订记录，初始状态为未预订
+        List<SeatReservationEO> seatReservations = new ArrayList<>();
+        for (int i = 1; i <= trainEO.getSeatNum(); i++) {
+            SeatReservationEO reservation = new SeatReservationEO();
+            reservation.setScheduleId(scheduleEO.getId());
+            reservation.setSeatNum(i);
+            reservation.setBookingStatus(NOT_BOOKED.getValue());
+            seatReservations.add(reservation);
+        }
+        
+        // 批量插入座位预订记录
+        if (CollUtil.isNotEmpty(seatReservations)) {
+            seatReservationMapper.insertBatchSomeColumn(seatReservations);
         }
     }
 
@@ -107,7 +133,7 @@ public class IScheduleServiceImpl extends ServiceImpl<ScheduleMapper, ScheduleEO
             queryWrapper.eq(SeatReservationEO::getScheduleId,id);
             List<SeatReservationEO> seatReservations = seatReservationMapper.selectList(queryWrapper);
 
-            if (seatReservations != null){
+            if (CollUtil.isNotEmpty(seatReservations)){
                 SCHEDULE_IS_USED.throwException();
             }
 
@@ -159,17 +185,11 @@ public class IScheduleServiceImpl extends ServiceImpl<ScheduleMapper, ScheduleEO
         if (schedulePageQueryREQ.getId() != null) {
             queryWrapper.eq(ScheduleEO::getId, schedulePageQueryREQ.getId());
         }
-        if (StrUtil.isNotBlank(schedulePageQueryREQ.getTrainName())) {
-            LambdaQueryWrapper<TrainEO> trainQueryWrapper = new LambdaQueryWrapper<>();
-            trainQueryWrapper.eq(TrainEO::getTrainName, schedulePageQueryREQ.getTrainName());
-            List<Long> trainIds = trainMapper.selectList(trainQueryWrapper).stream().map(TrainEO::getId).toList();
-            queryWrapper.in(ScheduleEO::getTrainId, trainIds);
+        if (schedulePageQueryREQ.getTrainId() != null) {
+            queryWrapper.eq(ScheduleEO::getTrainId, schedulePageQueryREQ.getTrainId());
         }
-        if (StrUtil.isNotBlank(schedulePageQueryREQ.getRouteName())) {
-            LambdaQueryWrapper<RouteEO> routeQueryWrapper = new LambdaQueryWrapper<>();
-            routeQueryWrapper.eq(RouteEO::getRouteName, schedulePageQueryREQ.getRouteName());
-            List<Long> routeIds = routeMapper.selectList(routeQueryWrapper).stream().map(RouteEO::getId).toList();
-            queryWrapper.in(ScheduleEO::getRouteId, routeIds);
+        if (schedulePageQueryREQ.getRouteId() != null) {
+            queryWrapper.eq(ScheduleEO::getRouteId, schedulePageQueryREQ.getRouteId());
         }
         if (StrUtil.isNotBlank(schedulePageQueryREQ.getConductor())) {
             queryWrapper.like(ScheduleEO::getConductor, schedulePageQueryREQ.getConductor());
@@ -191,9 +211,11 @@ public class IScheduleServiceImpl extends ServiceImpl<ScheduleMapper, ScheduleEO
 
         List<Long> trainIds = records.stream().map(ScheduleEO::getTrainId).distinct().toList();
         List<Long> routeIds = records.stream().map(ScheduleEO::getRouteId).distinct().toList();
-        Map<Long, String> trainNameMap = trainMapper.selectBatchIds(trainIds).stream()
+        List<TrainEO> trains = CollUtil.isEmpty(trainIds) ? Collections.emptyList() : trainMapper.selectBatchIds(trainIds);
+        List<RouteEO> routes = CollUtil.isEmpty(routeIds) ? Collections.emptyList() : routeMapper.selectBatchIds(routeIds);
+        Map<Long, String> trainNameMap = trains.stream()
                 .collect(Collectors.toMap(TrainEO::getId, TrainEO::getTrainName));
-        Map<Long, String> routeNameMap = routeMapper.selectBatchIds(routeIds).stream()
+        Map<Long, String> routeNameMap = routes.stream()
                 .collect(Collectors.toMap(RouteEO::getId, RouteEO::getRouteName));
         //将EO转换为RES
         List<ScheduleRES> resList = schedulePage.getRecords().stream()
@@ -202,13 +224,15 @@ public class IScheduleServiceImpl extends ServiceImpl<ScheduleMapper, ScheduleEO
                     BeanUtil.copyProperties(eo, res);
                     res.setTrainName(trainNameMap.get(eo.getTrainId()));
                     res.setRouteName(routeNameMap.get(eo.getRouteId()));
+                    res.setAvailableTickets(eo.getAvailableTickets());
                     return res;
                 })
                 .toList();
 
         //封装返回结果
         PageResult<ScheduleRES> pageResult = new PageResult<>();
-        pageResult.setTotal(schedulePage.getTotal());
+        Long total = scheduleMapper.selectCount(Wrappers.lambdaQuery(ScheduleEO.class));
+        pageResult.setTotal(total > PAGE_TOTAL ? PAGE_TOTAL : total);
         pageResult.setRecords(resList);
         return pageResult;
     }
@@ -255,7 +279,7 @@ public class IScheduleServiceImpl extends ServiceImpl<ScheduleMapper, ScheduleEO
                 .startStation(startStation)
                 .endStation(endStation)
                 .price(price)
-                .remainTicket(scheduleEO.getAvailingTickets())
+                .remainTicket(scheduleEO.getAvailableTickets())
                 .build();
     }
 
@@ -280,7 +304,7 @@ public class IScheduleServiceImpl extends ServiceImpl<ScheduleMapper, ScheduleEO
     /**外部调用*/
     public Integer getAvailingTickets(Long scheduleId){
         ScheduleEO scheduleEO = scheduleMapper.selectById(scheduleId);
-        return scheduleEO.getAvailingTickets();
+        return scheduleEO.getAvailableTickets();
     }
 
     public PageResult<RealTimeScheduleRES> getRealTimeSchedule(RealTimeSchedulePageQueryREQ realTimeSchedulePageQueryREQ){
@@ -359,12 +383,13 @@ public class IScheduleServiceImpl extends ServiceImpl<ScheduleMapper, ScheduleEO
                     res.setEndTime(timeDTO.getEndStationTime());
                     res.setStartStation(startStation);
                     res.setEndStation(endStation);
-                    res.setRemainTicket(schedule.getAvailingTickets());
+                    res.setRemainTicket(schedule.getAvailableTickets());
                     return res;
                 }).toList();
 
         PageResult<RealTimeScheduleRES> pageResult = new PageResult<>();
-        pageResult.setTotal(resList.size());
+        Long total = scheduleMapper.selectCount(Wrappers.lambdaQuery(ScheduleEO.class));
+        pageResult.setTotal(total > PAGE_TOTAL ? PAGE_TOTAL : total);
         pageResult.setRecords(resList);
         return pageResult;
     }

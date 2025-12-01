@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
@@ -14,6 +15,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
+import top.flowerstardream.hcd.base.ao.res.StatusRES;
 import top.flowerstardream.hcd.base.constant.StatusConstant;
 import top.flowerstardream.hcd.tools.constant.JwtClaimsConstant;
 import top.flowerstardream.hcd.tools.properties.JwtProperties;
@@ -33,7 +35,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
+import static top.flowerstardream.hcd.base.constant.CommonConstant.PAGE_TOTAL;
 import static top.flowerstardream.hcd.base.constant.RedisPrefixConstant.USER_TOKEN_PREFIX;
 import static top.flowerstardream.hcd.tools.exception.ExceptionEnum.*;
 import static top.flowerstardream.hcd.user.constant.UserExceptionEnum.*;
@@ -149,7 +153,8 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, UserEO> implements
         
         // 封装分页结果
         PageResult<UserEO> pageResult = new PageResult<>();
-        pageResult.setTotal(resultPage.getTotal());
+        Long total = userMapper.selectCount(Wrappers.lambdaQuery(UserEO.class));
+        pageResult.setTotal(total > PAGE_TOTAL ? PAGE_TOTAL : total);
         pageResult.setRecords(resultPage.getRecords());
         
         return pageResult;
@@ -183,5 +188,30 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, UserEO> implements
 
         JSONObject jsonObject = JSON.parseObject(json);
         return jsonObject.getString("openid");
+    }
+
+    @Override
+    public List<StatusRES> getStatus() {
+        // 使用LambdaQueryWrapper进行分组统计
+        List<Map<String, Object>> statusCounts = userMapper.count();
+
+        // 将统计结果转换为StatusRES列表
+        return statusCounts.stream()
+            .map(map -> {
+                StatusRES statusRES = new StatusRES();
+                statusRES.setStatus((Integer) map.get("status"));
+                statusRES.setCount((Integer) map.get("count"));
+                statusRES.setDescription(getStatusDescription(statusRES.getStatus()));
+                return statusRES;
+            })
+            .collect(Collectors.toList());
+    }
+
+    private String getStatusDescription(Integer status) {
+        return switch(status) {
+            case 0 -> "已冻结";
+            case 1 -> "正常";
+            default -> "未知状态";
+        };
     }
 }

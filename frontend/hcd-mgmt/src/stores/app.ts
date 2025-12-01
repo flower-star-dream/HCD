@@ -49,6 +49,17 @@ export const useAppStore = defineStore('app', () => {
           ]
         },
         {
+          path: '/seat-reservation',
+          title: '座位预订管理',
+          icon: 'OfficeBuilding',
+          children: [
+            {
+              path: '/seat-reservation/list',
+              title: '座位预订列表'
+            }
+          ]
+        },
+        {
           path: '/route',
           title: '线路管理',
           icon: 'TrainType',

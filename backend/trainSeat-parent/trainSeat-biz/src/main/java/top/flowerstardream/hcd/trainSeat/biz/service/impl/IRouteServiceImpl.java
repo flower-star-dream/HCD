@@ -13,8 +13,11 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.flowerstardream.hcd.trainSeat.ao.req.RouteREQ;
+import top.flowerstardream.hcd.trainSeat.ao.req.RouteStationsREQ;
 import top.flowerstardream.hcd.trainSeat.ao.res.RouteRES;
+import top.flowerstardream.hcd.trainSeat.biz.mapper.RouteStationsMapper;
 import top.flowerstardream.hcd.trainSeat.biz.mapper.StationMapper;
+import top.flowerstardream.hcd.trainSeat.biz.service.IRouteStationsService;
 import top.flowerstardream.hcd.trainSeat.bo.RouteEO;
 import top.flowerstardream.hcd.trainSeat.bo.RouteStationsEO;
 import top.flowerstardream.hcd.trainSeat.bo.ScheduleEO;
@@ -25,10 +28,12 @@ import top.flowerstardream.hcd.trainSeat.biz.mapper.ScheduleMapper;
 import top.flowerstardream.hcd.trainSeat.biz.service.IRouteService;
 import top.flowerstardream.hcd.trainSeat.bo.StationEO;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static top.flowerstardream.hcd.base.constant.CommonConstant.PAGE_TOTAL;
 import static top.flowerstardream.hcd.tools.exception.ExceptionEnum.*;
 import static top.flowerstardream.hcd.trainSeat.constant.TrainSeatExceptionEnum.ROUTE_AlREADY_EXISTS;
 import static top.flowerstardream.hcd.trainSeat.constant.TrainSeatExceptionEnum.ROUTE_IS_USED;
@@ -49,6 +54,9 @@ public class IRouteServiceImpl extends ServiceImpl<RouteMapper, RouteEO> impleme
     @Resource
     private StationMapper stationMapper;
 
+    @Resource
+    private IRouteStationsService routeStationsService;
+
     @Lazy
     @Resource
     private IRouteServiceImpl self;
@@ -57,6 +65,7 @@ public class IRouteServiceImpl extends ServiceImpl<RouteMapper, RouteEO> impleme
     private ScheduleMapper scheduleMapper;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void addRoute(RouteREQ routeREQ) {
         //参数校验
         if (routeREQ == null) {
@@ -70,11 +79,25 @@ public class IRouteServiceImpl extends ServiceImpl<RouteMapper, RouteEO> impleme
         //打包req的属性进入EO，然后插入数据库
         RouteEO routeEO = new RouteEO();
         BeanUtil.copyProperties(routeREQ, routeEO);
+        routeEO.setStationCount(2);
         boolean insert = self.save(routeEO);
         if (!insert) {
             INSERTION_FAILED.throwException();
         }
-
+        RouteStationsREQ startRouteStationsREQ = RouteStationsREQ.builder()
+                .routeId(routeEO.getId())
+                .stationId(routeEO.getStartStationId())
+                .stationSorting(1)
+                .init(true)
+                .build();
+        RouteStationsREQ endRouteStationsREQ =  RouteStationsREQ.builder()
+                .routeId(routeEO.getId())
+                .stationId(routeEO.getEndStationId())
+                .stationSorting(2)
+                .init(true)
+                .build();
+        routeStationsService.addRouteStations(startRouteStationsREQ);
+        routeStationsService.addRouteStations(endRouteStationsREQ);
     }
 
     @Override
@@ -93,9 +116,9 @@ public class IRouteServiceImpl extends ServiceImpl<RouteMapper, RouteEO> impleme
 
             LambdaQueryWrapper<ScheduleEO> queryWrapper = Wrappers.lambdaQuery();
             queryWrapper.eq(ScheduleEO::getRouteId,id);
-            List<ScheduleEO> schedules = scheduleMapper.selectList(Wrappers.lambdaQuery());
+            List<ScheduleEO> schedules = scheduleMapper.selectList(queryWrapper);
 
-            if (schedules != null){
+            if (CollUtil.isNotEmpty(schedules)){
                 ROUTE_IS_USED.throwException();
             }
         });
@@ -148,17 +171,11 @@ public class IRouteServiceImpl extends ServiceImpl<RouteMapper, RouteEO> impleme
         if (StrUtil.isNotBlank(routePageQueryREQ.getRouteName())) {
             queryWrapper.like(RouteEO::getRouteName, routePageQueryREQ.getRouteName());
         }
-        if (StrUtil.isNotBlank(routePageQueryREQ.getStartStationName())) {
-            LambdaQueryWrapper<StationEO> stationQueryWrapper = Wrappers.lambdaQuery();
-            stationQueryWrapper.like(StationEO::getStationName, routePageQueryREQ.getStartStationName());
-            List<Long> stationIds = stationMapper.selectList(stationQueryWrapper).stream().map(StationEO::getId).toList();
-            queryWrapper.in(RouteEO::getStartStationId, stationIds);
+        if (routePageQueryREQ.getStartStationId() != null) {
+            queryWrapper.eq(RouteEO::getStartStationId, routePageQueryREQ.getStartStationId());
         }
-        if (StrUtil.isNotBlank(routePageQueryREQ.getEndStationName())) {
-            LambdaQueryWrapper<StationEO> stationQueryWrapper = Wrappers.lambdaQuery();
-            stationQueryWrapper.like(StationEO::getStationName, routePageQueryREQ.getEndStationName());
-            List<Long> stationIds = stationMapper.selectList(stationQueryWrapper).stream().map(StationEO::getId).toList();
-            queryWrapper.in(RouteEO::getEndStationId, stationIds);
+        if (routePageQueryREQ.getEndStationId() != null) {
+            queryWrapper.eq(RouteEO::getEndStationId, routePageQueryREQ.getEndStationId());
         }
 
         //执行分页查询
@@ -174,8 +191,9 @@ public class IRouteServiceImpl extends ServiceImpl<RouteMapper, RouteEO> impleme
                 .distinct()
                 .toList();
 
-        List<StationEO> startStations = stationMapper.selectBatchIds(startStationIds);
-        List<StationEO> endStations = stationMapper.selectBatchIds(endStationIds);
+
+        List<StationEO> startStations = CollUtil.isEmpty(startStationIds) ? Collections.emptyList() : stationMapper.selectBatchIds(startStationIds);
+        List<StationEO> endStations = CollUtil.isEmpty(endStationIds) ? Collections.emptyList() : stationMapper.selectBatchIds(endStationIds);
         Map<Long, String> startStationMap = startStations.stream()
                 .collect(Collectors.toMap(StationEO::getId, StationEO::getStationName));
         Map<Long, String> endStationMap = endStations.stream()
@@ -183,7 +201,8 @@ public class IRouteServiceImpl extends ServiceImpl<RouteMapper, RouteEO> impleme
 
         //封装返回结果
         PageResult<RouteRES> pageResult = new PageResult<>();
-        pageResult.setTotal(routePage.getTotal());
+        Long total = routeMapper.selectCount(Wrappers.lambdaQuery(RouteEO.class));
+        pageResult.setTotal(total > PAGE_TOTAL ? PAGE_TOTAL : total);
         pageResult.setRecords(routePage.getRecords().stream().map(eo -> {
             RouteRES res = new RouteRES();
             BeanUtil.copyProperties(eo, res);
@@ -207,7 +226,7 @@ public class IRouteServiceImpl extends ServiceImpl<RouteMapper, RouteEO> impleme
     private void validateRouteIsExist(String routeName) {
 
         RouteEO routeEO = getRoute(routeName);
-        if (routeEO == null) {
+        if (routeEO != null) {
             ROUTE_AlREADY_EXISTS.throwException();
         }
     }

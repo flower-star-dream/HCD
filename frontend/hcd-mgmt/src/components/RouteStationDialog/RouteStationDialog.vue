@@ -42,12 +42,6 @@
             min-width="150"
           />
           <el-table-column
-            prop="address"
-            label="站点地址"
-            min-width="200"
-            show-overflow-tooltip
-          />
-          <el-table-column
             prop="stationSorting"
             label="排序"
             width="100"
@@ -125,8 +119,7 @@
               :label="station.stationName"
               :value="station.id"
             >
-              <span style="float: left">{{ station.stationName }}</span>
-              <span style="float: right; color: #8492a6; font-size: 13px">{{ station.address }}</span>
+              <span>{{ station.stationName }}</span>
             </el-option>
           </el-select>
         </el-form-item>
@@ -157,8 +150,8 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Check, Refresh } from '@element-plus/icons-vue'
-import { getRouteStations, addRouteStation, deleteRouteStation, updateRouteStationSort } from '@/api/route-station'
-import { getAllStations } from '@/api/station'
+import { getRouteStationList, addRouteStation, deleteRouteStation, updateRouteStationSort } from '@/api/route-station'
+import { getStationList } from '@/api/station'
 
 // Props定义
 const props = defineProps({
@@ -221,16 +214,22 @@ const hasSortChanged = computed(() => {
 })
 
 /**
- * 获取线路站点列表
- */
+   * 获取线路站点列表
+   */
 const fetchRouteStations = async () => {
   if (!props.routeId) return
   
   loading.value = true
   try {
-    const response = await getRouteStations(props.routeId)
-    routeStations.value = response
-    originalStations.value = JSON.parse(JSON.stringify(response)) // 深拷贝保存原始顺序
+    const response = await getRouteStationList({
+      routeId: props.routeId,
+      currentPage: 1,
+      pageSize: 100
+    })
+    // 按stationSorting字段升序排序
+    const sortedRecords = response.records.sort((a, b) => a.stationSorting - b.stationSorting)
+    routeStations.value = sortedRecords
+    originalStations.value = JSON.parse(JSON.stringify(sortedRecords)) // 深拷贝保存原始顺序
   } catch (error) {
     ElMessage.error('获取线路站点列表失败')
     routeStations.value = []
@@ -245,10 +244,14 @@ const fetchRouteStations = async () => {
  */
 const fetchAvailableStations = async () => {
   try {
-    const response = await getAllStations()
+    // 使用getStationList API替代getAllStations，并添加分页参数
+    const response = await getStationList({
+      currentPage: 1,
+      pageSize: 100 // 设置较大的分页以获取足够多的站点选项
+    })
     // 过滤掉已添加的站点
     const existingStationIds = routeStations.value.map(station => station.stationId)
-    availableStations.value = response.filter(station => 
+    availableStations.value = response.records.filter(station => 
       !existingStationIds.includes(station.id)
     )
   } catch (error) {
@@ -258,7 +261,7 @@ const fetchAvailableStations = async () => {
 }
 
 /**
- * 处理添力口站点
+ * 处理添加站点
  */
 const handleAddStation = () => {
   addForm.value = {
@@ -314,7 +317,7 @@ const handleRemoveStation = async (row) => {
       }
     )
     
-    await deleteRouteStation(row.id)
+    await deleteRouteStation([row.id])
     ElMessage.success('移除站点成功')
     fetchRouteStations()
   } catch (error) {
@@ -368,10 +371,17 @@ const handleSaveSort = async () => {
   try {
     loading.value = true
     
-    const stationIds = routeStations.value.map(station => station.stationId)
+    // 确保routeStations数组存在且不为空
+    if (!routeStations.value || routeStations.value.length === 0) {
+      ElMessage.warning('没有站点数据可排序')
+      return
+    }
+
+    const routeStationsIds = routeStations.value.map(station => station.id)
+    
     const sortData = {
       routeId: props.routeId,
-      stationIds: stationIds
+      routeStationsIds: routeStationsIds
     }
     
     await updateRouteStationSort(sortData)
@@ -381,6 +391,7 @@ const handleSaveSort = async () => {
     originalStations.value = JSON.parse(JSON.stringify(routeStations.value))
   } catch (error) {
     ElMessage.error('保存排序失败')
+    console.error('保存排序失败:', error)
   } finally {
     loading.value = false
   }

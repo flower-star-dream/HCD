@@ -29,11 +29,11 @@ public class RoutePageQueryREQ extends BasePageQueryREQ implements Serializable 
     @Schema(description = "路线名")
     private String routeName;
 
-    @Schema(description = "起点站名")
-    private String startStationName;
+    @Schema(description = "起点站ID")
+    private Long startStationId;
 
-    @Schema(description = "终点站名")
-    private String endStationName;
+    @Schema(description = "终点站ID")
+    private Long endStationId;
 
     @Schema(description = "站点数")
     private Integer stationCount;

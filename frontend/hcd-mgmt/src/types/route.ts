@@ -10,8 +10,8 @@ export interface Route {
   startStation: string         // 起点站（varchar(50)）
   endStation: string           // 终点站（varchar(50)）
   stationCount: number         // 站点数（int）
-  startStationId: number       // 起点站id（bigint）
-  endStationId: number         // 终点站id（bigint）
+  startStationName: string       // 起点站名（varchar(50））  
+  endStationName: string         // 终点站名（varchar(50））
   createTime?: string          // 创建时间
   updateTime?: string          // 更新时间
   createPerson?: string        // 创建人

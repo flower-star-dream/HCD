@@ -1,12 +1,12 @@
 import { trainSeatRequest } from '@/utils/request'
-import type { Train, ApiResponse, PageQuery, PageResult } from '@/types'
+import type { Train, TrainQuery, ApiResponse, PageQuery, PageResult } from '@/types'
 
 /**
  * 获取列车列表
  * @param params 分页查询参数
  * @returns 列车分页列表
  */
-export const getTrainList = (params: PageQuery): Promise<PageResult<Train>> => {
+export const getTrainList = (params: TrainQuery): Promise<PageResult<Train>> => {
   return trainSeatRequest.get('/train/getTrain', { params })
 }
 
