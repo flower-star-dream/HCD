@@ -1,6 +1,7 @@
 package top.flowerstardream.hcd.trainSeat.biz.service;
 
 
+import top.flowerstardream.hcd.base.ao.res.StatusRES;
 import top.flowerstardream.hcd.trainSeat.ao.dto.ReserveSeatDTO;
 import top.flowerstardream.hcd.trainSeat.ao.dto.ReserveSeatResultDTO;
 import top.flowerstardream.hcd.trainSeat.ao.dto.SeatReservationDTO;
@@ -67,4 +68,6 @@ public interface ISeatReservationService {
      * @return 座位预约结果
      */
     ReserveSeatResultDTO reserveSeat(ReserveSeatDTO reserveSeatDTO);
+
+    List<StatusRES> getStatus();
 }

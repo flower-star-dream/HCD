@@ -1,18 +1,20 @@
 <template>
   <ListPage
-    title="站点管理"
+    title="路线站点管理"
+    :show-tabs="true"
+    :tabs="tabs"
+    :active-tab="statusFilter"
     :total="total"
     :current-page="currentPage"
     :page-size="pageSize"
     :selected-count="selectedRows.length"
     :loading="loading"
     :show-selection="true"
-    :table-data="stationList"
+    :table-data="routeStationList"
     :table-columns="tableColumns"
     :search-fields="searchFields"
     :initial-search-form="initialSearchForm"
-    :pagination="true"
-    :show-pagination="true"
+    @tab-click="handleStatusTabChange"
     @size-change="handleSizeChange"
     @current-change="handlePageChange"
     @search="handleSearch"
@@ -20,7 +22,7 @@
     @selection-change="handleSelectionChange"
   >
     <template #actions>
-      <el-button type="primary" @click="handleAdd">新增站点</el-button>
+      <el-button type="primary" @click="handleAdd">新增路线站点</el-button>
       <el-button type="danger" :disabled="selectedRows.length === 0" @click="handleBatchDelete">
         批量删除
         <span class="selected-count">({{ selectedRows.length }})</span>
@@ -43,7 +45,7 @@
   <DialogForm
     v-model:visible="dialogVisible"
     :title="dialogTitle"
-    :form-data="stationForm"
+    :form-data="routeStationForm"
     :fields="formFields"
     :rules="formRules"
     :is-edit="isEdit"
@@ -59,7 +61,14 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { useEmployeeStore } from '@/stores'
 import DialogForm from '@/components/DialogForm/DialogForm.vue'
 import ListPage from '@/components/ListPage/ListPage.vue'
-import { getStationList, addStation, updateStation, deleteStation } from '@/api/station'
+import {
+  getRouteStationList,
+  addRouteStation,
+  updateRouteStation,
+  deleteRouteStation
+} from '@/api/route-station'
+import { getRouteList } from '@/api/route'
+import { getStationList } from '@/api/station'
 
 const employeeStore = useEmployeeStore()
 const employeeInfo = computed(() => employeeStore.employeeInfo)
@@ -68,77 +77,89 @@ const employeeInfo = computed(() => employeeStore.employeeInfo)
 const dialogVisible = ref(false)
 const isEdit = ref(false)
 const submitLoading = ref(false)
+const dialogTitle = computed(() => isEdit.value ? '编辑路线站点' : '新增路线站点')
 
-const stationForm = ref({
+// 路线站点表单数据
+const routeStationForm = ref({
   id: '',
-  stationName: '',
-  address: ''
+  routeId: '',
+  stationId: '',
+  stationSorting: 1
 })
 
-// 表单字段配置
-const formFields = [
-  {
-    prop: 'stationName',
-    label: '站点名',
-    type: 'input',
-    placeholder: '请输入站点名',
-    maxlength: 50,
-    showWordLimit: true,
-    disabled: (isEditMode) => isEditMode
-  },
-  {
-    prop: 'address',
-    label: '地址',
-    type: 'input',
-    placeholder: '请输入站点地址',
-    maxlength: 100,
-    showWordLimit: true
-  }
-]
-
-// 表单验证规则
-const formRules = computed(() => ({
-  stationName: [
-    { required: true, message: '请输入站点名', trigger: 'blur' },
-    { min: 2, max: 50, message: '站点名长度在 2 到 50 个字符', trigger: 'blur' }
-  ],
-  address: [
-    { required: true, message: '请输入站点地址', trigger: 'blur' },
-    { max: 100, message: '地址长度不能超过 100 个字符', trigger: 'blur' }
-  ]
-}))
-
-// 计算属性
-const dialogTitle = computed(() => isEdit.value ? '编辑站点' : '新增站点')
-
-// 响应式数据
-const stationList = ref([])
+// 表格相关响应式数据
 const loading = ref(false)
 const total = ref(0)
 const currentPage = ref(1)
 const pageSize = ref(10)
 const selectedRows = ref([])
+const routeStationList = ref([])
+const statusFilter = ref('all')
+
+// 下拉选项数据
+const routeOptions = ref([])
+const stationOptions = ref([])
+
+// 表单字段配置
+const formFields = computed(() => [
+  {
+    prop: 'routeId',
+    label: '选择路线',
+    type: 'select',
+    placeholder: '请选择路线',
+    options: routeOptions.value,
+    disabled: (isEditMode) => isEditMode
+  },
+  {
+    prop: 'stationId',
+    label: '选择站点',
+    type: 'select',
+    placeholder: '请选择站点',
+    options: stationOptions.value,
+    disabled: (isEditMode) => isEditMode
+  },
+  {
+    prop: 'stationSorting',
+    label: '排序位置',
+    type: 'number',
+    placeholder: '请输入排序位置',
+    min: 1
+  }
+])
+
+// 表单验证规则
+const formRules = computed(() => ({
+  routeId: [
+    { required: true, message: '请选择路线', trigger: 'change' }
+  ],
+  stationId: [
+    { required: true, message: '请选择站点', trigger: 'change' }
+  ],
+  stationSorting: [
+    { required: true, message: '请输入排序位置', trigger: 'blur' },
+    { type: 'number', min: 1, message: '排序位置必须大于0', trigger: 'blur' }
+  ]
+}))
 
 // 表格列配置
 const tableColumns = [
   {
-    prop: 'id',
-    label: '站点号',
-    width: 120,
+    prop: 'routeName',
+    label: '路线名称',
+    minWidth: 180,
     align: 'center'
   },
   {
     prop: 'stationName',
-    label: '站点名',
-    minWidth: 150,
+    label: '站点名称',
+    minWidth: 180,
     align: 'center'
   },
   {
-    prop: 'address',
-    label: '地址',
-    minWidth: 200,
-    align: 'center',
-    showOverflowTooltip: true
+    prop: 'stationSorting',
+    label: '排序位置',
+    width: 120,
+    align: 'center'
   },
   {
     prop: 'createTime',
@@ -176,17 +197,17 @@ const tableColumns = [
 // 搜索字段配置
 const searchFields = [
   {
-    prop: 'stationName',
-    label: '站点名',
+    prop: 'routeName',
+    label: '路线名称',
     type: 'input',
-    placeholder: '请输入站点名',
+    placeholder: '请输入路线名称',
     clearable: true
   },
   {
-    prop: 'address',
-    label: '地址',
+    prop: 'stationName',
+    label: '站点名称',
     type: 'input',
-    placeholder: '请输入地址',
+    placeholder: '请输入站点名称',
     clearable: true
   }
 ]
@@ -197,7 +218,15 @@ const initialSearchForm = searchFields.reduce((acc, field) => {
   return acc
 }, {})
 
-// 标签页配置已移除
+// 标签页配置
+const tabs = [
+  {
+    name: 'all',
+    label: '全部',
+    count: 0,
+    lazy: true
+  }
+]
 
 /**
  * 格式化日期时间
@@ -215,31 +244,47 @@ const formatDate = (date) => {
 }
 
 /**
- * 获取站点列表
+ * 加载下拉选项数据
  */
-const fetchStationList = async (searchParams = {}) => {
+const loadOptions = async () => {
+  try {
+    // 加载路线选项
+      const routesRes = await getRouteList()
+      routeOptions.value = routesRes.data?.records?.map(route => ({
+      label: route.routeName,
+      value: route.id
+    })) || []
+
+    // 加载站点选项
+      const stationsRes = await getStationList({ page: 1, pageSize: 100 })
+      stationOptions.value = stationsRes.data?.records?.map(station => ({
+      label: station.stationName,
+      value: station.id
+    })) || []
+  } catch (error) {
+    ElMessage.error('加载选项数据失败')
+  }
+}
+
+/**
+ * 获取路线站点列表
+ */
+const fetchRouteStationList = async (searchParams = {}) => {
   loading.value = true
   try {
-    const params = {
-      page: currentPage.value,
-      pageSize: pageSize.value,
-      ...searchParams
-    }
-    
-    const response = await getStationList(params)
-    const data = response.records || []
-    
-    // 模拟分页
-    const start = (currentPage.value - 1) * pageSize.value
-    const end = start + pageSize.value
-    const paginatedData = data.slice(start, end)
-    
-    stationList.value = paginatedData
-    total.value = data.length
+      const params = {
+        pageNum: currentPage.value,
+        pageSize: pageSize.value,
+        ...searchParams
+      }
+      
+      const response = await getRouteStationList(params)
+      routeStationList.value = response.data?.records || []
+      total.value = response.data?.total || 0
   } catch (error) {
-    stationList.value = []
+    routeStationList.value = []
     total.value = 0
-    ElMessage.error('获取站点列表失败')
+    ElMessage.error('获取路线站点列表失败')
   } finally {
     loading.value = false
   }
@@ -251,7 +296,7 @@ const fetchStationList = async (searchParams = {}) => {
 const handleSearch = (formData) => {
   currentPage.value = 1
   selectedRows.value = []
-  fetchStationList(formData)
+  fetchRouteStationList(formData)
 }
 
 /**
@@ -260,17 +305,25 @@ const handleSearch = (formData) => {
 const handleReset = () => {
   currentPage.value = 1
   selectedRows.value = []
-  fetchStationList({})
+  fetchRouteStationList({})
 }
 
-// 状态标签页切换处理函数已移除
+/**
+ * 处理状态标签页切换
+ */
+const handleStatusTabChange = (tabName) => {
+  statusFilter.value = tabName
+  currentPage.value = 1
+  selectedRows.value = []
+  fetchRouteStationList()
+}
 
 /**
  * 处理分页大小变化
  */
 const handleSizeChange = (size) => {
   pageSize.value = size
-  fetchStationList()
+  fetchRouteStationList()
 }
 
 /**
@@ -278,7 +331,7 @@ const handleSizeChange = (size) => {
  */
 const handlePageChange = (page) => {
   currentPage.value = page
-  fetchStationList()
+  fetchRouteStationList()
 }
 
 /**
@@ -289,30 +342,31 @@ const handleSelectionChange = (selection) => {
 }
 
 /**
- * 新增站点
+ * 新增路线站点
  */
 const handleAdd = () => {
   isEdit.value = false
   dialogVisible.value = true
-  stationForm.value = {
+  routeStationForm.value = {
     id: '',
-    stationName: '',
-    address: ''
+    routeId: '',
+    stationId: '',
+    stationSorting: 1
   }
 }
 
 /**
- * 批量删除站点
+ * 批量删除路线站点
  */
 const handleBatchDelete = async () => {
   if (selectedRows.value.length === 0) {
-    ElMessage.warning('请选择要删除的站点')
+    ElMessage.warning('请选择要删除的路线站点')
     return
   }
   
   try {
     await ElMessageBox.confirm(
-      `确定要删除选中的 ${selectedRows.value.length} 个站点吗？`,
+      `确定要删除选中的 ${selectedRows.value.length} 个路线站点吗？`,
       '删除确认',
       {
         confirmButtonText: '确定',
@@ -322,10 +376,10 @@ const handleBatchDelete = async () => {
     )
     
     const ids = selectedRows.value.map(row => row.id)
-    await deleteStation(ids)
-    ElMessage.success(`成功删除 ${selectedRows.value.length} 个站点`)
+    await deleteRouteStation(ids)
+    ElMessage.success(`成功删除 ${selectedRows.value.length} 个路线站点`)
     
-    fetchStationList()
+    fetchRouteStationList()
   } catch (error) {
     if (error !== 'cancel') {
       ElMessage.error('删除失败')
@@ -334,15 +388,16 @@ const handleBatchDelete = async () => {
 }
 
 /**
- * 编辑站点
+ * 编辑路线站点
  */
 const handleEdit = (row) => {
   isEdit.value = true
   dialogVisible.value = true
-  stationForm.value = {
+  routeStationForm.value = {
     id: row.id,
-    stationName: row.stationName,
-    address: row.address
+    routeId: row.routeId,
+    stationId: row.stationId,
+    stationSorting: row.stationSorting
   }
 }
 
@@ -356,17 +411,17 @@ const handleFormSubmit = async (formData) => {
     const submitData = { ...formData }
     
     if (isEdit.value) {
-        submitData.updatePerson = employeeInfo.value?.nickname || employeeInfo.value?.username
-        await updateStation(submitData)
-        ElMessage.success('更新站点成功')
-      } else {
-        submitData.createPerson = employeeInfo.value?.nickname || employeeInfo.value?.username
-        await addStation(submitData)
-        ElMessage.success('新增站点成功')
-      }
+      submitData.updatePerson = employeeInfo.value?.nickname || employeeInfo.value?.username
+      await updateRouteStation(submitData)
+      ElMessage.success('更新路线站点成功')
+    } else {
+      submitData.createPerson = employeeInfo.value?.nickname || employeeInfo.value?.username
+      await addRouteStation(submitData)
+      ElMessage.success('新增路线站点成功')
+    }
     
     dialogVisible.value = false
-    fetchStationList()
+    fetchRouteStationList()
   } catch (error) {
     ElMessage.error(isEdit.value ? '更新失败' : '新增失败')
   } finally {
@@ -375,12 +430,12 @@ const handleFormSubmit = async (formData) => {
 }
 
 /**
- * 删除站点
+ * 删除路线站点
  */
 const handleDelete = async (row) => {
   try {
     await ElMessageBox.confirm(
-      `确定要删除站点「${row.stationName}」吗？`,
+      `确定要删除路线站点吗？`,
       '删除确认',
       {
         confirmButtonText: '确定',
@@ -389,9 +444,9 @@ const handleDelete = async (row) => {
       }
     )
     
-    await deleteStation([row.id])
+    await deleteRouteStation([row.id])
     ElMessage.success('删除成功')
-    fetchStationList()
+    fetchRouteStationList()
   } catch (error) {
     if (error !== 'cancel') {
       ElMessage.error('删除失败')
@@ -399,12 +454,23 @@ const handleDelete = async (row) => {
   }
 }
 
+/**
+ * 初始化函数
+ */
+const init = async () => {
+  await loadOptions()
+  await fetchRouteStationList()
+}
+
 // 组件挂载后加载数据
 onMounted(() => {
-  fetchStationList()
+  init()
 })
 </script>
 
 <style scoped lang="scss">
-@use './Station-list-view.scss';
+.selected-count {
+  color: #f56c6c;
+  font-weight: bold;
+}
 </style>

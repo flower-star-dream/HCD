@@ -4,11 +4,11 @@ import type {
   SeatReservationList,
   SeatReservationQuery,
   SeatReservationForm,
-  ScheduleOption,
   SeatStatusStats,
   ApiResponse,
   PageResult
 } from '@/types/seat-reservation'
+import type { StatusCount } from '@/types'
 
 /**
  * 获取座位预订列表
@@ -47,33 +47,6 @@ export const deleteSeatReservation = (ids: number[]): Promise<void> => {
 }
 
 /**
- * 批量删除座位预订
- * @param ids 座位预订ID数组
- * @returns 删除响应
- */
-export const batchDeleteSeatReservation = (ids: number[]): Promise<ApiResponse> => {
-  return trainSeatRequest.delete('/seatReservation/batch-delete', { data: { ids } })
-}
-
-/**
- * 获取班次选择列表（用于下拉框）
- * @returns 班次选项列表
- */
-export const getScheduleOptions = (): Promise<ScheduleOption[]> => {
-  return trainSeatRequest.get('/seatReservation/schedule-options')
-}
-
-/**
- * 更新座位状态
- * @param id 座位预订ID
- * @param status 新的状态
- * @returns 更新响应
- */
-export const updateSeatStatus = (id: number, status: number): Promise<ApiResponse> => {
-  return trainSeatRequest.put(`/seatReservation/update-status/${id}`, { bookingStatus: status })
-}
-
-/**
  * 批量更新座位状态
  * @param ids 座位预订ID数组
  * @param status 新的状态
@@ -86,13 +59,13 @@ export const batchUpdateSeatStatus = (ids: number[], status: number): Promise<Ap
 /**
  * 检查座位是否可用
  * @param scheduleId 班次ID
- * @param seatNumber 座位号
+ * @param seatNum 座位号
  * @param excludeId 排除的座位预订ID（编辑时用于排除自身）
  * @returns 检查结果
  */
-export const checkSeatAvailability = (scheduleId: number, seatNumber: number, excludeId?: number): Promise<boolean> => {
+export const checkSeatAvailability = (scheduleId: number, seatNum: number, excludeId?: number): Promise<boolean> => {
   return trainSeatRequest.get('/seatReservation/check-availability', {
-    params: { scheduleId, seatNumber, excludeId }
+    params: { scheduleId, seatNum, excludeId }
   })
 }
 
@@ -101,6 +74,6 @@ export const checkSeatAvailability = (scheduleId: number, seatNumber: number, ex
  * @param scheduleId 班次ID（可选）
  * @returns 座位状态统计信息
  */
-export const getSeatStatusStats = (scheduleId?: number): Promise<SeatStatusStats> => {
-  return trainSeatRequest.get('/seatReservation/status-stats', { params: { scheduleId } })
+export const getStatus = (): Promise<StatusCount[]> => {
+  return trainSeatRequest.get('/seatReservation/getStatus')
 }

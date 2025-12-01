@@ -12,14 +12,6 @@ export const getStationList = (params: StationQuery): Promise<PageResult<Station
 }
 
 /**
- * 获取所有站点（用于下拉选择）
- * @returns 所有站点列表
- */
-export const getAllStations = (): Promise<Station[]> => {
-  return trainSeatRequest.get('/station/all')
-}
-
-/**
  * 添加站点
  * @param data 站点信息
  * @returns 添加响应

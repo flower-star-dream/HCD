@@ -31,6 +31,9 @@ public class ScheduleRES extends BaseMgmtRES implements Serializable {
     @Schema(description = "列车长")
     private String conductor;
 
+    @Schema(description = "余票")
+    private Integer availableTickets;
+
     @Schema(description = "出发时间")
     private LocalDateTime startTime;
 

@@ -12,6 +12,8 @@
     :table-columns="tableColumns"
     :search-fields="searchFields"
     :initial-search-form="initialSearchForm"
+    :pagination="true"
+    :show-pagination="true"
     @size-change="handleSizeChange"
     @current-change="handlePageChange"
     @search="handleSearch"
@@ -112,7 +114,9 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { getScheduleList, addSchedule, updateSchedule, deleteSchedule, getTrainOptions, getRouteOptions } from '@/api/schedule'
+import { getScheduleList, addSchedule, updateSchedule, deleteSchedule } from '@/api/schedule'
+import { getTrainList } from '@/api/train'
+import { getRouteList } from '@/api/route'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useEmployeeStore } from '@/stores'
 import DialogForm from '@/components/DialogForm/DialogForm.vue'
@@ -134,29 +138,135 @@ const scheduleForm = ref({
   endTime: ''
 })
 
-// 下拉框选项
-const trainOptions = ref([])
-const routeOptions = ref([])
+// 远程搜索相关响应式数据
+const searchTrains = ref([])
+const searchRoutes = ref([])
+const trainLoading = ref(false)
+const routeLoading = ref(false)
+// 分页相关响应式数据
+const trainCurrentPage = ref(1)
+const routeCurrentPage = ref(1)
+const trainTotal = ref(0)
+const routeTotal = ref(0)
+const trainKeyword = ref('')
+const routeKeyword = ref('')
+const trainAllLoaded = ref(false)
+const routeAllLoaded = ref(false)
+const isLoadingMore = ref(false)
+
+/**
+ * 列车远程搜索方法
+ * @param {string} query - 搜索关键词
+ */
+const handleTrainRemoteSearch = async (query) => {
+  // 重置状态
+  trainCurrentPage.value = 1
+  trainAllLoaded.value = false
+  trainKeyword.value = query
+
+  trainLoading.value = true
+  try {
+    // 调用带分页的API获取列车列表
+    const response = await getTrainList({
+      page: 1,
+      pageSize: 10,
+      keyword: query
+    })
+
+    // 更新总数和列车列表
+    trainTotal.value = response.total
+    searchTrains.value = response.records.map(train => ({
+      value: train.id,
+      label: train.trainName,
+      trainModel: train.trainModel,
+      seatNum: train.seatNum,
+      serviceYears: train.serviceYears
+    }))
+  } catch (error) {
+    ElMessage.error('获取列车列表失败')
+    searchTrains.value = []
+  } finally {
+    trainLoading.value = false
+    isLoadingMore.value = false
+    // 添加滚动监听
+    addScrollListener('train')
+  }
+}
+
+/**
+ * 线路远程搜索方法
+ * @param {string} query - 搜索关键词
+ */
+const handleRouteRemoteSearch = async (query) => {
+  // 重置状态
+  routeCurrentPage.value = 1
+  routeAllLoaded.value = false
+  routeKeyword.value = query
+
+  routeLoading.value = true
+  try {
+    // 调用带分页的API获取线路列表
+    const response = await getRouteList({
+      page: 1,
+      pageSize: 10,
+      keyword: query
+    })
+
+    // 更新总数和线路列表
+    routeTotal.value = response.total
+    searchRoutes.value = response.records.map(route => ({
+      value: route.id,
+      label: route.routeName,
+      startStationName: route.startStationName,
+      endStationName: route.endStationName,
+      stationCount: route.stationCount
+    }))
+  } catch (error) {
+    ElMessage.error('获取线路列表失败')
+    searchRoutes.value = []
+  } finally {
+    routeLoading.value = false
+    isLoadingMore.value = false
+    // 添加滚动监听
+    addScrollListener('route')
+  }
+}
 
 // 表单字段配置
-const formFields = [
+const formFields = computed(() => [
   {
     prop: 'trainId',
     label: '列车',
     type: 'select',
     placeholder: '请选择列车',
-    options: trainOptions,
+    options: searchTrains,
     required: true,
-    clearable: true
+    clearable: true,
+    filterable: true,
+    remote: true,
+    remoteMethod: handleTrainRemoteSearch,
+    loading: trainLoading.value,
+    // 添加滚动事件监听以支持加载更多
+    popperClass: 'train-select',
+    teleported: false,
+    appendToBody: false
   },
   {
     prop: 'routeId',
     label: '线路',
     type: 'select',
     placeholder: '请选择线路',
-    options: routeOptions,
+    options: searchRoutes,
     required: true,
-    clearable: true
+    clearable: true,
+    filterable: true,
+    remote: true,
+    remoteMethod: handleRouteRemoteSearch,
+    loading: routeLoading.value,
+    // 添加滚动事件监听以支持加载更多
+    popperClass: 'route-select',
+    teleported: false,
+    appendToBody: false
   },
   {
     prop: 'conductor',
@@ -187,7 +297,7 @@ const formFields = [
     type: 'custom',
     required: true
   }
-]
+])
 
 // 表单验证规则
 const formRules = computed(() => ({
@@ -291,22 +401,38 @@ const tableColumns = [
 ]
 
 // 搜索字段配置
-const searchFields = [
+const searchFields = computed(() => [
   {
     prop: 'trainId',
     label: '列车',
     type: 'select',
     placeholder: '请选择列车',
-    options: trainOptions,
-    clearable: true
+    options: searchTrains,
+    clearable: true,
+    filterable: true,
+    remote: true,
+    remoteMethod: handleTrainRemoteSearch,
+    loading: trainLoading.value,
+    // 添加滚动事件监听以支持加载更多
+    popperClass: 'train-select',
+    teleported: false,
+    appendToBody: false
   },
   {
     prop: 'routeId',
     label: '线路',
     type: 'select',
     placeholder: '请选择线路',
-    options: routeOptions,
-    clearable: true
+    options: searchRoutes,
+    clearable: true,
+    filterable: true,
+    remote: true,
+    remoteMethod: handleRouteRemoteSearch,
+    loading: routeLoading.value,
+    // 添加滚动事件监听以支持加载更多
+    popperClass: 'route-select',
+    teleported: false,
+    appendToBody: false
   },
   {
     prop: 'conductor',
@@ -315,13 +441,13 @@ const searchFields = [
     placeholder: '请输入列车长姓名',
     clearable: true
   }
-]
+])
 
 // 初始搜索表单数据
-const initialSearchForm = searchFields.reduce((acc, field) => {
+const initialSearchForm = computed(() => searchFields.value.reduce((acc, field) => {
   acc[field.prop] = ''
   return acc
-}, {})
+}, {}))
 
 /**
  * 格式化日期时间
@@ -352,61 +478,159 @@ const getTicketStatusType = (tickets) => {
 }
 
 /**
- * 获取列车选项列表
+ * 获取列车选项列表（默认加载第一页数据）
  */
 const fetchTrainOptions = async () => {
   try {
-    const options = await getTrainOptions()
-    trainOptions.value = options.map(item => ({
-      value: item.value,
-      label: item.label,
-      trainModel: item.trainModel,
-      seatNum: item.seatNum
+    const response = await getTrainList({
+      page: 1,
+      pageSize: 10
+    })
+    
+    trainTotal.value = response.total
+    searchTrains.value = response.records.map(train => ({
+      value: train.id,
+      label: train.trainName,
+      trainModel: train.trainModel,
+      seatNum: train.seatNum,
+      serviceYears: train.serviceYears
     }))
-    // 更新表单字段中的选项
-    const trainField = formFields.find(field => field.prop === 'trainId')
-    if (trainField) {
-      trainField.options = trainOptions.value
-    }
-    // 更新搜索字段中的选项
-    const searchTrainField = searchFields.find(field => field.prop === 'trainId')
-    if (searchTrainField) {
-      searchTrainField.options = trainOptions.value
-    }
   } catch (error) {
     console.error('获取列车选项失败:', error)
     ElMessage.error('获取列车选项失败')
   }
 }
 
+
 /**
- * 获取线路选项列表
+ * 加载更多数据（列车或线路）
+ * @param {string} type - 类型：'train' 或 'route'
+ */
+const loadMoreData = async (type) => {
+  // 避免重复加载
+  if (isLoadingMore.value) return
+
+  const isTrain = type === 'train'
+  const currentPage = isTrain ? trainCurrentPage.value : routeCurrentPage.value
+  const allLoaded = isTrain ? trainAllLoaded.value : routeAllLoaded.value
+  const keyword = isTrain ? trainKeyword.value : routeKeyword.value
+
+  // 如果已加载全部或无关键词，则不加载
+  if (allLoaded || !keyword) return
+
+  isLoadingMore.value = true
+  try {
+    // 调用API获取下一页数据
+    const response = isTrain
+      ? await getTrainList({
+          page: currentPage + 1,
+          pageSize: 10,
+          keyword: keyword
+        })
+      : await getRouteList({
+          page: currentPage + 1,
+          pageSize: 10,
+          keyword: keyword
+        })
+
+    // 检查是否还有更多数据
+    const currentDataLength = isTrain ? searchTrains.value.length : searchRoutes.value.length
+    const hasMore = currentDataLength + response.records.length < (isTrain ? trainTotal.value : routeTotal.value)
+
+    // 更新状态
+    if (isTrain) {
+      trainCurrentPage.value++
+      trainAllLoaded.value = !hasMore
+    } else {
+      routeCurrentPage.value++
+      routeAllLoaded.value = !hasMore
+    }
+
+    // 合并新数据到现有列表
+    const newOptions = isTrain
+      ? response.records.map(train => ({
+          value: train.id,
+          label: train.trainName,
+          trainModel: train.trainModel,
+          seatNum: train.seatNum,
+          serviceYears: train.serviceYears
+        }))
+      : response.records.map(route => ({
+          value: route.id,
+          label: route.routeName,
+          startStationName: route.startStationName,
+          endStationName: route.endStationName,
+          stationCount: route.stationCount
+        }))
+
+    // 避免重复项
+    const existingData = isTrain ? searchTrains.value : searchRoutes.value
+    const existingValues = new Set(existingData.map(item => item.value))
+    const filteredNewOptions = newOptions.filter(item => !existingValues.has(item.value))
+
+    if (isTrain) {
+      searchTrains.value = [...searchTrains.value, ...filteredNewOptions]
+    } else {
+      searchRoutes.value = [...searchRoutes.value, ...filteredNewOptions]
+    }
+  } catch (error) {
+    ElMessage.error(`加载更多${isTrain ? '列车' : '线路'}失败`)
+  } finally {
+    isLoadingMore.value = false
+  }
+}
+
+/**
+ * 为Select组件添加滚动事件监听的方法
+ * @param {string} type - 类型：'train' 或 'route'
+ */
+const addScrollListener = (type) => {
+  // 使用setTimeout确保DOM已更新
+  setTimeout(() => {
+    // 为所有下拉框添加滚动监听
+    const dropdowns = document.querySelectorAll(`.${type}-select .el-select-dropdown__wrap`)
+    dropdowns.forEach(dropdown => {
+      // 移除可能存在的旧监听
+      dropdown.removeEventListener('scroll', scrollHandler)
+      // 添加新监听
+      dropdown.addEventListener('scroll', scrollHandler)
+    })
+
+    // 滚动处理函数
+    function scrollHandler(e) {
+      const { scrollTop, scrollHeight, clientHeight } = e.target
+      // 当滚动到底部（距离底部10px内）时加载更多
+      if (scrollTop + clientHeight >= scrollHeight - 10) {
+        loadMoreData(type)
+      }
+    }
+  }, 100)
+}
+
+/**
+ * 获取线路选项列表（默认加载第一页数据）
  */
 const fetchRouteOptions = async () => {
   try {
-    const options = await getRouteOptions()
-    routeOptions.value = options.map(item => ({
-      value: item.value,
-      label: item.label,
-      departureStation: item.departureStation,
-      arrivalStation: item.arrivalStation,
-      distance: item.distance
+    const response = await getRouteList({
+      page: 1,
+      pageSize: 10
+    })
+    
+    routeTotal.value = response.total
+    searchRoutes.value = response.records.map(route => ({
+      value: route.id,
+      label: route.routeName,
+      startStationName: route.startStationName,
+      endStationName: route.endStationName,
+      stationCount: route.stationCount
     }))
-    // 更新表单字段中的选项
-    const routeField = formFields.find(field => field.prop === 'routeId')
-    if (routeField) {
-      routeField.options = routeOptions.value
-    }
-    // 更新搜索字段中的选项
-    const searchRouteField = searchFields.find(field => field.prop === 'routeId')
-    if (searchRouteField) {
-      searchRouteField.options = routeOptions.value
-    }
   } catch (error) {
     console.error('获取线路选项失败:', error)
     ElMessage.error('获取线路选项失败')
   }
 }
+
 
 /**
  * 获取班次列表
@@ -423,8 +647,15 @@ const fetchScheduleList = async (searchParams = {}) => {
     
     // API调用
     const response = await getScheduleList(params)
-    scheduleList.value = response.records || []
-    total.value = response.total || 0
+    const data = response.records || []
+    
+    // 模拟分页
+    const start = (currentPage.value - 1) * pageSize.value
+    const end = start + pageSize.value
+    const paginatedData = data.slice(start, end)
+    
+    scheduleList.value = paginatedData
+    total.value = data.length
   } catch (error) {
     scheduleList.value = []
     total.value = 0
@@ -495,6 +726,12 @@ const handleAdd = () => {
     startTime: '',
     endTime: ''
   }
+
+  // 在弹窗打开时重置并添加滚动监听
+  trainCurrentPage.value = 1
+  routeCurrentPage.value = 1
+  trainAllLoaded.value = false
+  routeAllLoaded.value = false
 }
 
 /**
@@ -548,6 +785,12 @@ const handleEdit = (row) => {
     startTime: row.startTime,
     endTime: row.endTime
   }
+
+  // 在编辑弹窗打开时重置并添加滚动监听
+  trainCurrentPage.value = 1
+  routeCurrentPage.value = 1
+  trainAllLoaded.value = false
+  routeAllLoaded.value = false
 }
 
 /**

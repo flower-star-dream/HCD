@@ -2,9 +2,6 @@
   <!-- 使用增强的ListPage组件，通过配置实现动态列和搜索条件 -->
   <ListPage
     title="列车列表"
-    :show-tabs="true"
-    :tabs="tabs"
-    :active-tab="statusFilter"
     :total="total"
     :current-page="currentPage"
     :page-size="pageSize"
@@ -15,7 +12,6 @@
     :table-columns="tableColumns"
     :search-fields="searchFields"
     :initial-search-form="initialSearchForm"
-    @tab-click="handleStatusTabChange"
     @size-change="handleSizeChange"
     @current-change="handlePageChange"
     @search="handleSearch"
@@ -31,13 +27,6 @@
       </el-button>
     </template>
 
-    <!-- 自定义状态列 -->
-    <template #column-status="{ row }">
-      <el-tag :type="getStatusTagType(row.status)" size="small">
-        {{ getStatusText(row.status) }}
-      </el-tag>
-    </template>
-
     <!-- 自定义创建时间列 -->
     <template #column-createTime="{ row }">
       {{ formatDate(row.createTime) }}
@@ -49,7 +38,6 @@
     <!-- 自定义操作列 -->
     <template #column-action="{ row }">
       <el-button type="primary" text size="small" @click="handleEdit(row)">编辑</el-button>
-      <el-button type="primary" text size="small" @click="handleStatusChange(row)">{{ row.status === TRAIN_STATUS.ENABLED ? '禁用' : '启用' }}</el-button>
       <el-button type="danger" text size="small" @click="handleDelete(row)">删除</el-button>
     </template>
   </ListPage>
@@ -78,28 +66,6 @@ import DialogForm from '@/components/DialogForm/DialogForm.vue'
 const employeeStore = useEmployeeStore()
 const employeeInfo = computed(() => employeeStore.employeeInfo)
 
-// 列车状态枚举常量
-const TRAIN_STATUS = {
-  ENABLED: 1,
-  DISABLED: 0,
-  // 获取状态文本
-  getText: (status) => {
-    const statusMap = {
-      [TRAIN_STATUS.ENABLED]: '已启用',
-      [TRAIN_STATUS.DISABLED]: '已禁用'
-    }
-    return statusMap[status] || '未知状态'
-  },
-  // 获取状态标签类型
-  getTagType: (status) => {
-    const typeMap = {
-      [TRAIN_STATUS.ENABLED]: 'success',
-      [TRAIN_STATUS.DISABLED]: 'danger'
-    }
-    return typeMap[status] || 'info'
-  }
-}
-
 // 表单相关响应式数据
 const dialogVisible = ref(false)
 const isEdit = ref(false)
@@ -108,9 +74,8 @@ const trainForm = ref({
   id: '',
   trainName: '',
   trainModel: '',
-  seatNum: 0,
-  serviceYears: 0,
-  status: TRAIN_STATUS.ENABLED
+  seatNum: 1,
+  serviceYears: 0
 })
 
 // 表单字段配置
@@ -147,17 +112,6 @@ const formFields = [
     type: 'input',
     placeholder: '请输入服务年数',
     inputType: 'number'
-  },
-  {
-    prop: 'status',
-    label: '状态',
-    type: 'switch',
-    activeValue: TRAIN_STATUS.ENABLED,
-    inactiveValue: TRAIN_STATUS.DISABLED,
-    activeText: '启用',
-    inactiveText: '禁用',
-    // 只在编辑时显示状态字段
-    hidden: (isEditMode) => !isEditMode
   }
 ]
 
@@ -191,36 +145,8 @@ const total = ref(0)
 const currentPage = ref(1)
 const pageSize = ref(10)
 const selectedRows = ref([])
-const statusFilter = ref('all')
 
-// 状态数量统计
-const statusCounts = ref({
-  all: 0,
-  enabled: 0,
-  disabled: 0
-})
-
-// 标签页配置（计算属性）
-const tabs = computed(() => [
-  {
-    name: 'all',
-    label: '全部',
-    count: statusCounts.value.all,
-    lazy: true
-  },
-  {
-    name: 'enabled',
-    label: '已启用',
-    count: statusCounts.value.enabled,
-    lazy: true
-  },
-  {
-    name: 'disabled',
-    label: '已禁用',
-    count: statusCounts.value.disabled,
-    lazy: true
-  }
-])
+// 已删除状态标签页相关配置
 
 // 表格列配置
 const tableColumns = [
@@ -280,15 +206,9 @@ const tableColumns = [
     align: 'center'
   },
   {
-    prop: 'status',
-    label: '状态',
-    width: 100,
-    align: 'center'
-  },
-  {
     prop: 'action',
     label: '操作',
-    width: 200,
+    width: 160,
     align: 'center',
     fixed: 'right'
   }
@@ -352,85 +272,22 @@ const fetchTrainList = async (searchParams = {}) => {
     const response = await getTrainList(params)
     const data = response.records
     
-    // 按状态筛选
-    let filteredData = filterDataByStatus(data)
-    
     // 模拟分页
     const start = (currentPage.value - 1) * pageSize.value
     const end = start + pageSize.value
-    const paginatedData = filteredData.slice(start, end)
+    const paginatedData = data.slice(start, end)
     
     trainList.value = paginatedData
-    total.value = filteredData.length
-    
-    // 更新状态数量统计
-    updateStatusCounts(data)
+    total.value = data.length
   } catch (error) {
     trainList.value = []
     total.value = 0
-    
-    // 重置状态统计
-    statusCounts.value = {
-      all: 0,
-      enabled: 0,
-      disabled: 0
-    }
   } finally {
     loading.value = false
   }
 }
 
-/**
- * 根据状态筛选数据
- * @param {Array} data - 原始数据
- * @returns {Array} 筛选后的数据
- */
-const filterDataByStatus = (data) => {
-  if (statusFilter.value === 'all') {
-    return data
-  }
-  // 根据筛选条件返回对应状态的数据
-  if (statusFilter.value === 'enabled') {
-    return data.filter(item => item.status === TRAIN_STATUS.ENABLED)
-  }
-  if (statusFilter.value === 'disabled') {
-    return data.filter(item => item.status === TRAIN_STATUS.DISABLED)
-  }
-  return data
-}
-
-/**
- * 更新状态数量统计
- * @param {Array} list - 列车列表数据
- */
-const updateStatusCounts = (list) => {
-  const enabledCount = list.filter(item => item.status === TRAIN_STATUS.ENABLED).length
-  const disabledCount = list.filter(item => item.status === TRAIN_STATUS.DISABLED).length
-  
-  statusCounts.value = {
-    all: list.length,
-    enabled: enabledCount,
-    disabled: disabledCount
-  }
-}
-
-/**
- * 获取状态文本
- * @param {number} status - 状态值
- * @returns {string} 状态文本
- */
-const getStatusText = (status) => {
-  return TRAIN_STATUS.getText(status)
-}
-
-/**
- * 获取状态标签类型
- * @param {number} status - 状态值
- * @returns {string} 标签类型
- */
-const getStatusTagType = (status) => {
-  return TRAIN_STATUS.getTagType(status)
-}
+// 已移除状态相关函数
 
 /**
  * 处理查询操作
@@ -446,21 +303,9 @@ const handleSearch = (formData) => {
  * 重置查询条件
  */
 const handleReset = () => {
-  statusFilter.value = 'all' // 重置状态筛选
   currentPage.value = 1 // 重置为第一页
   selectedRows.value = [] // 清空选择
   fetchTrainList({}) // 重置后自动查询
-}
-
-/**
- * 处理状态标签页切换
- * @param {string} tabName - 切换到的标签页名称
- */
-const handleStatusTabChange = (tabName) => {
-  statusFilter.value = tabName // 更新状态筛选
-  currentPage.value = 1 // 重置为第一页
-  selectedRows.value = [] // 清空选择
-  fetchTrainList()
 }
 
 /**
@@ -599,38 +444,7 @@ const handleFormSubmit = async (formData) => {
   }
 }
 
-/**
-   * 切换列车状态
-   * @param {Object} row - 列车数据
-   */
-  const handleStatusChange = async (row) => {
-    const newStatus = row.status === TRAIN_STATUS.ENABLED ? TRAIN_STATUS.DISABLED : TRAIN_STATUS.ENABLED
-    const actionText = newStatus === TRAIN_STATUS.ENABLED ? '启用' : '禁用'
-
-    try {
-      await ElMessageBox.confirm(
-        `确定要${actionText}列车「${row.trainName}」吗？`,
-        '操作确认',
-        {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }
-      )
-      const data = { ...row, status: newStatus }
-
-      await updateTrain(data)
-      ElMessage.success(`${actionText}成功`)
-
-      // 刷新列表
-      fetchTrainList()
-    } catch (error) {
-      // 用户取消操作或发生错误
-      if (error !== 'cancel') {
-        ElMessage.error(`${actionText}失败`)
-      }
-    }
-  }
+// 状态处理函数已删除
 
 /**
  * 删除列车

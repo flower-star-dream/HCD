@@ -1,5 +1,6 @@
 package top.flowerstardream.hcd.user.biz.service;
 
+import top.flowerstardream.hcd.base.ao.res.StatusRES;
 import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.user.ao.req.UserInfoREQ;
 import top.flowerstardream.hcd.user.ao.req.UserPageQueryREQ;
@@ -55,4 +56,11 @@ public interface IUserService {
      * @param userId 用户ID
      */
     void updateUserStatus(Integer status, Long userId);
+
+    /**
+     * 获取用户状态列表
+     *
+     * @return 用户状态列表
+     */
+    List<StatusRES> getStatus();
 }

@@ -12,11 +12,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
+import top.flowerstardream.hcd.base.ao.res.StatusRES;
 import top.flowerstardream.hcd.tools.result.Result;
 import top.flowerstardream.hcd.trainSeat.ao.dto.*;
 import top.flowerstardream.hcd.trainSeat.ao.req.SeatReservationREQ;
 import top.flowerstardream.hcd.trainSeat.ao.res.SeatReservationRES;
+import top.flowerstardream.hcd.trainSeat.biz.mapper.RouteMapper;
 import top.flowerstardream.hcd.trainSeat.biz.mapper.ScheduleMapper;
+import top.flowerstardream.hcd.trainSeat.biz.mapper.TrainMapper;
+import top.flowerstardream.hcd.trainSeat.bo.RouteEO;
 import top.flowerstardream.hcd.trainSeat.bo.ScheduleEO;
 import top.flowerstardream.hcd.trainSeat.bo.SeatReservationEO;
 import top.flowerstardream.hcd.tools.result.PageResult;
@@ -25,12 +29,16 @@ import top.flowerstardream.hcd.trainSeat.biz.client.TicketClient;
 import top.flowerstardream.hcd.trainSeat.biz.mapper.SeatReservationMapper;
 import top.flowerstardream.hcd.trainSeat.biz.service.ISeatReservationService;
 import top.flowerstardream.hcd.trainSeat.biz.tool.Calculation;
+import top.flowerstardream.hcd.trainSeat.bo.TrainEO;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static top.flowerstardream.hcd.base.constant.CommonConstant.PAGE_TOTAL;
 import static top.flowerstardream.hcd.tools.exception.ExceptionEnum.*;
 import static top.flowerstardream.hcd.trainSeat.constant.BookingStatus.*;
 import static top.flowerstardream.hcd.trainSeat.constant.TrainSeatExceptionEnum.*;
@@ -44,6 +52,12 @@ public class ISeatReservationServiceImpl extends ServiceImpl<SeatReservationMapp
 
     @Resource
     private ScheduleMapper scheduleMapper;
+
+    @Resource
+    private TrainMapper trainMapper;
+
+    @Resource
+    private RouteMapper routeMapper;
 
     @Resource
     private Calculation calculation;
@@ -89,7 +103,7 @@ public class ISeatReservationServiceImpl extends ServiceImpl<SeatReservationMapp
             }
             Result<List<TicketSeatReservationDTO>> tickets = ticketClient.getTickets(id);
 
-            if (tickets.getData() != null) {
+            if (CollUtil.isNotEmpty(tickets.getData())) {
                 SEAT_RESERVATION_IS_USED.throwException();
             }
         });
@@ -154,17 +168,62 @@ public class ISeatReservationServiceImpl extends ServiceImpl<SeatReservationMapp
         //执行分页查询
         Page<SeatReservationEO> seatReservationResult = seatReservationMapper.selectPage(page, queryWrapper);
 
-        //将EO转换为RES
-        List<SeatReservationRES> resList = seatReservationResult.getRecords().stream()
-                .map(eo -> {
-                    SeatReservationRES res = new SeatReservationRES();
-                    BeanUtil.copyProperties(eo, res);
-                    return res;
-                }).toList();
+        List<SeatReservationEO> records = seatReservationResult.getRecords();
+        List<SeatReservationRES> resList = new ArrayList<>();
+        
+        if (CollUtil.isNotEmpty(records)) {
+            // 提取班次ID列表
+            List<Long> scheduleIds = records.stream()
+                    .map(SeatReservationEO::getScheduleId)
+                    .distinct()
+                    .toList();
+            
+            // 批量查询班次信息
+            List<ScheduleEO> schedules = scheduleMapper.selectBatchIds(scheduleIds);
+            Map<Long, ScheduleEO> scheduleMap = schedules.stream()
+                    .collect(Collectors.toMap(ScheduleEO::getId, s -> s));
+            
+            // 提取列车和路线ID列表
+            List<Long> trainIds = schedules.stream()
+                    .map(ScheduleEO::getTrainId)
+                    .distinct()
+                    .toList();
+            List<Long> routeIds = schedules.stream()
+                    .map(ScheduleEO::getRouteId)
+                    .distinct()
+                    .toList();
+            
+            // 批量查询列车和路线信息
+            List<TrainEO> trains = CollUtil.isEmpty(trainIds) ? Collections.emptyList() : trainMapper.selectBatchIds(trainIds);
+            List<RouteEO> routes = CollUtil.isEmpty(routeIds) ? Collections.emptyList() : routeMapper.selectBatchIds(routeIds);
+            
+            // 构建映射关系
+            Map<Long, String> trainNameMap = trains.stream()
+                    .collect(Collectors.toMap(TrainEO::getId, TrainEO::getTrainName));
+            Map<Long, String> routeNameMap = routes.stream()
+                    .collect(Collectors.toMap(RouteEO::getId, RouteEO::getRouteName));
+            
+            // 转换为RES对象
+            resList = records.stream()
+                    .map(eo -> {
+                        SeatReservationRES res = new SeatReservationRES();
+                        BeanUtil.copyProperties(eo, res);
+                        
+                        ScheduleEO schedule = scheduleMap.get(eo.getScheduleId());
+                        if (schedule != null) {
+                            res.setTrainName(trainNameMap.get(schedule.getTrainId()));
+                            res.setRouteName(routeNameMap.get(schedule.getRouteId()));
+                        }
+                        
+                        return res;
+                    })
+                    .toList();
+        }
 
         //封装返回结果
         PageResult<SeatReservationRES> pageResult = new PageResult<>();
-        pageResult.setTotal(seatReservationResult.getTotal());
+        Long total = seatReservationMapper.selectCount(Wrappers.lambdaQuery(SeatReservationEO.class));
+        pageResult.setTotal(total > PAGE_TOTAL ? PAGE_TOTAL : total);
         pageResult.setRecords(resList);
         return pageResult;
     }
@@ -219,7 +278,7 @@ public class ISeatReservationServiceImpl extends ServiceImpl<SeatReservationMapp
         // 对每个 scheduleId 更新对应的余票数
         scheduleTicketCountMap.forEach((scheduleId, ticketCount) -> {
             LambdaUpdateWrapper<ScheduleEO> updateWrapper = new LambdaUpdateWrapper<>();
-            updateWrapper.setSql("availing_tickets", "availing_tickets + " + ticketCount)
+            updateWrapper.setSql("available_tickets", "available_tickets + " + ticketCount)
                          .eq(ScheduleEO::getId, scheduleId);
             scheduleMapper.update(updateWrapper);
         });
@@ -248,14 +307,14 @@ public class ISeatReservationServiceImpl extends ServiceImpl<SeatReservationMapp
          */
         // 查询并扣除余票
         ScheduleEO scheduleEO = scheduleMapper.selectById(reserveSeatDTO.getScheduleId());
-        Integer availingTickets = scheduleEO.getAvailingTickets();
+        Integer availingTickets = scheduleEO.getAvailableTickets();
         if (availingTickets < reserveSeatDTO.getTicketCount()) {
             NOT_ENOUGH_TICKETS.throwException();
         }
         LambdaUpdateWrapper<ScheduleEO> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.setSql("availing_tickets", "availing_tickets - " + reserveSeatDTO.getTicketCount())
+        updateWrapper.setSql("available_tickets", "available_tickets - " + reserveSeatDTO.getTicketCount())
                     .eq(ScheduleEO::getId, reserveSeatDTO.getScheduleId())
-                    .gt(ScheduleEO::getAvailingTickets, 0);
+                    .gt(ScheduleEO::getAvailableTickets, 0);
         int update = scheduleMapper.update(updateWrapper);
         if (update <= 0) {
             NOT_ENOUGH_TICKETS.throwException();
@@ -292,6 +351,40 @@ public class ISeatReservationServiceImpl extends ServiceImpl<SeatReservationMapp
                 .startTime(startStationTime)
                 .endTime(endStationTime)
                 .build();
+    }
+
+    /**
+     * 获取状态列表
+     * @return
+     */
+    @Override
+    public List<StatusRES> getStatus() {
+        // 使用LambdaQueryWrapper进行分组统计
+        List<Map<String, Object>> statusCounts = seatReservationMapper.count();
+
+        // 将统计结果转换为StatusRES列表
+        return statusCounts.stream()
+            .map(map -> {
+                StatusRES statusRES = new StatusRES();
+                statusRES.setStatus((Integer) map.get("booking_status"));
+                statusRES.setCount((Integer) map.get("count"));
+                statusRES.setDescription(getStatusDescription(statusRES.getStatus()));
+                return statusRES;
+            })
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * 根据状态码获取状态描述
+     * @param statusCode 状态码
+     * @return 状态描述
+     */
+    private String getStatusDescription(Integer statusCode) {
+        return switch (statusCode) {
+            case 0 -> "未预订";
+            case 1 -> "已预订";
+            default -> "未知状态";
+        };
     }
 
 }

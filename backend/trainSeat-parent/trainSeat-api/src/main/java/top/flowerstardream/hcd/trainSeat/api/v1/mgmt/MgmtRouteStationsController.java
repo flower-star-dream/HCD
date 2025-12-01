@@ -8,6 +8,7 @@ import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.tools.result.Result;
 import top.flowerstardream.hcd.trainSeat.ao.pqreq.RouteStationsPageQueryREQ;
 import top.flowerstardream.hcd.trainSeat.ao.req.RouteStationsREQ;
+import top.flowerstardream.hcd.trainSeat.ao.req.SortREQ;
 import top.flowerstardream.hcd.trainSeat.ao.res.RouteStationsRES;
 import top.flowerstardream.hcd.trainSeat.biz.service.IRouteStationsService;
 import top.flowerstardream.hcd.trainSeat.biz.service.impl.IRouteStationsServiceImpl;
@@ -50,5 +51,12 @@ public class MgmtRouteStationsController {
         log.info("【后管端-路线站点服务】获取路线站点列表，参数: {}", routeStationsPageQueryREQ);
         PageResult<RouteStationsRES> routeStationsRESPageResult = routeStationsService.EmployeePageQuery(routeStationsPageQueryREQ);
         return Result.successResult(routeStationsRESPageResult);
+    }
+
+    @PutMapping("/sort")
+    public Result<Void> sort(@RequestBody SortREQ sortREQ) {
+        log.info("【后管端-路线站点服务】排序路线站点，参数: {}", sortREQ);
+        routeStationsService.sort(sortREQ);
+        return Result.successResult();
     }
 }

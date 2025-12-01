@@ -23,10 +23,11 @@ export default defineConfig({
   },
   server: {
     port: 3000,
+    allowedHosts: ['hcd.flower-star-dream.top'],
     open: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:8080',
+        target: ['http://localhost:8080', 'https://hcd.flower-star-dream.top/api'],
         changeOrigin: true,
         // 保持/api前缀以匹配网关路由规则
         // 确保所有/api开头的请求都被正确代理

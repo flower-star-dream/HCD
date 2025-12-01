@@ -22,10 +22,21 @@
           :required="isFieldRequired(field)"
         >
           <el-input
+            v-if="field.inputType !== 'number'"
             v-model="formData[field.prop]"
             :placeholder="field.placeholder || `请输入${field.label}`"
             :disabled="isFieldDisabled(field)"
             :type="field.inputType || 'text'"
+            :maxlength="field.maxlength"
+            :show-word-limit="field.showWordLimit || false"
+            :clearable="field.clearable || false"
+          />
+          <el-input
+            v-if="field.inputType === 'number'"
+            v-model.number="formData[field.prop]"
+            :placeholder="field.placeholder || `请输入${field.label}`"
+            :disabled="isFieldDisabled(field)"
+            :type="field.inputType || 'number'"
             :maxlength="field.maxlength"
             :show-word-limit="field.showWordLimit || false"
             :clearable="field.clearable || false"
@@ -44,9 +55,16 @@
             :placeholder="field.placeholder || `请选择${field.label}`"
             :disabled="isFieldDisabled(field)"
             :clearable="field.clearable || false"
+            :filterable="field.filterable || false"
+            :remote="field.remote || false"
+            :remote-method="field.remoteMethod || null"
+            :loading="field.loading || false"
+            :remote-show-suffix="field.remote || false"
+            :style="{ width: field.width || '100%' }"
+            @visible-change="(visible) => handleRemoteSelectVisibleChange(field, visible)"
           >
             <el-option
-              v-for="option in field.options"
+              v-for="option in (isRef(field.options) ? field.options.value : field.options)"
               :key="option.value"
               :label="option.label"
               :value="option.value"
@@ -94,7 +112,7 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue'
+import { ref, watch, computed, isRef } from 'vue'
 import { ElMessage } from 'element-plus'
 
 // Props定义
@@ -251,6 +269,18 @@ const handleClose = () => {
   if (formRef.value) {
     formRef.value.clearValidate()
   }
+}
+
+/**
+ * 处理远程搜索下拉框的显示状态变化
+ * 避免在组件内部直接修改props数据导致的循环引用问题
+ * @param {Object} field - 字段配置对象
+ * @param {boolean} visible - 是否显示下拉框
+ */
+const handleRemoteSelectVisibleChange = (field, visible) => {
+  // 不自动触发远程搜索，避免循环引用问题
+  // 让父组件自己控制远程搜索的触发时机
+  // 这样可以避免当远程搜索方法更新选项时可能导致的循环引用
 }
 
 // 暴露方法给父组件

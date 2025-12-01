@@ -23,6 +23,12 @@ public class SeatReservationRES extends BaseMgmtRES implements Serializable {
     @Schema(description = "班次id")
     private Long scheduleId;
 
+    @Schema(description = "列车名")
+    private String trainName;
+
+    @Schema(description = "线路名")
+    private String routeName;
+
     @Schema(description = "座位号")
     private Integer seatNum;
 

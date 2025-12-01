@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import top.flowerstardream.hcd.base.ao.res.StatusRES;
 import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.tools.result.Result;
 import top.flowerstardream.hcd.trainSeat.ao.pqreq.SeatReservationPageQueryREQ;
@@ -50,5 +51,12 @@ public class MgmtSeatReservationController {
         log.info("【管理端-座位预订服务】获取座位预订，参数: {}", seatReservationPageQueryREQ);
         PageResult<SeatReservationRES> pageResult = seatReservationService.EmployeePageQuery(seatReservationPageQueryREQ);
         return Result.successResult(pageResult);
+    }
+
+    @GetMapping("/getStatus")
+    public Result<List<StatusRES>> getStatus() {
+        log.info("【管理端-座位预订服务】获取座位预订状态");
+        List<StatusRES> statusRES = seatReservationService.getStatus();
+        return Result.successResult(statusRES);
     }
 }

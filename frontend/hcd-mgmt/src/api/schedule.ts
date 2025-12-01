@@ -1,5 +1,5 @@
 import { trainSeatRequest } from '@/utils/request'
-import type { Schedule, ScheduleList, ScheduleQuery, ApiResponse, PageResult, TrainOption, RouteOption } from '@/types'
+import type { Schedule, ScheduleList, ScheduleQuery, ApiResponse, PageResult } from '@/types'
 
 /**
  * 获取班次列表
@@ -8,22 +8,6 @@ import type { Schedule, ScheduleList, ScheduleQuery, ApiResponse, PageResult, Tr
  */
 export const getScheduleList = (params: ScheduleQuery): Promise<PageResult<ScheduleList>> => {
   return trainSeatRequest.get('/schedule/getSchedules', { params })
-}
-
-/**
- * 获取列车选择列表（用于下拉框）
- * @returns 列车选项列表
- */
-export const getTrainOptions = (): Promise<TrainOption[]> => {
-  return trainSeatRequest.get('/schedule/train-options')
-}
-
-/**
- * 获取线路选择列表（用于下拉框）
- * @returns 线路选项列表
- */
-export const getRouteOptions = (): Promise<RouteOption[]> => {
-  return trainSeatRequest.get('/schedule/route-options')
 }
 
 /**

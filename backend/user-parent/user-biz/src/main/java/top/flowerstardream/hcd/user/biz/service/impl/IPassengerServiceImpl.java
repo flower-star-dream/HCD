@@ -13,6 +13,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import top.flowerstardream.hcd.base.ao.res.StatusRES;
 import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.user.ao.dto.PassengerDTO;
 import top.flowerstardream.hcd.user.ao.req.PassengerPageQueryREQ;
@@ -27,8 +28,10 @@ import top.flowerstardream.hcd.user.bo.eo.UserEO;
 import top.flowerstardream.hcd.user.bo.eo.UserPassengerEO;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import static top.flowerstardream.hcd.base.constant.CommonConstant.PAGE_TOTAL;
 import static top.flowerstardream.hcd.tools.exception.ExceptionEnum.*;
 import static top.flowerstardream.hcd.tools.utils.GetInfoUtil.*;
 import static top.flowerstardream.hcd.user.constant.UserExceptionEnum.*;
@@ -101,7 +104,8 @@ public class IPassengerServiceImpl extends ServiceImpl<PassengerMapper, Passenge
 
         // 封装返回结果
         PageResult<PassengerEO> pageResult = new PageResult<>();
-        pageResult.setTotal(passengerPage.getTotal());
+        Long total = passengerMapper.selectCount(Wrappers.lambdaQuery(PassengerEO.class));
+        pageResult.setTotal(total > PAGE_TOTAL ? PAGE_TOTAL : total);
         pageResult.setRecords(passengerPage.getRecords());
         return pageResult;
     }

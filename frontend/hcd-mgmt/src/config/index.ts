@@ -42,7 +42,8 @@ const serviceConfig = {
  * 如需修改配置，只需修改此对象中的对应值
  */
 const defaultConfig: Config = {
-  baseUrl: 'http://localhost:8080',
+  // baseUrl: 'http://localhost:8080',
+  baseUrl: 'https://hcd.flower-star-dream.top/api',
   ossUrl: 'http://localhost:9000/hcd',
   apiPrefix: '/api/v1/mgmt',
   timeout: 10000,
@@ -65,8 +66,8 @@ const envConfigs: Record<string, Partial<Config>> = {
   
   // 测试环境特定配置
   staging: {
-    baseUrl: 'https://staging-api.hcd.com',
-    ossUrl: 'https://staging-oss.hcd.com',
+    baseUrl: 'https://hcd.flower-star-dream.top/api',
+    ossUrl: 'http://localhost:9000/hcd',
     mock: false,
     debug: true,
     title: '火车订票系统-后端管理 - 测试环境',
@@ -75,8 +76,8 @@ const envConfigs: Record<string, Partial<Config>> = {
   
   // 生产环境特定配置
   production: {
-    baseUrl: 'https://api.hcd.com',
-    ossUrl: 'https://oss.hcd.com',
+    baseUrl: 'https://hcd.flower-star-dream.top/api',
+    ossUrl: 'http://localhost:9000/hcd',
     timeout: 5000,
     mock: false,
     debug: false,

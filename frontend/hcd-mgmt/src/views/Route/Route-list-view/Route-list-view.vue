@@ -1,9 +1,6 @@
 <template>
   <ListPage
     title="线路管理"
-    :show-tabs="true"
-    :tabs="tabs"
-    :active-tab="statusFilter"
     :total="total"
     :current-page="currentPage"
     :page-size="pageSize"
@@ -14,7 +11,8 @@
     :table-columns="tableColumns"
     :search-fields="searchFields"
     :initial-search-form="initialSearchForm"
-    @tab-click="handleStatusTabChange"
+    :pagination="true"
+    :show-pagination="true"
     @size-change="handleSizeChange"
     @current-change="handlePageChange"
     @search="handleSearch"
@@ -72,6 +70,7 @@ import DialogForm from '@/components/DialogForm/DialogForm.vue'
 import RouteStationDialog from '@/components/RouteStationDialog/RouteStationDialog.vue'
 import ListPage from '@/components/ListPage/ListPage.vue'
 import { getRouteList, addRoute, updateRoute, deleteRoute } from '@/api/route'
+import { getStationList } from '@/api/station'
 
 const employeeStore = useEmployeeStore()
 const employeeInfo = computed(() => employeeStore.employeeInfo)
@@ -105,37 +104,49 @@ const formFields = computed(() => [
     showWordLimit: true,
     disabled: (isEditMode) => isEditMode
   },
-  {
-    prop: 'startStationId',
-    label: '起点站',
-    type: 'select',
-    placeholder: '请选择起点站',
-    options: stationOptions.value,
-    clearable: true,
-    filterable: true
-  },
-  {
-    prop: 'endStationId',
-    label: '终点站',
-    type: 'select',
-    placeholder: '请选择终点站',
-    options: stationOptions.value,
-    clearable: true,
-    filterable: true
-  }
+  { prop: 'startStationId',
+      label: '起点站',
+      type: 'select',
+      placeholder: '请选择起点站',
+      clearable: true,
+      filterable: true,
+      remote: true,
+      remoteMethod: handleStartStationRemoteSearch,
+      loading: startStationLoading.value,
+      options: searchStations,
+      // 添加滚动事件监听以支持加载更多
+      popperClass: 'station-select',
+      teleported: false,
+      appendToBody: false
+    },
+  { prop: 'endStationId',
+      label: '终点站',
+      type: 'select',
+      placeholder: '请选择终点站',
+      clearable: true,
+      filterable: true,
+      remote: true,
+      remoteMethod: handleEndStationRemoteSearch,
+      loading: endStationLoading.value,
+      options: searchStations,
+      // 添加滚动事件监听以支持加载更多
+      popperClass: 'station-select',
+      teleported: false,
+      appendToBody: false
+    }
 ])
 
 // 表单验证规则
 const formRules = computed(() => ({
   routeName: [
-    { required: true, message: '请输入线路名', trigger: 'blur' },
-    { min: 2, max: 20, message: '线路名长度在 2 到 20 个字符', trigger: 'blur' }
+    { required: true, message: '请输入路线名称', trigger: 'blur' },
+    { min: 2, max: 20, message: '路线名称长度在 2 到 20 个字符', trigger: 'blur' }
   ],
   startStationId: [
-    { required: true, message: '请选择起点站', trigger: 'change' }
+    { required: true, message: '请选择起点站点', trigger: 'change' }
   ],
   endStationId: [
-    { required: true, message: '请选择终点站', trigger: 'change' }
+    { required: true, message: '请选择终点站点', trigger: 'change' }
   ]
 }))
 
@@ -149,7 +160,185 @@ const total = ref(0)
 const currentPage = ref(1)
 const pageSize = ref(10)
 const selectedRows = ref([])
-const statusFilter = ref('all')
+
+// 远程搜索相关响应式数据
+const searchStations = ref([])
+const startStationLoading = ref(false)
+const endStationLoading = ref(false)
+// 分页相关响应式数据
+const startStationCurrentPage = ref(1)
+const endStationCurrentPage = ref(1)
+const startStationTotal = ref(0)
+const endStationTotal = ref(0)
+const startStationKeyword = ref('')
+const endStationKeyword = ref('')
+const startStationAllLoaded = ref(false)
+const endStationAllLoaded = ref(false)
+const isLoadingMore = ref(false)
+
+/**
+ * 起点站远程搜索方法
+ * @param {string} query - 搜索关键词
+ */
+const handleStartStationRemoteSearch = async (query) => {
+  // 重置状态
+  startStationCurrentPage.value = 1
+  startStationAllLoaded.value = false
+  startStationKeyword.value = query
+  
+  if (!query) {
+    searchStations.value = []
+  }
+  
+  startStationLoading.value = true
+  try {
+    // 调用带分页的API获取站点列表
+    const response = await getStationList({
+      currentPage: 1,
+      pageSize: 10,
+      stationName: query
+    })
+    
+    // 更新总数和站点列表
+    startStationTotal.value = response.total
+    searchStations.value = response.records.map(station => ({
+      value: station.id,
+      label: station.stationName,
+      name: station.stationName
+    }))
+  } catch (error) {
+    ElMessage.error('获取站点列表失败')
+    searchStations.value = []
+  } finally {
+    startStationLoading.value = false
+    isLoadingMore.value = false
+    // 添加滚动监听
+    addScrollListener('start')
+  }
+}
+
+/**
+ * 终点站远程搜索方法
+ * @param {string} query - 搜索关键词
+ */
+const handleEndStationRemoteSearch = async (query) => {
+  // 重置状态
+  endStationCurrentPage.value = 1
+  endStationAllLoaded.value = false
+  endStationKeyword.value = query
+  
+  if (!query) {
+    searchStations.value = []
+  }
+  
+  endStationLoading.value = true
+  try {
+    // 调用带分页的API获取站点列表
+    const response = await getStationList({
+      currentPage: 1,
+      pageSize: 10,
+      stationName: query
+    })
+    
+    // 更新总数和站点列表
+    endStationTotal.value = response.total
+    searchStations.value = response.records.map(station => ({
+      value: station.id,
+      label: station.stationName,
+      name: station.stationName
+    }))
+  } catch (error) {
+    ElMessage.error('获取站点列表失败')
+    searchStations.value = []
+  } finally {
+    endStationLoading.value = false
+    isLoadingMore.value = false
+    // 添加滚动监听
+    addScrollListener('end')
+  }
+}
+
+/**
+ * 加载更多站点数据
+ * @param {string} type - 站点类型：'start' 或 'end'
+ */
+const loadMoreStations = async (type) => {
+  // 避免重复加载
+  if (isLoadingMore.value) return
+  
+  const isStartStation = type === 'start'
+  const currentPage = isStartStation ? startStationCurrentPage.value : endStationCurrentPage.value
+  const allLoaded = isStartStation ? startStationAllLoaded.value : endStationAllLoaded.value
+  const keyword = isStartStation ? startStationKeyword.value : endStationKeyword.value
+  
+  // 如果已加载全部或无关键词，则不加载
+  if (allLoaded || !keyword) return
+  
+  isLoadingMore.value = true
+  try {
+    // 调用API获取下一页数据
+    const response = await getStationList({
+      currentPage: currentPage + 1,
+      pageSize: 10,
+      stationName: keyword
+    })
+    
+    // 检查是否还有更多数据
+    const hasMore = searchStations.value.length + response.rows.length < (isStartStation ? startStationTotal.value : endStationTotal.value)
+    
+    // 更新状态
+    if (isStartStation) {
+      startStationCurrentPage.value++
+      startStationAllLoaded.value = !hasMore
+    } else {
+      endStationCurrentPage.value++
+      endStationAllLoaded.value = !hasMore
+    }
+    
+    // 合并新数据到现有列表
+    const newOptions = response.records.map(station => ({
+      value: station.id,
+      label: station.stationName,
+      name: station.stationName
+    }))
+    
+    // 避免重复项
+    const existingValues = new Set(searchStations.value.map(item => item.value))
+    const filteredNewOptions = newOptions.filter(item => !existingValues.has(item.value))
+    
+    searchStations.value = [...searchStations.value, ...filteredNewOptions]
+  } catch (error) {
+    ElMessage.error('加载更多站点失败')
+  } finally {
+    isLoadingMore.value = false
+  }
+}
+
+
+
+// 为Select组件添加滚动事件监听的方法
+const addScrollListener = (type) => {
+  // 使用setTimeout确保DOM已更新
+  setTimeout(() => {
+    // 为所有下拉框添加滚动监听
+    const dropdowns = document.querySelectorAll('.station-select .el-select-dropdown__wrap')
+    dropdowns.forEach(dropdown => {
+      // 移除可能存在的旧监听
+      dropdown.removeEventListener('scroll', scrollHandler)
+      // 添加新监听
+      dropdown.addEventListener('scroll', scrollHandler)
+    })
+    
+    // 滚动处理函数
+    function scrollHandler(e) {
+      const { scrollTop, scrollHeight, clientHeight } = e.target
+      // 当滚动到底部（距离底部10px内）时加载更多
+      if (scrollTop + clientHeight >= scrollHeight - 10) {
+        loadMoreStations(type)
+      }
+    }
+  }, 100)
+}
 
 // 表格列配置
 const tableColumns = [
@@ -166,13 +355,13 @@ const tableColumns = [
     align: 'center'
   },
   {
-    prop: 'startStation',
+    prop: 'startStationName',
     label: '起点站',
     minWidth: 150,
     align: 'center'
   },
   {
-    prop: 'endStation',
+    prop: 'endStationName',
     label: '终点站',
     minWidth: 150,
     align: 'center'
@@ -225,19 +414,38 @@ const searchFields = [
     placeholder: '请输入线路名',
     clearable: true
   },
-  {
-    prop: 'startStation',
+  { prop: 'startStation',
     label: '起点站',
-    type: 'input',
-    placeholder: '请输入起点站',
-    clearable: true
+    type: 'select',
+    placeholder: '请选择起点站',
+    clearable: true,
+    filterable: true,
+    remote: true,
+    remoteMethod: handleStartStationRemoteSearch,
+    loading: startStationLoading.value,
+    options: searchStations,
+    // 添加滚动事件监听以支持加载更多
+    popperClass: 'station-select',
+    // Element Plus的Select组件需要通过自定义指令或popper-class来添加滚动事件
+    // 这里我们在选项列表渲染后通过nextTick添加滚动监听
+    teleported: false,
+    // 自定义下拉框的append方法
+    appendToBody: false
   },
-  {
-    prop: 'endStation',
+  { prop: 'endStation',
     label: '终点站',
-    type: 'input',
-    placeholder: '请输入终点站',
-    clearable: true
+    type: 'select',
+    placeholder: '请选择终点站',
+    clearable: true,
+    filterable: true,
+    remote: true,
+    remoteMethod: handleEndStationRemoteSearch,
+    loading: endStationLoading.value,
+    options: searchStations,
+    // 添加滚动事件监听以支持加载更多
+    popperClass: 'station-select',
+    teleported: false,
+    appendToBody: false
   }
 ]
 
@@ -246,16 +454,6 @@ const initialSearchForm = searchFields.reduce((acc, field) => {
   acc[field.prop] = ''
   return acc
 }, {})
-
-// 标签页配置
-const tabs = [
-  {
-    name: 'all',
-    label: '全部',
-    count: 0,
-    lazy: true
-  }
-]
 
 /**
  * 格式化日期时间
@@ -277,8 +475,12 @@ const formatDate = (date) => {
  */
 const fetchStations = async () => {
   try {
-    const response = await getAllStations()
-    stationOptions.value = response.map(station => ({
+    // 使用getStationList API替代getAllStations，并添加分页参数
+    const response = await getStationList({
+      currentPage: 1,
+      pageSize: 100 // 设置较大的分页以获取足够多的站点选项
+    })
+    stationOptions.value = response.records.map(station => ({
       value: station.id,
       label: station.stationName,
       address: station.address
@@ -301,8 +503,15 @@ const fetchRouteList = async (searchParams = {}) => {
     }
     
     const response = await getRouteList(params)
-    routeList.value = response.records
-    total.value = response.total
+    const data = response.records || []
+    
+    // 模拟分页
+    const start = (currentPage.value - 1) * pageSize.value
+    const end = start + pageSize.value
+    const paginatedData = data.slice(start, end)
+    
+    routeList.value = paginatedData
+    total.value = data.length
   } catch (error) {
     routeList.value = []
     total.value = 0
@@ -330,15 +539,7 @@ const handleReset = () => {
   fetchRouteList({})
 }
 
-/**
- * 处理状态标签页切换
- */
-const handleStatusTabChange = (tabName) => {
-  statusFilter.value = tabName
-  currentPage.value = 1
-  selectedRows.value = []
-  fetchRouteList()
-}
+
 
 /**
  * 处理分页大小变化
@@ -375,6 +576,12 @@ const handleAdd = () => {
     startStationId: '',
     endStationId: ''
   }
+  
+  // 在弹窗打开时重置并添加滚动监听
+  startStationCurrentPage.value = 1
+  endStationCurrentPage.value = 1
+  startStationAllLoaded.value = false
+  endStationAllLoaded.value = false
 }
 
 /**
@@ -421,6 +628,12 @@ const handleEdit = (row) => {
     startStationId: row.startStationId,
     endStationId: row.endStationId
   }
+  
+  // 在编辑弹窗打开时重置并添加滚动监听
+  startStationCurrentPage.value = 1
+  endStationCurrentPage.value = 1
+  startStationAllLoaded.value = false
+  endStationAllLoaded.value = false
 }
 
 /**

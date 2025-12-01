@@ -5,12 +5,15 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import top.flowerstardream.hcd.base.ao.res.StatusRES;
 import top.flowerstardream.hcd.ticket.ao.req.TicketPageQueryREQ;
 import top.flowerstardream.hcd.ticket.ao.req.TicketStatusChangeREQ;
 import top.flowerstardream.hcd.ticket.ao.res.TicketRES;
 import top.flowerstardream.hcd.ticket.biz.service.ITicketService;
 import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.tools.result.Result;
+
+import java.util.List;
 
 import static top.flowerstardream.hcd.tools.utils.GetInfoUtil.*;
 
@@ -68,5 +71,13 @@ public class TicketController {
         // TicketDTO ticketDTO = ticketService.getById(id);
         // return Result.successResult(ticketDTO);
         return Result.successResult();
+    }
+
+    @Operation(summary = "获取车票状态", description = "B端获取车票状态")
+    @GetMapping("/getStatus")
+    public Result<List<StatusRES>> getStatus() {
+        log.info("【车票-后管】traceId:{}, 获取车票状态", getTraceId());
+        List<StatusRES> statusRES = ticketService.getStatus();
+        return Result.successResult(statusRES);
     }
 }
