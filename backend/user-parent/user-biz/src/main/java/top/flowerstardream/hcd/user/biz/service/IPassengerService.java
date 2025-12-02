@@ -1,5 +1,6 @@
 package top.flowerstardream.hcd.user.biz.service;
 
+import top.flowerstardream.hcd.base.ao.res.StatusRES;
 import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.user.ao.dto.PassengerDTO;
 import top.flowerstardream.hcd.user.ao.req.PassengerPageQueryREQ;

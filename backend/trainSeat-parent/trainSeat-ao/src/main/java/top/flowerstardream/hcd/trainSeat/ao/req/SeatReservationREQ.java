@@ -27,7 +27,7 @@ public class SeatReservationREQ implements Serializable {
     @Schema(description = "班次id")
     private Long scheduleId;
 
-    @Schema(description = "座位id")
+    @Schema(description = "座位号")
     private Integer seatNum;
 
     @Schema(description = "预订状态")

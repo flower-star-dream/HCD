@@ -6,7 +6,7 @@
 export interface SeatReservation {
   id: number                    // 座位预订号（bigint）
   scheduleId: number           // 班次号（bigint）- 外键关联hcd_schedule
-  seatNumber: number           // 座位号（int）
+  seatNum: number           // 座位号（int）
   bookingStatus: number        // 预订状态（int）- 0:可预订, 1:已预订, 2:已锁定
   createTime?: string          // 创建时间
   updateTime?: string          // 更新时间
@@ -37,8 +37,7 @@ export const BOOKING_STATUS_LABELS = {
  */
 export const BOOKING_STATUS_TYPES = {
   [BookingStatus.AVAILABLE]: 'success',
-  [BookingStatus.RESERVED]: 'warning',
-  [BookingStatus.LOCKED]: 'info'
+  [BookingStatus.RESERVED]: 'warning'
 }
 
 /**
@@ -58,7 +57,7 @@ export interface SeatReservationList extends SeatReservation {
  */
 export interface SeatReservationQuery extends PageQuery {
   scheduleId?: number           // 班次ID
-  seatNumber?: number           // 座位号
+  seatNum?: number           // 座位号
   bookingStatus?: number        // 预订状态
   createTimeStart?: string      // 创建时间开始
   createTimeEnd?: string        // 创建时间结束
@@ -70,7 +69,7 @@ export interface SeatReservationQuery extends PageQuery {
 export interface SeatReservationForm {
   id?: number                   // 座位预订号（编辑时必填）
   scheduleId: number            // 班次号
-  seatNumber: number            // 座位号
+  seatNum: number            // 座位号
   bookingStatus: number         // 预订状态
   createPerson?: string         // 创建人
   updatePerson?: string         // 更新者
@@ -89,6 +88,11 @@ export interface ScheduleOption {
   availableTickets?: number    // 余票数
 }
 
+export interface SeatReservationChangeStatusREQ {
+  ids: number[]                   // 座位预订号
+  status: number               // 新的状态
+}
+
 /**
  * 座位状态统计类型
  */
@@ -96,7 +100,6 @@ export interface SeatStatusStats {
   total: number                 // 总座位数
   available: number            // 可预订座位数
   reserved: number             // 已预订座位数
-  locked: number               // 已锁定座位数
 }
 
 /**

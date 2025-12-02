@@ -6,11 +6,14 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import top.flowerstardream.hcd.base.ao.req.StatusChangeREQ;
+import top.flowerstardream.hcd.base.ao.res.StatusRES;
 import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.tools.result.Result;
 import top.flowerstardream.hcd.user.ao.req.UserPageQueryREQ;
 import top.flowerstardream.hcd.user.biz.service.IUserService;
 import top.flowerstardream.hcd.user.bo.eo.UserEO;
+
+import java.util.List;
 
 import static top.flowerstardream.hcd.tools.utils.GetInfoUtil.getTraceId;
 
@@ -65,5 +68,21 @@ public class UserController {
                 getTraceId(), statusChangeREQ.getStatus(), statusChangeREQ.getId());
         userService.updateUserStatus(statusChangeREQ.getStatus(), statusChangeREQ.getId());
         return Result.successResult();
+    }
+
+    /**
+     * 获取用户状态列表
+     * <p>
+     * 后管端获取用户状态列表
+     * </p>
+     *
+     * @return 用户状态列表
+     */
+    @GetMapping("/getStatus")
+    @Operation(summary = "获取用户状态列表", description = "后管端获取用户状态列表接口")
+    public Result<List<StatusRES>> getStatus() {
+        log.info("【用户-后管】traceId:{}, 获取用户状态", getTraceId());
+        List<StatusRES> statusRES = userService.getStatus();
+        return Result.successResult(statusRES);
     }
 }

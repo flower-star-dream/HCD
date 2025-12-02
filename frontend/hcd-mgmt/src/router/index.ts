@@ -133,12 +133,6 @@ const routes: RouteRecordRaw[] = [
             name: 'SeatReservationList',
             component: () => import('@/views/SeatReservation/SeatReservation-list-view/SeatReservation-list-view.vue'),
             meta: { title: '座位预订列表' }
-          },
-          {
-            path: '/seat-reservation/dialog-demo',
-            name: 'SeatReservationDialogDemo',
-            component: () => import('@/views/SeatReservation/SeatReservation-dialog-example.vue'),
-            meta: { title: '座位预订对话框演示' }
           }
         ]
       },

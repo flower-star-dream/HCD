@@ -12,4 +12,5 @@ public class CommonConstant {
     public final static String BIZ_SIDE = "X-Biz-Side";
     public final static String AUTHORIZATION = "Authorization";
     public final static String TOKEN_HEADER = "Bearer ";
+    public final static Long PAGE_TOTAL = 1000L;
 }

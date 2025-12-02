@@ -2,7 +2,7 @@ package top.flowerstardream.hcd.order.biz.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import top.flowerstardream.hcd.order.ao.dto.CalcTicketPriceDTO;
 import top.flowerstardream.hcd.tools.result.Result;
 
@@ -21,5 +21,5 @@ public interface TrainSeatClient {
      * @return
      */
     @GetMapping("/routeStations/calc")
-    Result<BigDecimal> calcTicketPrice(@RequestBody CalcTicketPriceDTO calcTicketPriceDTO);
+    Result<BigDecimal> calcTicketPrice(CalcTicketPriceDTO calcTicketPriceDTO);
 }

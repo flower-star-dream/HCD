@@ -1,12 +1,15 @@
 package top.flowerstardream.hcd.trainSeat.biz.service;
 
 
+import top.flowerstardream.hcd.trainSeat.ao.dto.CalcTicketPriceDTO;
 import top.flowerstardream.hcd.trainSeat.ao.req.RouteStationsREQ;
+import top.flowerstardream.hcd.trainSeat.ao.req.SortREQ;
 import top.flowerstardream.hcd.trainSeat.ao.res.RouteStationsRES;
 import top.flowerstardream.hcd.trainSeat.bo.RouteStationsEO;
 import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.trainSeat.ao.pqreq.RouteStationsPageQueryREQ;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -36,12 +39,18 @@ public interface IRouteStationsService {
      * @param routeStationPageQueryREQ 查询条件
      * @return 路线查询分页结果
      */
-    PageResult<RouteStationsEO> EmployeePageQuery(RouteStationsPageQueryREQ routeStationPageQueryREQ);
+    PageResult<RouteStationsRES> EmployeePageQuery(RouteStationsPageQueryREQ routeStationPageQueryREQ);
 
     /**
-     * 分页查询路线站点列表（用户）
-     * @param routeStationPageQueryREQ 站点查询条件
-     * @return 站点查询分页结果
+     * 计算车票价格
+     * @param calcTicketPriceDTO
+     * @return
      */
-    PageResult<RouteStationsRES> UserPageQuery(RouteStationsPageQueryREQ routeStationPageQueryREQ);
+    BigDecimal calcTicketPrice(CalcTicketPriceDTO calcTicketPriceDTO);
+
+    /**
+     * 根据id排序路线站点
+     * @param sortREQ
+     */
+    void sort(SortREQ sortREQ);
 }

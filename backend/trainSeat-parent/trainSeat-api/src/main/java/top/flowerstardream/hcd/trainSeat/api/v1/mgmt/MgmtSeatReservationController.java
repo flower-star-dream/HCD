@@ -4,49 +4,67 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import top.flowerstardream.hcd.base.ao.res.StatusRES;
 import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.tools.result.Result;
 import top.flowerstardream.hcd.trainSeat.ao.pqreq.SeatReservationPageQueryREQ;
+import top.flowerstardream.hcd.trainSeat.ao.req.SeatReservationChangeStatusREQ;
 import top.flowerstardream.hcd.trainSeat.ao.req.SeatReservationREQ;
+import top.flowerstardream.hcd.trainSeat.ao.res.SeatReservationRES;
+import top.flowerstardream.hcd.trainSeat.biz.service.ISeatReservationService;
 import top.flowerstardream.hcd.trainSeat.biz.service.impl.ISeatReservationServiceImpl;
 import top.flowerstardream.hcd.trainSeat.bo.SeatReservationEO;
 
 import java.util.List;
 
 @RestController("mgmtSeatReservationController")
-@RequestMapping("/api/v1/app/trainSeat/seatReservation")
+@RequestMapping("/api/v1/mgmt/trainSeat/seatReservation")
 @Tag(name = "后管端-座位预订管理")
 @Slf4j
 public class MgmtSeatReservationController {
 
     @Resource
-    private ISeatReservationServiceImpl seatReservationServiceImpl;
+    private ISeatReservationService seatReservationService;
 
     @PostMapping("/addSeatReservation")
-    public Result<Void> addSeatReservation(SeatReservationREQ seatReservationREQ) {
+    public Result<Void> addSeatReservation(@RequestBody SeatReservationREQ seatReservationREQ) {
         log.info("【管理端-座位预订服务】添加座位预订，参数: {}", seatReservationREQ);
-        seatReservationServiceImpl.addSeatReservation(seatReservationREQ);
+        seatReservationService.addSeatReservation(seatReservationREQ);
         return Result.successResult();
     }
 
     @PutMapping("/updateSeatReservation")
-    public Result<Void> updateSeatReservation(SeatReservationREQ seatReservationREQ) {
+    public Result<Void> updateSeatReservation(@RequestBody SeatReservationREQ seatReservationREQ) {
         log.info("【管理端-座位预订服务】更新座位预订，参数: {}", seatReservationREQ);
-        seatReservationServiceImpl.updateSeatReservation(seatReservationREQ);
+        seatReservationService.updateSeatReservation(seatReservationREQ);
         return Result.successResult();
     }
 
     @DeleteMapping("/deleteSeatReservation")
-    public Result<Void> deleteSeatReservation(@RequestParam("seatReservationIds") List<Long> seatReservationIds) {
+    public Result<Void> deleteSeatReservation(@RequestBody List<Long> seatReservationIds) {
         log.info("【管理端-座位预订服务】删除座位预订，参数: {}", seatReservationIds);
-        seatReservationServiceImpl.deleteSeatReservation(seatReservationIds);
+        seatReservationService.deleteSeatReservation(seatReservationIds);
         return Result.successResult();
     }
 
     @GetMapping("/getSeatReservation")
-    public Result<PageResult<SeatReservationEO>> EmployeePageQuery(SeatReservationPageQueryREQ seatReservationPageQueryREQ) {
+    public Result<PageResult<SeatReservationRES>> EmployeePageQuery(SeatReservationPageQueryREQ seatReservationPageQueryREQ) {
         log.info("【管理端-座位预订服务】获取座位预订，参数: {}", seatReservationPageQueryREQ);
-        PageResult<SeatReservationEO> pageResult = seatReservationServiceImpl.EmployeePageQuery(seatReservationPageQueryREQ);
+        PageResult<SeatReservationRES> pageResult = seatReservationService.EmployeePageQuery(seatReservationPageQueryREQ);
         return Result.successResult(pageResult);
+    }
+
+    @PutMapping("/batch-update-status")
+    public Result<Void> batchUpdateStatus(@RequestBody SeatReservationChangeStatusREQ seatReservationChangeStatusREQ) {
+        log.info("【管理端-座位预订服务】批量更新座位预订状态，参数: {}", seatReservationChangeStatusREQ);
+        seatReservationService.batchUpdateStatus(seatReservationChangeStatusREQ);
+        return Result.successResult();
+    }
+
+    @GetMapping("/getStatus")
+    public Result<List<StatusRES>> getStatus() {
+        log.info("【管理端-座位预订服务】获取座位预订状态");
+        List<StatusRES> statusRES = seatReservationService.getStatus();
+        return Result.successResult(statusRES);
     }
 }

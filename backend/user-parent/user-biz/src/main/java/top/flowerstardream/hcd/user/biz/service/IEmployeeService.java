@@ -1,5 +1,6 @@
 package top.flowerstardream.hcd.user.biz.service;
 
+import top.flowerstardream.hcd.base.ao.res.StatusRES;
 import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.user.ao.req.*;
 import top.flowerstardream.hcd.user.ao.res.LoginRES;
@@ -77,4 +78,10 @@ public interface IEmployeeService {
      * @param resetPwdREQ
      */
     void resetPassword(ResetPwdREQ resetPwdREQ);
+
+    /**
+     * 获取员工状态
+     * @return
+     */
+    List<StatusRES> getStatus();
 }

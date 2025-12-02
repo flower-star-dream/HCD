@@ -2,6 +2,7 @@ package top.flowerstardream.hcd.trainSeat.biz.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -10,11 +11,12 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import top.flowerstardream.hcd.tools.result.Result;
 import top.flowerstardream.hcd.trainSeat.ao.dto.StationsDTO;
 import top.flowerstardream.hcd.trainSeat.ao.req.StationREQ;
+import top.flowerstardream.hcd.trainSeat.ao.res.StationMgmtRES;
 import top.flowerstardream.hcd.trainSeat.ao.res.StationRES;
 import top.flowerstardream.hcd.trainSeat.bo.RouteStationsEO;
+import top.flowerstardream.hcd.trainSeat.bo.ScheduleEO;
 import top.flowerstardream.hcd.trainSeat.bo.StationEO;
 import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.trainSeat.ao.pqreq.StationPageQueryREQ;
@@ -25,6 +27,7 @@ import top.flowerstardream.hcd.trainSeat.biz.service.IStationService;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static top.flowerstardream.hcd.base.constant.CommonConstant.PAGE_TOTAL;
 import static top.flowerstardream.hcd.tools.exception.ExceptionEnum.*;
 import static top.flowerstardream.hcd.trainSeat.constant.TrainSeatExceptionEnum.STATION_ALREADY_EXISTS;
 import static top.flowerstardream.hcd.trainSeat.constant.TrainSeatExceptionEnum.STATION_IS_USED;
@@ -48,6 +51,7 @@ public class IStationServiceImpl extends ServiceImpl<StationMapper, StationEO> i
         //参数校验
         if (stationREQ == null) {
             THE_QUERY_PARAMETER_CANNOT_BE_EMPTY.throwException();
+            return;
         }
 
         //判断站点存在，存在则中断
@@ -80,7 +84,7 @@ public class IStationServiceImpl extends ServiceImpl<StationMapper, StationEO> i
             queryWrapper.eq(RouteStationsEO::getStationId, id);
             List<RouteStationsEO> routeStations = routeStationsMapper.selectList(queryWrapper);
 
-            if(routeStations != null){
+            if(CollUtil.isNotEmpty(routeStations)){
                 STATION_IS_USED.throwException();
             }
         });
@@ -101,14 +105,14 @@ public class IStationServiceImpl extends ServiceImpl<StationMapper, StationEO> i
         }
         StationEO stationEO = new StationEO();
         BeanUtil.copyProperties(stationREQ, stationEO);
-        boolean update = self.update(stationEO, Wrappers.lambdaQuery());
+        boolean update = self.updateById(stationEO);
         if (!update) {
             MODIFICATION_FAILED.throwException();
         }
     }
 
     @Override
-    public PageResult<StationEO> EmployeePageQuery(StationPageQueryREQ stationPageQueryREQ) {
+    public PageResult<StationMgmtRES> EmployeePageQuery(StationPageQueryREQ stationPageQueryREQ) {
         //参数校验
         if (stationPageQueryREQ == null) {
             THE_QUERY_PARAMETER_CANNOT_BE_EMPTY.throwException();
@@ -126,16 +130,32 @@ public class IStationServiceImpl extends ServiceImpl<StationMapper, StationEO> i
         //创建查询条件
         LambdaQueryWrapper<StationEO> queryWrapper = Wrappers.lambdaQuery();
         //查询条件
-        queryWrapper.like(StationEO::getStationName, stationPageQueryREQ.getStationName())
-                .like(StationEO::getAddress, stationPageQueryREQ.getAddress());
+        if (stationPageQueryREQ.getId() != null) {
+            queryWrapper.eq(StationEO::getId, stationPageQueryREQ.getId());
+        }
+        if (StrUtil.isNotBlank(stationPageQueryREQ.getStationName())) {
+            queryWrapper.like(StationEO::getStationName, stationPageQueryREQ.getStationName());
+        }
+        if (StrUtil.isNotBlank(stationPageQueryREQ.getAddress())) {
+            queryWrapper.like(StationEO::getAddress, stationPageQueryREQ.getAddress());
+        }
 
         //执行分页查询
         Page<StationEO> stationPage = self.page(page, queryWrapper);
 
+        //将EO转换为RES
+        List<StationMgmtRES> resList = stationPage.getRecords().stream()
+                .map(stationEO -> {
+                    StationMgmtRES res = new StationMgmtRES();
+                    BeanUtil.copyProperties(stationEO, res);
+                    return res;
+                }).toList();
+
         //封装返回结果
-        PageResult<StationEO> pageResult = new PageResult<>();
-        pageResult.setTotal(stationPage.getTotal());
-        pageResult.setRecords(stationPage.getRecords());
+        PageResult<StationMgmtRES> pageResult = new PageResult<>();
+        Long total = stationMapper.selectCount(Wrappers.lambdaQuery(StationEO.class));
+        pageResult.setTotal(total > PAGE_TOTAL ? PAGE_TOTAL : total);
+        pageResult.setRecords(resList);
         return pageResult;
     }
 
@@ -157,8 +177,15 @@ public class IStationServiceImpl extends ServiceImpl<StationMapper, StationEO> i
         LambdaQueryWrapper<StationEO> queryWrapper = Wrappers.lambdaQuery();
 
         //查询条件
-        queryWrapper.like(StationEO::getStationName, stationPageQueryREQ.getStationName())
-                .like(StationEO::getAddress, stationPageQueryREQ.getAddress());
+        if (stationPageQueryREQ.getId() != null) {
+            queryWrapper.eq(StationEO::getId, stationPageQueryREQ.getId());
+        }
+        if (StrUtil.isNotBlank(stationPageQueryREQ.getStationName())) {
+            queryWrapper.like(StationEO::getStationName, stationPageQueryREQ.getStationName());
+        }
+        if (StrUtil.isNotBlank(stationPageQueryREQ.getAddress())) {
+            queryWrapper.like(StationEO::getAddress, stationPageQueryREQ.getAddress());
+        }
 
         //执行分页查询
         Page<StationEO> stationPage = stationMapper.selectPage(page, queryWrapper);
@@ -169,12 +196,12 @@ public class IStationServiceImpl extends ServiceImpl<StationMapper, StationEO> i
                     StationRES res = new StationRES();
                     BeanUtil.copyProperties(stationEO, res);
                     return res;
-                })
-                .collect(Collectors.toList());
+                }).toList();
 
         //封装返回结果
         PageResult<StationRES> pageResult = new PageResult<>();
-        pageResult.setTotal(stationPage.getTotal());
+        Long total = stationMapper.selectCount(Wrappers.lambdaQuery(StationEO.class));
+        pageResult.setTotal(total > PAGE_TOTAL ? PAGE_TOTAL : total);
         pageResult.setRecords(resList);
         return pageResult;
     }
@@ -205,11 +232,10 @@ public class IStationServiceImpl extends ServiceImpl<StationMapper, StationEO> i
         }
         LambdaQueryWrapper<StationEO> queryWrapper = Wrappers.lambdaQuery();
         queryWrapper.like(StationEO::getStationName, stationName);
-        List<Long> stationIds = stationMapper.selectList(queryWrapper)
-                .stream().map(StationEO::getId)
-                .collect(Collectors.toList());
 
-        return stationIds;
+        return stationMapper.selectList(queryWrapper)
+                .stream().map(StationEO::getId)
+                .toList();
     }
     /**
     * 外部调用
@@ -223,13 +249,10 @@ public class IStationServiceImpl extends ServiceImpl<StationMapper, StationEO> i
         queryWrapper.in(StationEO::getId, stationIds);
         List<StationEO> stations = stationMapper.selectList(queryWrapper);
 
-        return stations.stream().map(stationEO -> {
-            StationsDTO stationsDTO = new StationsDTO();
-            stationsDTO.builder()
-                    .id(stationEO.getId())
-                    .name(stationEO.getStationName());
-            return stationsDTO;
-        }).collect(Collectors.toList());
+        return stations.stream().map(stationEO -> StationsDTO.builder()
+                .id(stationEO.getId())
+                .name(stationEO.getStationName())
+                .build()).toList();
 
     }
 

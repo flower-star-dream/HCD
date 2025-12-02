@@ -6,6 +6,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import top.flowerstardream.hcd.base.ao.req.StatusChangeREQ;
+import top.flowerstardream.hcd.base.ao.res.StatusRES;
 import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.tools.result.Result;
 import top.flowerstardream.hcd.user.ao.req.*;
@@ -163,6 +164,19 @@ public class EmployeeController {
         log.info("【用户-员工】traceId:{}, 员工登出", getTraceId());
         employeeService.logout();
         return Result.successResult();
+    }
+
+
+    /**
+     * 获取员工状态
+     * @return
+     */
+    @GetMapping("/getStatus")
+    @Operation(summary = "获取员工状态", description = "获取员工状态")
+    public Result<List<StatusRES>> getStatus() {
+        log.info("【用户-员工】traceId:{}, 获取员工状态", getTraceId());
+        List<StatusRES> statusRES = employeeService.getStatus();
+        return Result.successResult(statusRES);
     }
 
 }

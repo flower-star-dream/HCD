@@ -151,10 +151,10 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
-import { 
+import {
   getScheduleOptions, 
   getSeatStatusStats, 
-  createSeatReservation, 
+  addSeatReservation, 
   updateSeatReservation,
   checkSeatAvailability as apiCheckSeatAvailability 
 } from '@/api/seat-reservation'
@@ -398,28 +398,28 @@ const initData = () => {
  * 处理表单提交
  */
 const handleSubmit = async (formData) => {
-  try {
-    submitLoading.value = true
-    
-    if (props.isEdit) {
-      // 编辑座位预订
-      await updateSeatReservation(formData.id, formData)
-      ElMessage.success('更新座位预订成功')
-    } else {
-      // 新增座位预订
-      await createSeatReservation(formData)
-      ElMessage.success('新增座位预订成功')
+    try {
+      submitLoading.value = true
+      
+      if (props.isEdit) {
+        // 编辑座位预订
+        await updateSeatReservation(formData)
+        ElMessage.success('更新座位预订成功')
+      } else {
+        // 新增座位预订
+        await addSeatReservation(formData)
+        ElMessage.success('新增座位预订成功')
+      }
+      
+      // 关闭弹窗并触发提交事件
+      dialogVisible.value = false
+      emit('submit', formData)
+    } catch (error) {
+      ElMessage.error(props.isEdit ? '更新失败' : '新增失败')
+    } finally {
+      submitLoading.value = false
     }
-    
-    // 关闭弹窗并触发提交事件
-    dialogVisible.value = false
-    emit('submit', formData)
-  } catch (error) {
-    ElMessage.error(props.isEdit ? '更新失败' : '新增失败')
-  } finally {
-    submitLoading.value = false
   }
-}
 
 /**
  * 处理取消操作

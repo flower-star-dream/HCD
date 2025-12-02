@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serializable;
+
 /**
  * @Author: 花海
  * @Date: 2025/11/06/21:32
@@ -17,7 +19,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "状态更改请求")
-public class StatusChangeREQ {
+public class StatusChangeREQ implements Serializable {
 
     @Schema(description = "ID")
     @NotNull(message = "ID不能为空")

@@ -5,12 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "build:dev": "vite build --mode development",
+    "build:test": "vite build --mode staging",
+    "build:prod": "vite build --mode production",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "format": "prettier --write src/",
     "clean": "rimraf dist",
-    "serve": "serve dist"
+    "serve": "serve --single dist"
   },
   "dependencies": {
     "vue": "^3.4.0",

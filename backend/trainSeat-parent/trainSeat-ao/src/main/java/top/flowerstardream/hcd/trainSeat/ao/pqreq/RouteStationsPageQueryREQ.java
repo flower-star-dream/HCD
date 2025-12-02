@@ -26,10 +26,10 @@ public class RouteStationsPageQueryREQ extends BasePageQueryREQ implements Seria
     @Schema(description = "路线站点号")
     private Long id;
 
-    @Schema(description = "路线号")
+    @Schema(description = "路线ID")
     private Long routeId;
 
-    @Schema(description = "站点号")
+    @Schema(description = "站点ID")
     private Long stationId;
 
     @Schema(description = "站点排序")

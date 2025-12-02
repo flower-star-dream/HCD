@@ -1,6 +1,7 @@
 package top.flowerstardream.hcd.trainSeat.ao.pqreq;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,6 +23,7 @@ import java.time.LocalDateTime;
 public class RealTimeSchedulePageQueryREQ extends BasePageQueryREQ implements Serializable {
 
     @Schema(description = "用户出发时间")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime nowTime;
 
     @Schema(description = "用户出发站ID")

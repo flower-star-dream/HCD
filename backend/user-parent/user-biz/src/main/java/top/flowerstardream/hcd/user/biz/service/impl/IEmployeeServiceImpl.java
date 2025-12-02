@@ -17,6 +17,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+import top.flowerstardream.hcd.base.ao.res.StatusRES;
 import top.flowerstardream.hcd.tools.properties.JwtProperties;
 import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.tools.utils.JwtUtil;
@@ -33,7 +34,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
+import static top.flowerstardream.hcd.base.constant.CommonConstant.PAGE_TOTAL;
 import static top.flowerstardream.hcd.base.constant.RedisPrefixConstant.*;
 import static top.flowerstardream.hcd.base.constant.StatusConstant.*;
 import static top.flowerstardream.hcd.tools.exception.ExceptionEnum.*;
@@ -198,7 +201,8 @@ public class IEmployeeServiceImpl extends ServiceImpl<EmployeeMapper, EmployeeEO
 
         // 封装返回结果
         PageResult<EmployeeEO> pageResult = new PageResult<>();
-        pageResult.setTotal(employeePage.getTotal());
+        Long total = employeeMapper.selectCount(Wrappers.lambdaQuery(EmployeeEO.class));
+        pageResult.setTotal(total > PAGE_TOTAL ? PAGE_TOTAL : total);
         pageResult.setRecords(employeePage.getRecords());
 
         // 返回结果
@@ -356,5 +360,30 @@ public class IEmployeeServiceImpl extends ServiceImpl<EmployeeMapper, EmployeeEO
             return; // 用户不存在
         }
         USER_ALREADY_EXISTS.throwException(); // 用户已存在
+    }
+
+    @Override
+    public List<StatusRES> getStatus() {
+        // 使用LambdaQueryWrapper进行分组统计
+        List<Map<String, Object>> statusCounts = employeeMapper.count();
+
+        // 将统计结果转换为StatusRES列表
+        return statusCounts.stream()
+            .map(map -> {
+                StatusRES statusRES = new StatusRES();
+                statusRES.setStatus((Integer) map.get("status"));
+                statusRES.setCount((Integer) map.get("count"));
+                statusRES.setDescription(getStatusDescription(statusRES.getStatus()));
+                return statusRES;
+            })
+            .collect(Collectors.toList());
+    }
+
+    private String getStatusDescription(Integer status) {
+        return switch(status) {
+            case 0 -> "未启用";
+            case 1 -> "已启用";
+            default -> "未知状态";
+        };
     }
 }

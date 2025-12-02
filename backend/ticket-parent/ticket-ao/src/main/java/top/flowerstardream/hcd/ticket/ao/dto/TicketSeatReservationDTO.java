@@ -18,7 +18,7 @@ public class TicketSeatReservationDTO {
      * 票号
      */
     @Schema(description = "票号")
-    private Long Id;
+    private Long id;
 
     /**
      * 座位预订ID

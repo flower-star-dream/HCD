@@ -26,12 +26,18 @@
               v-else-if="field.type === 'select'"
               v-model="searchForm[field.prop]"
               :placeholder="field.placeholder || `请选择${field.label}`"
-              :clearable="field.clearable !== false"
+              :clearable="field.clearable || false"
               :disabled="field.disabled"
-              :style="{ width: field.width || '200px' }"
+              :style="{ width: field.width || '100%' }"
+              :filterable="field.filterable || false"
+              :remote="field.remote || false"
+              :remote-method="field.remoteMethod || null"
+              :loading="field.loading || false"
+              :remote-show-suffix="field.remote || false"
+              @visible-change="(visible) => handleRemoteSelectVisibleChange(field, visible)"
             >
               <el-option
-                v-for="option in field.options"
+                v-for="option in (isRef(field.options) ? field.options.value : field.options)"
                 :key="option.value"
                 :label="option.label"
                 :value="option.value"
@@ -172,7 +178,7 @@
 </template>
 
 <script setup>
-  import { ref, reactive, watch, computed } from 'vue'
+  import { ref, reactive, watch, computed, isRef } from 'vue'
 
   // Props定义
   const props = defineProps({
@@ -252,6 +258,11 @@
     default: () => []
   },
   // 搜索字段配置
+  // 对于select类型的字段，支持以下参数：
+  // - filterable: 是否可搜索过滤选项，默认false
+  // - remote: 是否启用远程搜索，默认false
+  // - remoteMethod: 远程搜索方法，接收输入值作为参数
+  // - loading: 加载状态，用于远程搜索时显示加载动画
   searchFields: {
     type: Array,
     default: () => []
@@ -383,6 +394,18 @@ const handlePageChange = (page) => {
  */
 const handleSelectionChange = (selection) => {
   emit('selection-change', selection)
+}
+
+/**
+ * 处理远程搜索下拉框的显示状态变化
+ * 避免在组件内部直接修改props数据导致的循环引用问题
+ * @param {Object} field - 字段配置对象
+ * @param {boolean} visible - 是否显示下拉框
+ */
+const handleRemoteSelectVisibleChange = (field, visible) => {
+  // 不自动触发远程搜索，避免循环引用问题
+  // 让父组件自己控制远程搜索的触发时机
+  // 这样可以避免当远程搜索方法更新选项时可能导致的循环引用
 }
 </script>
 

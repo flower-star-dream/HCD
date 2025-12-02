@@ -2,10 +2,9 @@ package top.flowerstardream.hcd.trainSeat.ao.res;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
+import top.flowerstardream.hcd.base.ao.res.BaseMgmtRES;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -16,23 +15,24 @@ import java.time.LocalDateTime;
  * @Description: 班次返回参数
  */
 @Data
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 @Schema(description = "班次返回参数")
-public class ScheduleRES implements Serializable {
+public class ScheduleRES extends BaseMgmtRES implements Serializable {
 
-    @Schema(description = "班次号")
-    private Long id;
+    @Schema(description = "列车名")
+    private String trainName;
 
-    @Schema(description = "列车号")
-    private Long trainId;
-
-    @Schema(description = "路线号")
-    private Long routeId;
+    @Schema(description = "路线名")
+    private String routeName;
 
     @Schema(description = "列车长")
     private String conductor;
+
+    @Schema(description = "余票")
+    private Integer availableTickets;
 
     @Schema(description = "出发时间")
     private LocalDateTime startTime;

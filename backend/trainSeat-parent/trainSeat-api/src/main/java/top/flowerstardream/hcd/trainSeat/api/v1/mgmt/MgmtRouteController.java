@@ -15,6 +15,8 @@ import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.tools.result.Result;
 import top.flowerstardream.hcd.trainSeat.ao.pqreq.RoutePageQueryREQ;
 import top.flowerstardream.hcd.trainSeat.ao.req.RouteREQ;
+import top.flowerstardream.hcd.trainSeat.ao.res.RouteRES;
+import top.flowerstardream.hcd.trainSeat.biz.service.IRouteService;
 import top.flowerstardream.hcd.trainSeat.biz.service.impl.IRouteServiceImpl;
 import top.flowerstardream.hcd.trainSeat.bo.RouteEO;
 
@@ -22,39 +24,39 @@ import java.util.List;
 
 
 @RestController("mgmtRouteController")
-@RequestMapping("/api/v1/app/trainSeat/route")
+@RequestMapping("/api/v1/mgmt/trainSeat/route")
 @Tag(name = "后管端-路线管理")
 @Slf4j
 public class MgmtRouteController {
 
     @Resource
-    private IRouteServiceImpl routeServiceImpl;
+    private IRouteService routeService;
 
     @PostMapping("/addRoute")
-    public Result<Void> addRoute(RouteREQ routeREQ) {
+    public Result<Void> addRoute(@RequestBody RouteREQ routeREQ) {
         log.info("【管理端-路线服务】添加路线，参数: {}", routeREQ);
-        routeServiceImpl.addRoute(routeREQ);
+        routeService.addRoute(routeREQ);
         return Result.successResult();
     }
 
     @DeleteMapping("/deleteRoute")
-    public Result<Void> deleteRoute(List<Long> ids) {
+    public Result<Void> deleteRoute(@RequestBody List<Long> ids) {
         log.info("【管理端-路线服务】删除路线，参数: {}", ids);
-        routeServiceImpl.deleteRoute(ids);
+        routeService.deleteRoute(ids);
         return Result.successResult();
     }
 
     @PutMapping("/updateRoute")
-    public Result<Void> updateRoute(RouteREQ routeREQ) {
+    public Result<Void> updateRoute(@RequestBody RouteREQ routeREQ) {
         log.info("【管理端-路线服务】修改路线，参数: {}", routeREQ);
-        routeServiceImpl.updateRoute(routeREQ);
+        routeService.updateRoute(routeREQ);
         return Result.successResult();
     }
 
-    @GetMapping("/EmployeePageQuery")
-    public Result<PageResult<RouteEO>> EmployeePageQuery(RoutePageQueryREQ routePageQueryREQ) {
+    @GetMapping("/getRoute")
+    public Result<PageResult<RouteRES>> EmployeePageQuery(RoutePageQueryREQ routePageQueryREQ) {
         log.info("【管理端-路线服务】查询路线，参数: {}", routePageQueryREQ);
-        PageResult<RouteEO> result = routeServiceImpl.EmployeePageQuery(routePageQueryREQ);
+        PageResult<RouteRES> result = routeService.EmployeePageQuery(routePageQueryREQ);
         return Result.successResult(result);
     }
 

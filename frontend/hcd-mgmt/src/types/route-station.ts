@@ -45,7 +45,7 @@ export interface RouteStationForm {
  */
 export interface RouteStationSortUpdate {
   routeId: number              // 线路ID
-  stationIds: number[]         // 按新顺序排列的站点ID数组
+  routeStationsIds: number[]         // 按新顺序排列的线路站点ID数组
 }
 
 /**

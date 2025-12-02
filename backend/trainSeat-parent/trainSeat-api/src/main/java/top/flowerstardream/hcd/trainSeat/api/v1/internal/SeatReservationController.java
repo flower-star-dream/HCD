@@ -10,25 +10,26 @@ import top.flowerstardream.hcd.tools.result.Result;
 import top.flowerstardream.hcd.trainSeat.ao.dto.ReserveSeatDTO;
 import top.flowerstardream.hcd.trainSeat.ao.dto.ReserveSeatResultDTO;
 import top.flowerstardream.hcd.trainSeat.ao.dto.SeatReservationDTO;
+import top.flowerstardream.hcd.trainSeat.biz.service.ISeatReservationService;
 import top.flowerstardream.hcd.trainSeat.biz.service.impl.IScheduleServiceImpl;
 import top.flowerstardream.hcd.trainSeat.biz.service.impl.ISeatReservationServiceImpl;
 
 import java.util.List;
 
-@RestController("internalScheduleController")
+@RestController("internalSeatReservationController")
 @RequestMapping("/api/v1/internal/trainSeat/seatReservation")
 @Tag(name = "座位预订接口服务")
 @Slf4j
 public class SeatReservationController {
 
     @Resource
-    private ISeatReservationServiceImpl seatReservationServiceImpl;
+    private ISeatReservationService seatReservationService;
 
     @Operation(summary = "根据座位预订ID获取座位预订信息", description = "班次接口服务，根据座位预订ID获取座位预订信息")
-    @PostMapping("/seatReservation/by-ids")
+    @PostMapping("/by-ids")
     public Result<List<SeatReservationDTO>> getSeatReservationByIds(@RequestParam List<Long> seatReservationIds){
         log.info("【班次接口服务】根据座位预订ID获取座位预订信息，座位预订ID: {}", seatReservationIds);
-        List<SeatReservationDTO> seatReservationDTOs = seatReservationServiceImpl.getSeatReservationByIds(seatReservationIds);
+        List<SeatReservationDTO> seatReservationDTOs = seatReservationService.getSeatReservationByIds(seatReservationIds);
         return Result.successResult(seatReservationDTOs);
     };
 
@@ -37,10 +38,10 @@ public class SeatReservationController {
      * @param seatReservationIds 座位预订号列表
      * @return 是否成功
      */
-    @PostMapping("/seatReservation/release")
+    @PostMapping("/release")
     public Result<Void> releaseSeat(@RequestParam("seatReservationIds") List<Long> seatReservationIds){
         log.info("【班次接口服务】释放座位，座位预订号列表: {}", seatReservationIds);
-        seatReservationServiceImpl.releaseSeat(seatReservationIds);
+        seatReservationService.releaseSeat(seatReservationIds);
         return Result.successResult();
     };
 
@@ -49,10 +50,10 @@ public class SeatReservationController {
      * @param reserveSeatDTO 预订座位参数
      * @return 座位预订号
      */
-    @PostMapping("/seatReservation/reserve")
+    @PostMapping("/reserve")
     public Result<ReserveSeatResultDTO> reserveSeat(@RequestBody ReserveSeatDTO reserveSeatDTO){
         log.info("【班次接口服务】预订座位，参数: {}", reserveSeatDTO);
-        ReserveSeatResultDTO reserveSeatResultDTO = seatReservationServiceImpl.reserveSeat(reserveSeatDTO);
+        ReserveSeatResultDTO reserveSeatResultDTO = seatReservationService.reserveSeat(reserveSeatDTO);
         return Result.successResult(reserveSeatResultDTO);
     };
 }

@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "实时班次查询响应")
-public class RealTimeScheduleRES  implements Serializable {
+public class RealTimeScheduleRES implements Serializable {
 
     @Schema(description = "班次ID")
     private Long scheduleId;

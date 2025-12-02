@@ -2,10 +2,9 @@ package top.flowerstardream.hcd.trainSeat.ao.res;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
+import top.flowerstardream.hcd.base.ao.res.BaseMgmtRES;
 
 import java.io.Serializable;
 
@@ -29,6 +28,5 @@ public class StationRES implements Serializable {
 
     @Schema(description = "地址")
     private String address;
-
 
 }

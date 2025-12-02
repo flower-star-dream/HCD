@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import top.flowerstardream.hcd.base.ao.res.StatusRES;
 import top.flowerstardream.hcd.order.ao.dto.*;
 import top.flowerstardream.hcd.order.ao.req.OrderPageQueryREQ;
 import top.flowerstardream.hcd.order.ao.req.OrderREQ;
@@ -43,6 +44,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static top.flowerstardream.hcd.base.constant.CommonConstant.PAGE_TOTAL;
 import static top.flowerstardream.hcd.order.constant.OrderConstant.*;
 import static top.flowerstardream.hcd.order.constant.OrderExceptionEnum.*;
 import static top.flowerstardream.hcd.order.constant.OrderRedisPrefixConstant.*;
@@ -86,6 +88,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
         // 参数校验
         if (req == null || userId == null || userId <= 0) {
             ORDER_PERMISSION_DENIED.throwException();
+            return;
         }
         // 1. 计算票价
         CalcTicketPriceDTO calcTicketPriceDTO = CalcTicketPriceDTO.builder()
@@ -136,12 +139,14 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
         // 参数校验
         if (id == null || id <= 0) {
             ORDER_PERMISSION_DENIED.throwException();
+            return null;
         }
 
         // 查询订单
         OrderEO orderEO = getById(id);
         if (orderEO == null) {
             ORDER_NOT_FOUND.throwException();
+            return null;
         }
         OrderMgmtRES orderMgmtRES = new OrderMgmtRES();
         BeanUtils.copyProperties(orderEO, orderMgmtRES);
@@ -155,12 +160,14 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
         // 参数校验
         if (req == null || req.getId() == null || req.getId() <= 0 || req.getStatus() == null) {
             PARAM_ERROR.throwException();
+            return;
         }
 
         // 查询订单是否存在
         OrderEO orderEO = self.getById(req.getId());
         if (orderEO == null) {
             ORDER_NOT_FOUND.throwException();
+            return;
         }
 
         // 更新订单状态
@@ -192,12 +199,14 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
         // 参数校验
         if (orderId == null || userId == null || userId <= 0) {
             ORDER_PERMISSION_DENIED.throwException();
+            return;
         }
 
         // 查询订单
         OrderEO orderEO = self.getById(orderId);
         if (orderEO == null) {
             ORDER_NOT_FOUND.throwException();
+            return;
         }
 
         // 验证订单归属
@@ -269,7 +278,8 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
         IPage<OrderEO> orderPage = orderMapper.selectPage(page, queryWrapper);
         // 封装返回结果
         PageResult<OrderMgmtRES> pageResult = new PageResult<>();
-        pageResult.setTotal(orderPage.getTotal());
+        Long total = orderMapper.selectCount(Wrappers.lambdaQuery(OrderEO.class));
+        pageResult.setTotal(total > PAGE_TOTAL ? PAGE_TOTAL : total);
         pageResult.setRecords(convertToRES(orderPage.getRecords()));
         return pageResult;
     }
@@ -293,7 +303,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
             OrderRES orderRES = new OrderRES();
             BeanUtils.copyProperties(orderEO, orderRES);
             return orderRES;
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     /**
@@ -340,6 +350,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
     public OrderPaymentRES payment(OrdersPaymentREQ ordersPaymentREQ) throws Exception {
         if (ordersPaymentREQ == null) {
             PARAM_ERROR.throwException();
+            return null;
         }
         // 当前登录用户id
         Long userId = getTenantId();
@@ -408,10 +419,12 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
     public Integer getOrderStatus(Long orderId) {
         if (orderId == null) {
             PARAM_ERROR.throwException();
+            return null;
         }
         OrderEO orderEO = self.getById(orderId);
         if (orderEO == null) {
             ORDER_NOT_FOUND.throwException();
+            return null;
         }
         return orderEO.getStatus();
     }
@@ -487,5 +500,24 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
                          .toList();
     }
 
+    @Override
+    public List<StatusRES> getStatus() {
+        // 使用LambdaQueryWrapper进行分组统计
+        List<Map<String, Object>> statusCounts = orderMapper.count();
 
+        // 将统计结果转换为StatusRES列表
+        return statusCounts.stream()
+            .map(map -> {
+                StatusRES statusRES = new StatusRES();
+                statusRES.setStatus((Integer) map.get("status"));
+                statusRES.setCount((Integer) map.get("count"));
+                statusRES.setDescription(getStatusDescription(statusRES.getStatus()));
+                return statusRES;
+            })
+            .collect(Collectors.toList());
+    }
+
+    private String getStatusDescription(Integer status) {
+        return getStatusDesc(status);
+    }
 }

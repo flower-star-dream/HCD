@@ -1,45 +1,4 @@
 import type { Config } from './types'
-<<<<<<< HEAD
-
-// 环境变量
-const env = import.meta.env.MODE || process.env.NODE_ENV || 'development'
-
-// 环境配置
-const configs: Record<string, Config> = {
-  development: {
-    baseUrl: 'http://localhost:8080',
-    ossUrl: 'https://dev-oss.example.com',
-    apiPrefix: '/api',
-    timeout: 10000,
-    mock: true,
-    debug: true,
-    title: '火车订票系统 - 开发环境',
-  },
-  staging: {
-    baseUrl: 'https://staging-api.example.com',
-    ossUrl: 'https://staging-oss.example.com',
-    apiPrefix: '/api',
-    timeout: 10000,
-    mock: false,
-    debug: true,
-    title: '火车订票系统 - 测试环境',
-  },
-  production: {
-    baseUrl: 'https://api.example.com',
-    ossUrl: 'https://oss.example.com',
-    apiPrefix: '/api',
-    timeout: 5000,
-    mock: false,
-    debug: false,
-    title: '火车订票系统',
-  },
-}
-
-// 获取当前环境配置
-export const config = configs[env] || configs.development
-
-// 导出环境类型
-=======
 import { getEnv } from './env'
 
 /**
@@ -106,8 +65,8 @@ const envConfigs: Record<string, Partial<Config>> = {
   
   // 测试环境特定配置
   staging: {
-    baseUrl: 'https://staging-api.hcd.com',
-    ossUrl: 'https://staging-oss.hcd.com',
+    baseUrl: 'https://hcd.flower-star-dream.top',
+    ossUrl: 'https://hcd.flower-star-dream.top/hcd',
     mock: false,
     debug: true,
     title: '火车订票系统-后端管理 - 测试环境',
@@ -116,9 +75,9 @@ const envConfigs: Record<string, Partial<Config>> = {
   
   // 生产环境特定配置
   production: {
-    baseUrl: 'https://api.hcd.com',
-    ossUrl: 'https://oss.hcd.com',
-    timeout: 5000,
+    baseUrl: 'https://hcd.flower-star-dream.top',
+    ossUrl: 'https://hcd.flower-star-dream.top/hcd',
+    timeout: 30000,
     mock: false,
     debug: false,
     services: serviceConfig.production
@@ -132,7 +91,6 @@ export const config: Config = {
 }
 
 // 环境判断辅助函数
->>>>>>> 7194a667e73e05f6f820be501adf75d935dc6a3c
 export const isDev = env === 'development'
 export const isStaging = env === 'staging'
 export const isProd = env === 'production'
