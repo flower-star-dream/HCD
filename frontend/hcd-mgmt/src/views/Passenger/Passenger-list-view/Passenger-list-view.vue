@@ -2,9 +2,6 @@
   <!-- 使用增强的ListPage组件，通过配置实现动态列和搜索条件 -->
   <ListPage
     title="乘车人列表"
-    :show-tabs="true"
-    :tabs="tabs"
-    :active-tab="statusFilter"
     :total="total"
     :current-page="currentPage"
     :page-size="pageSize"
@@ -15,7 +12,6 @@
     :table-columns="tableColumns"
     :search-fields="searchFields"
     :initial-search-form="initialSearchForm"
-    @tab-click="handleStatusTabChange"
     @size-change="handleSizeChange"
     @current-change="handlePageChange"
     @search="handleSearch"
@@ -143,81 +139,18 @@ const total = ref(0)
 const currentPage = ref(1)
 const pageSize = ref(10)
 const selectedRows = ref([])
-const statusFilter = ref('all')
-
-// 状态数量统计（乘车人可能没有显式状态，这里可以根据需要调整）
-const statusCounts = ref({
-  all: 0
-})
-
-// 标签页配置（计算属性）
-const tabs = computed(() => [
-  {
-    name: 'all',
-    label: '全部',
-    count: statusCounts.value.all,
-    lazy: true
-  }
-])
 
 // 表格列配置
 const tableColumns = [
-  {
-    prop: 'id',
-    label: '乘车人编号',
-    width: 200,
-    align: 'center'
-  },
-  {
-    prop: 'realName',
-    label: '真实姓名',
-    minWidth: 120,
-    align: 'center'
-  },
-  {
-    prop: 'cardType',
-    label: '证件类型',
-    minWidth: 120,
-    align: 'center'
-  },
-  {
-    prop: 'idCard',
-    label: '证件号码',
-    minWidth: 200,
-    align: 'center',
-    showOverflowTooltip: true
-  },
-  {
-    prop: 'createTime',
-    label: '创建时间',
-    minWidth: 200,
-    align: 'center'
-  },
-  {
-    prop: 'updateTime',
-    label: '更新时间',
-    minWidth: 200,
-    align: 'center'
-  },
-  {
-    prop: 'createPerson',
-    label: '创建人',
-    minWidth: 150,
-    align: 'center'
-  },
-  {
-    prop: 'updatePerson',
-    label: '更新人',
-    minWidth: 150,
-    align: 'center'
-  },
-  {
-    prop: 'action',
-    label: '操作',
-    width: 100,
-    align: 'center',
-    fixed: 'right'
-  }
+  { prop: 'id', label: '乘车人编号', width: 200, align: 'center' },
+  { prop: 'realName', label: '真实姓名', minWidth: 120, align: 'center' },
+  { prop: 'cardType', label: '证件类型', minWidth: 120, align: 'center' },
+  { prop: 'idCard', label: '证件号码', minWidth: 200, align: 'center', showOverflowTooltip: true },
+  { prop: 'createTime', label: '创建时间', minWidth: 200, align: 'center' },
+  { prop: 'updateTime', label: '更新时间', minWidth: 200, align: 'center' },
+  { prop: 'createPerson', label: '创建人', minWidth: 150, align: 'center' },
+  { prop: 'updatePerson', label: '更新人', minWidth: 150, align: 'center' },
+  { prop: 'action', label: '操作', width: 100, align: 'center', fixed: 'right' }
 ]
 
 // 搜索字段配置
@@ -235,6 +168,7 @@ const searchFields = [
     type: 'select',
     placeholder: '请选择证件类型',
     clearable: true,
+    width: '150px',
     options: [
       { label: '身份证', value: 'ID_CARD' },
       { label: '护照', value: 'PASSPORT' }
@@ -289,49 +223,18 @@ const fetchPassengerList = async (searchParams = {}) => {
     const response = await getPassengerListService(params)
     const data = response.records
     
-    // 按状态筛选（如果有需要）
-    let filteredData = filterDataByStatus(data)
-    
     // 模拟分页
     const start = (currentPage.value - 1) * pageSize.value
     const end = start + pageSize.value
-    const paginatedData = filteredData.slice(start, end)
+    const paginatedData = data.slice(start, end)
     
     passengerList.value = paginatedData
-    total.value = filteredData.length
-    
-    // 更新状态数量统计
-    updateStatusCounts(data)
+    total.value = data.length
   } catch (error) {
     passengerList.value = []
     total.value = 0
-    
-    // 重置状态统计
-    statusCounts.value = {
-      all: 0
-    }
   } finally {
     loading.value = false
-  }
-}
-
-/**
- * 根据状态筛选数据
- * @param {Array} data - 原始数据
- * @returns {Array} 筛选后的数据
- */
-const filterDataByStatus = (data) => {
-  // 乘车人可能没有状态字段，直接返回所有数据
-  return data
-}
-
-/**
- * 更新状态数量统计
- * @param {Array} list - 乘车人列表数据
- */
-const updateStatusCounts = (list) => {
-  statusCounts.value = {
-    all: list.length
   }
 }
 
@@ -358,21 +261,9 @@ const handleSearch = (formData) => {
  * 重置查询条件
  */
 const handleReset = () => {
-  statusFilter.value = 'all' // 重置状态筛选
   currentPage.value = 1 // 重置为第一页
   selectedRows.value = [] // 清空选择
   fetchPassengerList({}) // 重置后自动查询
-}
-
-/**
- * 处理状态标签页切换
- * @param {string} tabName - 切换到的标签页名称
- */
-const handleStatusTabChange = (tabName) => {
-  statusFilter.value = tabName // 更新状态筛选
-  currentPage.value = 1 // 重置为第一页
-  selectedRows.value = [] // 清空选择
-  fetchPassengerList()
 }
 
 /**

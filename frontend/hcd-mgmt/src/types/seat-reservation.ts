@@ -88,6 +88,11 @@ export interface ScheduleOption {
   availableTickets?: number    // 余票数
 }
 
+export interface SeatReservationChangeStatusREQ {
+  ids: number[]                   // 座位预订号
+  status: number               // 新的状态
+}
+
 /**
  * 座位状态统计类型
  */

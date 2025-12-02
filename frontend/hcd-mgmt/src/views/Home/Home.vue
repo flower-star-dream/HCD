@@ -20,22 +20,22 @@
       <div class="quick-actions">
         <h2 class="section-title">快捷操作</h2>
         <div class="action-grid">
-          <div class="action-card" @click="navigateTo('/orders')">
+          <div class="action-card" @click="navigateTo('/order/list')">
             <div class="action-icon">📋</div>
             <div class="action-text">订单管理</div>
           </div>
-          <div class="action-card" @click="navigateTo('/users')">
+          <div class="action-card" @click="navigateTo('/employee/list')">
             <div class="action-icon">👥</div>
             <div class="action-text">员工管理</div>
           </div>
-          <div class="action-card" @click="navigateTo('/trains')">
+          <div class="action-card" @click="navigateTo('/train/list')">
             <div class="action-icon">🚆</div>
             <div class="action-text">车次管理</div>
           </div>
-          <div class="action-card" @click="navigateTo('/settings')">
+          <!-- <div class="action-card" @click="navigateTo('/settings')">
             <div class="action-icon">⚙️</div>
             <div class="action-text">系统设置</div>
-          </div>
+          </div> -->
         </div>
       </div>
     </div>

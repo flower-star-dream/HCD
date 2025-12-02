@@ -22,12 +22,12 @@ export default defineConfig({
     }
   },
   server: {
-    port: 3000,
+    port: 3001,
     allowedHosts: ['hcd.flower-star-dream.top'],
     open: true,
     proxy: {
       '/api': {
-        target: ['http://localhost:8080', 'https://hcd.flower-star-dream.top/api'],
+        target: ['http://localhost:8080', 'https://hcd.flower-star-dream.top'],
         changeOrigin: true,
         // 保持/api前缀以匹配网关路由规则
         // 确保所有/api开头的请求都被正确代理
@@ -35,6 +35,19 @@ export default defineConfig({
         // 添加重写规则，确保路径正确匹配
         rewrite: (path) => path // 保持原路径不变
       }
-    }
+    },
+    '/hcd/assets': {
+        target: 'https://hcd.flower-star-dream.top',
+        changeOrigin: true,
+        rewrite: path => path.replace(/^\/hcd\/assets/, '/hcd/assets'),
+        configure: (proxy, options) => {
+          proxy.on('proxyRes', (res) => {
+            // 把错误的 text/html 改成 image/png
+            if (res.headers['content-type']?.includes('text/html')) {
+              res.headers['content-type'] = 'image/png'
+            }
+          })
+        }
+      }
   }
 })

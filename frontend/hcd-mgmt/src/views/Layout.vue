@@ -28,7 +28,7 @@
             >
               <template #title>
                 <el-icon>
-                  <component :is="isCustomIcon(item.icon)" />
+                  <component :is="item.icon" />
                 </el-icon>
                 <span>{{ item.title }}</span>
               </template>
@@ -42,7 +42,7 @@
                 >
                   <template #title>
                     <el-icon v-if="child.icon">
-                      <component :is="isCustomIcon(child.icon)" />
+                      <component :is="child.icon" />
                     </el-icon>
                     <span>{{ child.title }}</span>
                   </template>
@@ -54,7 +54,7 @@
                     :index="grandchild.path"
                   >
                     <el-icon v-if="grandchild.icon">
-                      <component :is="isCustomIcon(grandchild.icon)" />
+                      <component :is="grandchild.icon" />
                     </el-icon>
                     <span>{{ grandchild.title }}</span>
                   </el-menu-item>
@@ -66,7 +66,7 @@
                   :index="child.path"
                 >
                   <el-icon v-if="child.icon">
-                    <component :is="isCustomIcon(child.icon)" />
+                    <component :is="child.icon" />
                   </el-icon>
                   <span>{{ child.title }}</span>
                 </el-menu-item>
@@ -79,7 +79,7 @@
               :index="item.path"
             >
               <el-icon>
-                <component :is="isCustomIcon(item.icon)" />
+                <component :is="item.icon" />
               </el-icon>
               <span>{{ item.title }}</span>
             </el-menu-item>
@@ -144,15 +144,6 @@ const menuList = computed(() => appStore.menuList)
 
 // 定义一个标志变量，用于标记是否是第一次加载
 const isFirstLoad = ref(true);
-
-const isCustomIcon = (icon: any) => {
-  // 动态加载 components 目录下的同名组件，文件不存在时返回 icon
-  if (icon.endsWith('Icon')) {
-    // 组件存在
-    return defineAsyncComponent(() =>import(`@/components/${icon}/${icon}.vue`))
-  }
-  return icon
-}
 
 const toggleSidebar = () => {
   appStore.toggleSidebar()

@@ -5,6 +5,7 @@ import top.flowerstardream.hcd.base.ao.res.StatusRES;
 import top.flowerstardream.hcd.trainSeat.ao.dto.ReserveSeatDTO;
 import top.flowerstardream.hcd.trainSeat.ao.dto.ReserveSeatResultDTO;
 import top.flowerstardream.hcd.trainSeat.ao.dto.SeatReservationDTO;
+import top.flowerstardream.hcd.trainSeat.ao.req.SeatReservationChangeStatusREQ;
 import top.flowerstardream.hcd.trainSeat.ao.req.SeatReservationREQ;
 import top.flowerstardream.hcd.trainSeat.ao.res.SeatReservationRES;
 import top.flowerstardream.hcd.trainSeat.bo.SeatReservationEO;
@@ -70,4 +71,11 @@ public interface ISeatReservationService {
     ReserveSeatResultDTO reserveSeat(ReserveSeatDTO reserveSeatDTO);
 
     List<StatusRES> getStatus();
+
+    /**
+     * 批量更新座位预约状态
+     *
+     * @param seatReservationChangeStatusREQ 批量更新座位预约状态参数
+     */
+    void batchUpdateStatus(SeatReservationChangeStatusREQ seatReservationChangeStatusREQ);
 }

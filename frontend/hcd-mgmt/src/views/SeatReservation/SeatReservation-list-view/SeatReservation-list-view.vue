@@ -26,7 +26,6 @@
   >
     <!-- 操作按钮区域 -->
     <template #actions>
-      <el-button type="primary" @click="handleAdd">新增座位预订</el-button>
       <el-button
         type="warning"
         :disabled="selectedRows.length === 0"
@@ -36,11 +35,11 @@
         <span class="selected-count">({{ selectedRows.length }})</span>
       </el-button>
       <el-button
-        type="danger"
+        type="primary"
         :disabled="selectedRows.length === 0"
-        @click="handleBatchDelete"
+        @click="handleBatchStatusUpdate(0)"
       >
-        批量删除
+        批量设为可预订
         <span class="selected-count">({{ selectedRows.length }})</span>
       </el-button>
     </template>
@@ -87,14 +86,11 @@
 
     <!-- 自定义操作列 -->
     <template #column-action="{ row }">
-      <el-button type="primary" text size="small" @click="handleEdit(row)"
-        >编辑</el-button
-      >
       <el-button
         v-if="row.bookingStatus === 0"
-        type="warning"
+        type="warning" 
         text
-        size="small"
+        size="small" 
         @click="handleStatusUpdate(row, 1)"
       >
         设为已预订
@@ -108,279 +104,56 @@
       >
         设为可预订
       </el-button>
-
-      <el-button type="danger" text size="small" @click="handleDelete(row)"
-        >删除</el-button
-      >
     </template>
   </ListPage>
 
-  <!-- 使用通用表单弹窗组件 -->
-  <DialogForm
-    v-model:visible="dialogVisible"
-    :title="dialogTitle"
-    :form-data="seatReservationForm"
-    :fields="formFields"
-    :rules="formRules"
-    :is-edit="isEdit"
-    :confirm-text="isEdit ? '更新' : '新增'"
-    :loading="submitLoading"
-    width="700px"
-    @submit="handleFormSubmit"
-  >
-    <!-- 自定义班次选择字段 -->
-    <template #field-scheduleId>
-      <el-select
-        v-model="seatReservationForm.scheduleId"
-        placeholder="请选择班次"
-        style="width: 100%"
-        @change="handleScheduleChange"
-        filterable
-        remote
-        :remote-method="handleScheduleRemoteSearch"
-        :loading="scheduleLoading"
-        popper-class="schedule-select"
-        clearable
-      >
-        <el-option
-          v-for="option in scheduleOptions"
-          :key="option.value"
-          :label="option.label"
-          :value="option.value"
-        >
-          <div class="schedule-option">
-            <span>{{ option.label }}</span>
-            <span class="schedule-info"
-              >{{ option.routeInfo }} | {{ option.departureTime }}</span
-            >
-          </div>
-        </el-option>
-        <!-- 加载更多提示 -->
-        <template #empty>
-          <div v-if="isLoadingMore">加载中...</div>
-          <div v-else-if="scheduleOptions.length > 0 && !scheduleAllLoaded">
-            滚动到底部加载更多
-          </div>
-          <div v-else-if="scheduleAllLoaded">已加载全部班次</div>
-          <div v-else>请输入关键词搜索班次</div>
-        </template>
-      </el-select>
-    </template>
-
-    <!-- 自定义座位号字段 -->
-    <template #field-seatNum>
-      <div class="seat-number-input">
-        <el-input-number
-          v-model="seatReservationForm.seatNum"
-          :min="1"
-          :max="999"
-          controls-position="right"
-          placeholder="请输入座位号"
-          style="width: 200px"
-        />
-        <el-button
-          type="info"
-          size="small"
-          @click="checkSeatAvailability"
-          :disabled="!seatReservationForm.scheduleId"
-        >
-          检查可用性
-        </el-button>
-      </div>
-    </template>
-
-    <!-- 预订状态字段不再需要自定义模板 -->
-  </DialogForm>
+  <!-- 移除了编辑和新增功能的表单弹窗组件 -->
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from "vue";
+import { ref, onMounted, computed } from "vue";
 import {
   getSeatReservationList,
-  getStatus,
-  addSeatReservation,
-  updateSeatReservation,
-  deleteSeatReservation,
   batchUpdateSeatStatus,
-  checkSeatAvailability as apiCheckSeatAvailability,
 } from "@/api/seat-reservation";
 import { getScheduleList } from "@/api/schedule";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { useEmployeeStore } from "@/stores";
-import DialogForm from "@/components/DialogForm/DialogForm.vue";
 import {
   BOOKING_STATUS_LABELS,
   BOOKING_STATUS_TYPES,
-  BookingStatus,
 } from "@/types/seat-reservation";
 
-const employeeStore = useEmployeeStore();
-const employeeInfo = computed(() => employeeStore.employeeInfo);
-
-// 表单相关响应式数据
-const dialogVisible = ref(false);
-const isEdit = ref(false);
-const submitLoading = ref(false);
-const seatReservationForm = ref({
-  id: "",
-  scheduleId: "",
-  seatNum: 1,
-  bookingStatus: 0,
-});
-
-// 下拉框选项相关响应式数据
+// 下拉框选项相关响应式数据 - 仅保留搜索所需的部分
 const scheduleOptions = ref([]);
-const scheduleCurrentPage = ref(1);
-const scheduleTotal = ref(0);
-const scheduleAllLoaded = ref(false);
-const scheduleKeyword = ref('');
 const scheduleLoading = ref(false);
-const isLoadingMore = ref(false);
 
-// 预订状态选项
-const bookingStatusOptions = ref([
-  { value: 0, label: "可预订" },
-  { value: 1, label: "已预订" },
-]);
-
-// 先定义函数，避免引用顺序问题
+// 简化的班次远程搜索方法 - 仅保留搜索所需功能
+/**
+ * 班次远程搜索方法
+ * @param {string} query - 搜索关键词
+ */
 const handleScheduleRemoteSearch = async (query) => {
-  scheduleCurrentPage.value = 1;
-  scheduleAllLoaded.value = false;
-  scheduleKeyword.value = query;
-  if (!query) {
-    scheduleOptions.value = [];
-    return;
-  }
   scheduleLoading.value = true;
   try {
+    // 调用API获取班次列表
     const response = await getScheduleList({
-      page: 1,
-      pageSize: 10,
+      currentPage: 1,
+      pageSize: 20,
       keyword: query
     });
-    scheduleTotal.value = response.total || 0;
-    scheduleOptions.value = (response.records || []).map(item => ({
-      value: item.id,
-      label: item.trainName || '未知班次',
-      trainName: item.trainName,
-      routeInfo: `${item.startStationName || ''} - ${item.endStationName || ''}`,
-      departureTime: item.startTime,
-      arrivalTime: item.endTime,
-      availableTickets: item.availableTickets
+    
+    // 更新班次列表
+    scheduleOptions.value = (response.records || []).map(scheduler => ({
+      value: scheduler.id,
+      label: (scheduler.trainName || '未知列车') + ' - ' + (scheduler.routeName || '未知线路'),
     }));
   } catch (error) {
-    console.error("获取班次选项失败:", error);
-    ElMessage.error("获取班次选项失败");
+    ElMessage.error('获取班次列表失败');
     scheduleOptions.value = [];
   } finally {
     scheduleLoading.value = false;
-    isLoadingMore.value = false;
-    addScrollListener('schedule');
   }
 };
-
-const loadMoreSchedules = async () => {
-  if (isLoadingMore.value || scheduleAllLoaded.value || !scheduleKeyword.value) return;
-  isLoadingMore.value = true;
-  try {
-    const response = await getScheduleList({
-      page: scheduleCurrentPage.value + 1,
-      pageSize: 10,
-      keyword: scheduleKeyword.value
-    });
-    scheduleCurrentPage.value++;
-    const hasMore = scheduleOptions.value.length + ((response.records || []).length) < scheduleTotal.value;
-    scheduleAllLoaded.value = !hasMore;
-    const newOptions = (response.records || []).map(item => ({
-      value: item.id,
-      label: item.trainName || '未知班次',
-      trainName: item.trainName,
-      routeInfo: `${item.startStationName || ''} - ${item.endStationName || ''}`,
-      departureTime: item.startTime,
-      arrivalTime: item.endTime,
-      availableTickets: item.availableTickets
-    }));
-    const existingValues = new Set(scheduleOptions.value.map(item => item.value));
-    const filteredNewOptions = newOptions.filter(item => !existingValues.has(item.value));
-    scheduleOptions.value = [...scheduleOptions.value, ...filteredNewOptions];
-  } catch (error) {
-    ElMessage.error("加载更多班次失败");
-  } finally {
-    isLoadingMore.value = false;
-  }
-};
-
-const addScrollListener = (type) => {
-  setTimeout(() => {
-    const dropdowns = document.querySelectorAll('.schedule-select .el-select-dropdown__wrap');
-    dropdowns.forEach(dropdown => {
-      dropdown.removeEventListener('scroll', scrollHandler);
-      dropdown.addEventListener('scroll', scrollHandler);
-    });
-    function scrollHandler(e) {
-      const { scrollTop, scrollHeight, clientHeight } = e.target;
-      if (scrollTop + clientHeight >= scrollHeight - 10) {
-        if (type === 'schedule') loadMoreSchedules();
-      }
-    }
-  }, 100);
-};
-
-// 表单字段配置
-const formFields = [
-  {
-    prop: "scheduleId",
-    label: "班次",
-    type: "custom",
-    placeholder: "请选择班次",
-    required: true,
-    clearable: true,
-    filterable: true,
-    remote: true,
-    remoteMethod: handleScheduleRemoteSearch,
-    loading: scheduleLoading,
-    popperClass: 'schedule-select'
-  },
-  {
-    prop: "seatNum",
-    label: "座位号",
-    type: "custom",
-    placeholder: "请输入座位号",
-    required: true,
-  },
-  {
-    prop: "bookingStatus",
-    label: "预订状态",
-    type: "select",
-    placeholder: "请选择预订状态",
-    options: bookingStatusOptions,
-    required: true,
-  },
-];
-
-// 表单验证规则
-const formRules = computed(() => ({
-  scheduleId: [{ required: true, message: "请选择班次", trigger: "change" }],
-  seatNum: [
-    { required: true, message: "请输入座位号", trigger: "blur" },
-    {
-      type: "number",
-      min: 1,
-      max: 999,
-      message: "座位号必须在 1 到 999 之间",
-      trigger: "blur",
-    },
-  ],
-  bookingStatus: [
-    { required: true, message: "请选择预订状态", trigger: "change" },
-  ],
-}));
-
-// 计算属性
-const dialogTitle = computed(() =>
-  isEdit.value ? "编辑座位预订" : "新增座位预订"
-);
 
 // 响应式数据
 const seatReservationList = ref([]);
@@ -458,13 +231,18 @@ const searchFields = [
     label: "班次",
     type: "select",
     placeholder: "请选择班次",
-    options: scheduleOptions,
     clearable: true,
     filterable: true,
     remote: true,
     remoteMethod: handleScheduleRemoteSearch,
-    loading: scheduleLoading,
-    popperClass: 'schedule-select'
+    loading: scheduleLoading.value,
+    options: scheduleOptions,
+    // 添加滚动事件监听以支持加载更多
+    popperClass: 'schedule-select',
+    // Element Plus的Select组件需要通过自定义指令或popper-class来添加滚动事件
+    // 这里我们在选项列表渲染后通过nextTick添加滚动监听
+    teleported: false,
+    appendToBody: false
   },
   {
     prop: "seatNum",
@@ -660,21 +438,6 @@ const handlePageChange = (page) => {
 };
 
 /**
- * 新增座位预订
- */
-const handleAdd = () => {
-  isEdit.value = false;
-  dialogVisible.value = true;
-  // 重置表单数据
-  seatReservationForm.value = {
-    id: "",
-    scheduleId: "",
-    seatNum: 1,
-    bookingStatus: 0,
-  };
-};
-
-/**
  * 批量更新座位状态
  * @param {number} status - 目标状态
  */
@@ -702,9 +465,9 @@ const handleBatchStatusUpdate = async (status) => {
       ElMessage.warning("不支持的批量状态更新");
       return;
     }
-
+    
     const ids = selectedRows.value.map((row) => row.id);
-    await batchUpdateSeatStatus(ids, status);
+    await batchUpdateSeatStatus({ ids, status });
     ElMessage.success(
       `成功更新 ${selectedRows.value.length} 个座位预订状态为${statusLabel}`
     );
@@ -719,133 +482,7 @@ const handleBatchStatusUpdate = async (status) => {
   }
 };
 
-/**
- * 批量删除座位预订
- */
-const handleBatchDelete = async () => {
-  if (selectedRows.value.length === 0) {
-    ElMessage.warning("请选择要删除的座位预订");
-    return;
-  }
-
-  try {
-    await ElMessageBox.confirm(
-      `确定要删除选中的 ${selectedRows.value.length} 个座位预订吗？`,
-      "删除确认",
-      {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-      }
-    );
-
-    const ids = selectedRows.value.map((row) => row.id);
-    await deleteSeatReservation(ids);
-    ElMessage.success(`成功删除 ${selectedRows.value.length} 个座位预订`);
-
-    // 删除成功后刷新列表
-    fetchSeatReservationList();
-  } catch (error) {
-    // 用户取消删除或发生错误
-    if (error !== "cancel") {
-      ElMessage.error("删除失败");
-    }
-  }
-};
-
-/**
- * 编辑座位预订
- * @param {Object} row - 座位预订数据
- */
-const handleEdit = (row) => {
-  isEdit.value = true;
-  dialogVisible.value = true;
-  // 复制数据到表单
-  seatReservationForm.value = {
-    id: row.id,
-    scheduleId: row.scheduleId,
-    seatNum: row.seatNum,
-    bookingStatus: row.bookingStatus,
-  };
-};
-
-/**
- * 处理班次变化
- */
-const handleScheduleChange = () => {
-  // 清空座位号，重新选择
-  seatReservationForm.value.seatNum = 1;
-};
-
-/**
- * 检查座位可用性
- */
-const checkSeatAvailability = async () => {
-  if (
-    !seatReservationForm.value.scheduleId ||
-    !seatReservationForm.value.seatNum
-  ) {
-    ElMessage.warning("请先选择班次和座位号");
-    return;
-  }
-
-  try {
-    const isAvailable = await apiCheckSeatAvailability(
-      seatReservationForm.value.scheduleId,
-      seatReservationForm.value.seatNum,
-      isEdit.value ? seatReservationForm.value.id : undefined
-    );
-
-    if (isAvailable) {
-      ElMessage.success("该座位可用");
-    } else {
-      ElMessage.warning("该座位已被预订或锁定");
-    }
-  } catch (error) {
-    ElMessage.error("检查座位可用性失败");
-  }
-};
-
-/**
- * 处理表单提交
- * @param {Object} formData - 表单数据
- */
-const handleFormSubmit = async (formData) => {
-  try {
-    submitLoading.value = true;
-
-    // 准备提交数据
-    const submitData = { ...formData };
-
-    // 设置创建人或更新人
-    if (isEdit.value) {
-      submitData.updatePerson =
-        employeeInfo.value?.nickname || employeeInfo.value?.username;
-    } else {
-      submitData.createPerson =
-        employeeInfo.value?.nickname || employeeInfo.value?.username;
-    }
-
-    if (isEdit.value) {
-      // 编辑座位预订
-      await updateSeatReservation(submitData);
-      ElMessage.success("更新座位预订成功");
-    } else {
-      // 新增座位预订
-      await addSeatReservation(submitData);
-      ElMessage.success("新增座位预订成功");
-    }
-
-    // 关闭弹窗
-    dialogVisible.value = false;
-    // 刷新列表
-    fetchSeatReservationList();
-  } catch (error) {
-    ElMessage.error(isEdit.value ? "更新失败" : "新增失败");
-  } finally {
-    submitLoading.value = false;
-  }
-};
+// 保留核心功能：列表展示、搜索筛选、状态更新
 
 /**
  * 更新座位状态
@@ -871,7 +508,7 @@ const handleStatusUpdate = async (row, status) => {
     }
 
     // 调用状态更新接口
-    await batchUpdateSeatStatus([row.id], status);
+    await batchUpdateSeatStatus({ ids: [row.id], status });
     ElMessage.success("状态更新成功");
     // 更新成功后刷新列表
     fetchSeatReservationList();
@@ -883,35 +520,6 @@ const handleStatusUpdate = async (row, status) => {
   }
 };
 
-/**
- * 删除座位预订
- * @param {Object} row - 座位预订数据
- */
-const handleDelete = async (row) => {
-  try {
-    await ElMessageBox.confirm(
-      `确定要删除座位预订「${row.id}」吗？`,
-      "删除确认",
-      {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-      }
-    );
-
-    // 调用删除接口
-    await deleteSeatReservation([row.id]);
-    ElMessage.success("删除成功");
-    // 删除成功后刷新列表
-    fetchSeatReservationList();
-  } catch (error) {
-    // 用户取消删除或发生错误
-    if (error !== "cancel") {
-      ElMessage.error("删除失败");
-    }
-  }
-};
-
 // 组件挂载后加载数据
 onMounted(() => {
   fetchSeatReservationList();
@@ -919,7 +527,7 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
-/* 使用ListPage组件的样式，无需额外样式 */
+/* 核心样式定义 */
 .selected-count {
   margin-left: 4px;
   font-weight: bold;
@@ -933,23 +541,5 @@ onMounted(() => {
 .person-name {
   color: #606266;
   font-size: 12px;
-}
-
-.schedule-option {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  .schedule-info {
-    font-size: 12px;
-    color: #909399;
-    margin-left: 10px;
-  }
-}
-
-.seat-number-input {
-  display: flex;
-  align-items: center;
-  gap: 10px;
 }
 </style>

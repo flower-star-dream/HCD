@@ -3,6 +3,7 @@ import type {
   SeatReservation,
   SeatReservationList,
   SeatReservationQuery,
+  SeatReservationChangeStatusREQ,
   SeatReservationForm,
   SeatStatusStats,
   ApiResponse,
@@ -52,8 +53,8 @@ export const deleteSeatReservation = (ids: number[]): Promise<void> => {
  * @param status 新的状态
  * @returns 更新响应
  */
-export const batchUpdateSeatStatus = (ids: number[], status: number): Promise<ApiResponse> => {
-  return trainSeatRequest.put('/seatReservation/batch-update-status', { ids, bookingStatus: status })
+export const batchUpdateSeatStatus = (data: Partial<SeatReservationChangeStatusREQ>): Promise<ApiResponse> => {
+  return trainSeatRequest.put('/seatReservation/batch-update-status', data)
 }
 
 /**

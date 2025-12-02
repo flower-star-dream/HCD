@@ -8,6 +8,7 @@ import top.flowerstardream.hcd.base.ao.res.StatusRES;
 import top.flowerstardream.hcd.tools.result.PageResult;
 import top.flowerstardream.hcd.tools.result.Result;
 import top.flowerstardream.hcd.trainSeat.ao.pqreq.SeatReservationPageQueryREQ;
+import top.flowerstardream.hcd.trainSeat.ao.req.SeatReservationChangeStatusREQ;
 import top.flowerstardream.hcd.trainSeat.ao.req.SeatReservationREQ;
 import top.flowerstardream.hcd.trainSeat.ao.res.SeatReservationRES;
 import top.flowerstardream.hcd.trainSeat.biz.service.ISeatReservationService;
@@ -51,6 +52,13 @@ public class MgmtSeatReservationController {
         log.info("【管理端-座位预订服务】获取座位预订，参数: {}", seatReservationPageQueryREQ);
         PageResult<SeatReservationRES> pageResult = seatReservationService.EmployeePageQuery(seatReservationPageQueryREQ);
         return Result.successResult(pageResult);
+    }
+
+    @PutMapping("/batch-update-status")
+    public Result<Void> batchUpdateStatus(@RequestBody SeatReservationChangeStatusREQ seatReservationChangeStatusREQ) {
+        log.info("【管理端-座位预订服务】批量更新座位预订状态，参数: {}", seatReservationChangeStatusREQ);
+        seatReservationService.batchUpdateStatus(seatReservationChangeStatusREQ);
+        return Result.successResult();
     }
 
     @GetMapping("/getStatus")

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import top.flowerstardream.hcd.base.ao.res.StatusRES;
 import top.flowerstardream.hcd.tools.result.Result;
 import top.flowerstardream.hcd.trainSeat.ao.dto.*;
+import top.flowerstardream.hcd.trainSeat.ao.req.SeatReservationChangeStatusREQ;
 import top.flowerstardream.hcd.trainSeat.ao.req.SeatReservationREQ;
 import top.flowerstardream.hcd.trainSeat.ao.res.SeatReservationRES;
 import top.flowerstardream.hcd.trainSeat.biz.mapper.RouteMapper;
@@ -372,6 +373,40 @@ public class ISeatReservationServiceImpl extends ServiceImpl<SeatReservationMapp
                 return statusRES;
             })
             .collect(Collectors.toList());
+    }
+
+    /**
+     * 批量更新座位预约状态
+     *
+     * @param seatReservationChangeStatusREQ 批量更新座位预约状态参数
+     */
+    @Override
+    public void batchUpdateStatus(SeatReservationChangeStatusREQ seatReservationChangeStatusREQ) {
+        // 参数校验
+        if (seatReservationChangeStatusREQ == null ||
+            seatReservationChangeStatusREQ.getIds() == null ||
+            seatReservationChangeStatusREQ.getIds().isEmpty() ||
+            seatReservationChangeStatusREQ.getStatus() == null) {
+            THE_QUERY_PARAMETER_CANNOT_BE_EMPTY.throwException();
+            return;
+        }
+
+        // 批量更新座位预约状态
+        List<SeatReservationEO> seatReservationEOs = seatReservationMapper.selectBatchIds(seatReservationChangeStatusREQ.getIds());
+        if (CollUtil.isEmpty(seatReservationEOs)) {
+            return;
+        }
+
+        // 设置新的状态
+        seatReservationEOs.forEach(seatReservationEO -> {
+            seatReservationEO.setBookingStatus(seatReservationChangeStatusREQ.getStatus());
+        });
+
+        // 批量更新数据库
+        boolean updateResult = self.updateBatchById(seatReservationEOs);
+        if (!updateResult) {
+            MODIFICATION_FAILED.throwException();
+        }
     }
 
     /**
