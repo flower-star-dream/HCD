@@ -1,0 +1,240 @@
+version: '3.8'
+
+services:
+  # Nacos Service Discovery
+  hcd-nacos:
+    image: nacos/nacos-server:v2.4.3
+    container_name: hcd-nacos-test
+    ports:
+      - "8848:8848"
+      - "9848:9848"
+    environment:
+      - PREFER_HOST_MODE=hostname
+      - MODE=standalone
+      - SPRING_DATASOURCE_PLATFORM=mysql
+      - MYSQL_SERVICE_HOST=hcd-mysql
+      - MYSQL_SERVICE_PORT=3306
+      - MYSQL_SERVICE_DB_NAME=nacos_test
+      - MYSQL_SERVICE_USER=root
+      - MYSQL_SERVICE_PASSWORD=root123
+      - MYSQL_SERVICE_DB_PARAM=characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useSSL=false&serverTimezone=Asia/Shanghai
+    volumes:
+      - ./backend/conf/server/nacos:/home/nacos/conf
+      - ./backend/conf/client/nacos:/home/nacos/data/config-data
+      - hcd-nacos-logs-test:/home/nacos/logs
+    depends_on:
+      - hcd-mysql
+    networks:
+      - hcd-network-test
+    restart: unless-stopped
+
+  # MySQL Database
+  hcd-mysql:
+    image: mysql:8.0.33
+    container_name: hcd-mysql-test
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root123
+      - MYSQL_DATABASE=nacos_test
+      - TZ=Asia/Shanghai
+    volumes:
+      - hcd-mysql-data-test:/var/lib/mysql
+      - ./backend/conf/server/mysql:/etc/mysql/conf.d
+    networks:
+      - hcd-network-test
+    restart: unless-stopped
+
+  # Redis Cache
+  hcd-redis:
+    image: redis:7.2-alpine
+    container_name: hcd-redis-test
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./backend/conf/server/redis:/usr/local/etc/redis
+      - hcd-redis-data-test:/data
+    command: redis-server /usr/local/etc/redis/redis.conf
+    networks:
+      - hcd-network-test
+    restart: unless-stopped
+
+  # Seata Distributed Transaction
+  hcd-seata:
+    image: seataio/seata-server:2.0.0
+    container_name: hcd-seata-test
+    ports:
+      - "7091:7091"
+      - "8091:8091"
+    environment:
+      - SEATA_PORT=8091
+      - STORE_MODE=db
+      - SEATA_CONFIG_NAME=file:/root/seata-config/registry.conf
+    volumes:
+      - ./backend/conf/server/seata:/root/seata-config
+      - hcd-seata-logs-test:/root/logs
+    depends_on:
+      - hcd-mysql
+      - hcd-nacos
+    networks:
+      - hcd-network-test
+    restart: unless-stopped
+
+  # Nginx Reverse Proxy
+  hcd-nginx:
+    build:
+      context: ./frontend/nginx
+      dockerfile: Dockerfile
+    container_name: hcd-nginx-test
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./frontend/nginx/conf:/etc/nginx/conf.d
+      - ./frontend/nginx/logs:/var/log/nginx
+      - hcd-nginx-data-test:/usr/share/nginx/html
+    depends_on:
+      - hcd-gateway
+      - hcd-frontend-mgmt
+    networks:
+      - hcd-network-test
+    restart: unless-stopped
+
+  # Backend Gateway Service
+  hcd-gateway:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/hcd-gateway:${GITHUB_SHA}
+    container_name: hcd-gateway-test
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=test
+      - NACOS_SERVER_ADDR=hcd-nacos:8848
+      - NACOS_NAMESPACE=8a19b7dd-7c6e-4a98-8bcf-b81ebd4aad2c
+    volumes:
+      - ./backend/logs:/app/logs
+      - ./backend/conf/client:/app/conf
+    depends_on:
+      - hcd-nacos
+      - hcd-mysql
+      - hcd-redis
+    networks:
+      - hcd-network-test
+    restart: unless-stopped
+
+  # User Service
+  hcd-user:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/hcd-user:${GITHUB_SHA}
+    container_name: hcd-user-test
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=test
+      - NACOS_SERVER_ADDR=hcd-nacos:8848
+      - NACOS_NAMESPACE=8a19b7dd-7c6e-4a98-8bcf-b81ebd4aad2c
+      - DB_HOST=hcd-mysql
+      - DB_USER=root
+      - DB_PASSWORD=root123
+    volumes:
+      - ./backend/logs:/app/logs
+      - ./backend/conf/client:/app/conf
+    depends_on:
+      - hcd-nacos
+      - hcd-mysql
+      - hcd-redis
+    networks:
+      - hcd-network-test
+    restart: unless-stopped
+
+  # Train Seat Service
+  hcd-trainseat:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/hcd-trainseat:${GITHUB_SHA}
+    container_name: hcd-trainseat-test
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=test
+      - NACOS_SERVER_ADDR=hcd-nacos:8848
+      - NACOS_NAMESPACE=8a19b7dd-7c6e-4a98-8bcf-b81ebd4aad2c
+      - DB_HOST=hcd-mysql
+      - DB_USER=root
+      - DB_PASSWORD=root123
+    volumes:
+      - ./backend/logs:/app/logs
+      - ./backend/conf/client:/app/conf
+    depends_on:
+      - hcd-nacos
+      - hcd-mysql
+      - hcd-redis
+    networks:
+      - hcd-network-test
+    restart: unless-stopped
+
+  # Ticket Service
+  hcd-ticket:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/hcd-ticket:${GITHUB_SHA}
+    container_name: hcd-ticket-test
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_PROFILES_ACTIVE=test
+      - NACOS_SERVER_ADDR=hcd-nacos:8848
+      - NACOS_NAMESPACE=8a19b7dd-7c6e-4a98-8bcf-b81ebd4aad2c
+      - DB_HOST=hcd-mysql
+      - DB_USER=root
+      - DB_PASSWORD=root123
+    volumes:
+      - ./backend/logs:/app/logs
+      - ./backend/conf/client:/app/conf
+    depends_on:
+      - hcd-nacos
+      - hcd-mysql
+      - hcd-redis
+    networks:
+      - hcd-network-test
+    restart: unless-stopped
+
+  # Order Service
+  hcd-order:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/hcd-order:${GITHUB_SHA}
+    container_name: hcd-order-test
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_PROFILES_ACTIVE=test
+      - NACOS_SERVER_ADDR=hcd-nacos:8848
+      - NACOS_NAMESPACE=8a19b7dd-7c6e-4a98-8bcf-b81ebd4aad2c
+      - DB_HOST=hcd-mysql
+      - DB_USER=root
+      - DB_PASSWORD=root123
+    volumes:
+      - ./backend/logs:/app/logs
+      - ./backend/conf/client:/app/conf
+    depends_on:
+      - hcd-nacos
+      - hcd-mysql
+      - hcd-redis
+      - hcd-seata
+    networks:
+      - hcd-network-test
+    restart: unless-stopped
+
+  # Frontend Management UI
+  hcd-frontend-mgmt:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/hcd-frontend-mgmt:${GITHUB_SHA}
+    container_name: hcd-frontend-mgmt-test
+    ports:
+      - "3000:80"
+    networks:
+      - hcd-network-test
+    restart: unless-stopped
+
+volumes:
+  hcd-mysql-data-test:
+  hcd-redis-data-test:
+  hcd-nacos-logs-test:
+  hcd-seata-logs-test:
+  hcd-nginx-data-test:
+
+networks:
+  hcd-network-test:
+    driver: bridge

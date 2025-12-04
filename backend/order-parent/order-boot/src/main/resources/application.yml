@@ -5,7 +5,6 @@ spring:
     active: dev
   config:
     import:
-      - nacos:${spring.application.name}
       - nacos:hcd-common
   cloud:
     nacos:
@@ -21,6 +20,11 @@ spring:
         port: ${server.port}
         namespace: 8a19b7dd-7c6e-4a98-8bcf-b81ebd4aad2c
         group: DEFAULT_GROUP
+  datasource:
+    url: jdbc:mysql://localhost:3306/hcd_order?useUnicode=true&characterEncoding=utf8&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=GMT%2B8
+    username: root
+    password: 1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
 # 设置端口
 server:

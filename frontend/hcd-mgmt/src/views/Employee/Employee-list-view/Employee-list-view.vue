@@ -74,6 +74,8 @@ import { getEmployeeListService, updateEmployeeService, deleteEmployeeService, c
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useEmployeeStore } from '@/stores'
 import DialogForm from '@/components/DialogForm/DialogForm.vue'
+import { strToBase64 } from '@/utils/base64'
+import { md5ToHex } from '@/utils/md5'
 
 const employeeStore = useEmployeeStore()
 const employeeInfo = computed(() => employeeStore.employeeInfo)
@@ -649,10 +651,13 @@ const handleFormSubmit = async (formData) => {
     // 如果是编辑且没有输入新密码，删除密码字段
     if (isEdit.value && !submitData.password) {
       delete submitData.password
+    } else {
+      submitData.password = md5ToHex(strToBase64(submitData.password))
     }
     if (formData.status === false) {
       submitData.status = EMPLOYEE_STATUS.DISABLED
     }
+    
     
     if (isEdit.value) {
       // 编辑用户

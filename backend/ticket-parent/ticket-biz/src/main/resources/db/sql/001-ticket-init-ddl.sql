@@ -1,3 +1,5 @@
+CREATE DATABASE IF NOT EXISTS `hcd_ticket`;
+USE `hcd_ticket`;
 CREATE TABLE IF NOT EXISTS `hcd_ticket` (
   `id` bigint NOT NULL COMMENT '票号',
   `order_id` bigint NOT NULL COMMENT '所属订单号',

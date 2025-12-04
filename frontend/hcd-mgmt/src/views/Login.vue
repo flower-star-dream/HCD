@@ -56,6 +56,8 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
 import { useEmployeeStore } from '@/stores'
+import { md5ToHex } from '@/utils/md5'
+import { strToBase64 } from '@/utils/base64'
 
 const router = useRouter()
 const employeeStore = useEmployeeStore()
@@ -117,10 +119,9 @@ const handleLogin = async () => {
       try {
         // 判断输入是否为手机号格式
         const isPhone = /^1[3-9]\d{9}$/.test(loginForm.username)
-        
         // 根据输入类型构建不同的登录参数，只传递必要字段
         const loginParams = {
-          password: loginForm.password,
+          password: md5ToHex(strToBase64(loginForm.password)),
           // 如果是手机号，只传递phone字段；否则只传递username字段
           ...(isPhone ? { phone: loginForm.username, username: ''} : { username: loginForm.username, phone: '' })
         }

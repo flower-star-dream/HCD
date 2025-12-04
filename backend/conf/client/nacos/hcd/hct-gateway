@@ -1,0 +1,88 @@
+spring:
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: false
+          lower-case-service-id: true
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOriginPatterns: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            allowCredentials: true
+            maxAge: 3600
+      routes:
+        - id: aggregate_doc
+          uri: forward:/aggregate/
+          predicates:
+            - Path=/aggregate/**
+          filters:
+            - SetStatus=200
+          order: 0
+
+        - id: hcd-user-api
+          uri: lb://hcd-user
+          predicates:
+            - Path=/user/**
+          filters:
+            - StripPrefix=1
+          order: 1
+        - id: hcd-trainSeat-api
+          uri: lb://hcd-trainSeat
+          predicates:
+            - Path=/trainSeat/**
+          order: 1
+        - id: hcd-ticket-api
+          uri: lb://hcd-ticket
+          predicates:
+            - Path=/ticket/**
+          order: 1
+        - id: hcd-order-api
+          uri: lb://hcd-order
+          predicates:
+            - Path=/order/**
+          order: 1
+        - id: hcd-system-api
+          uri: lb://hcd-system
+          predicates:
+            - Path=/system/**
+          order: 1
+
+        - id: hcd-user
+          uri: lb://hcd-user
+          predicates:
+            - Path=/api/v1/*/user/**
+          order: 10
+        - id: hcd-trainSeat
+          uri: lb://hcd-trainSeat
+          predicates:
+            - Path=/api/v1/*/trainSeat/**
+          order: 10
+        - id: hcd-ticket
+          uri: lb://hcd-ticket
+          predicates:
+            - Path=/api/v1/*/ticket/**
+          order: 10
+        - id: hcd-order
+          uri: lb://hcd-order
+          predicates:
+            - Path=/api/v1/*/order/**
+          order: 10
+        - id: hcd-system
+          uri: lb://hcd-system
+          predicates:
+            - Path=/api/v1/system/**
+          order: 10
+
+management:
+  security:
+    enabled: false
+
+knife4j:
+  gateway:
+    enabled: true
+    discover:
+      enabled: true
+      version: openapi3

@@ -1,0 +1,199 @@
+spring:
+  datasource:
+    hikari:
+      maximum-pool-size: 40
+      minimum-idle: 20
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  main:
+    allow-circular-references: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 123456
+      database: 0
+      timeout: 5000ms
+      lettuce:
+        pool:
+          max-active: 40
+          max-idle: 40
+          min-idle: 20
+          max-wait: -1ms
+  cache:
+    type: redis
+    redis:
+      time-to-live: 3600000
+      key-prefix: "cache:"
+      use-key-prefix: true
+      cache-null-values: false
+
+minio:
+  endpoint: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket: hcd
+
+seata:
+  enabled: true
+  application-id: ${spring.application.name}
+  tx-service-group: default_tx_group
+  data-source-proxy-mode: XA
+  client:
+    rm:
+      report-success-enable: true
+  service:
+    vgroup-mapping:
+      default_tx_group: default
+    grouplist:
+      default: 127.0.0.1:8091
+  registry:
+    type: nacos
+    nacos:
+      server-addr: 127.0.0.1:8847
+      namespace: 3e3bd19f-0df3-47e2-9ec6-4151033f3136
+      group: DEFAULT_GROUP
+      username: nacos
+      password: nacos
+  config:
+    type: nacos
+    nacos:
+      server-addr: 127.0.0.1:8847
+      namespace: 3e3bd19f-0df3-47e2-9ec6-4151033f3136
+      group: DEFAULT_GROUP
+      username: nacos
+      password: nacos
+
+
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  # 如果用了 swagger-ui，也顺手改一下
+  swagger-ui:
+    path: /swagger-ui.html
+
+# Knife4j 配置
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+
+# Actuator管理端点配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: info, health, mappings, filters
+    health:
+      show-details: always
+  endpoint:
+    info:
+      enabled: true
+
+info:
+  app:
+    name: ${spring.application.name}
+    version: release-1.0.0
+    description: ${spring.application.name}项目
+  build:
+    time: 2025.10.20
+
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: top.flowerstardream.hcd.**.bo.eo
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# 日志配置
+logging:
+  # file:
+  #   name: logs/${spring.application.name}/${spring.application.name}-%d{yyyy-MM-dd}.log
+  level:
+    top.flower.star.dream.hcd: debug
+    org.springframework.web: debug
+    com.alibaba.cloud.nacos: debug
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.http.server.reactive: DEBUG
+    com.baomidou.mybatisplus: debug
+    org.apache.ibatis: debug
+    org.springdoc: DEBUG
+    io.seata: debug
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n'
+    file: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n'
+
+hcd:
+  jwt:
+    # 设置jwt签名加密时使用的秘钥
+    employee-secret-key: 48E61cUFc5I2SdUSisWz4D0iQHIxDf07tFxZXWrdPTbAn8zcEtD6YkHV3t1xbQUm
+    # 设置jwt过期时间
+    employee-ttl: 7200
+    # 设置前端传递过来的令牌名称
+    employee-token-name: token
+    # 设置最小刷新间隔(S)
+    employee-refresh-time: 300
+    # 设置jwt签名加密时使用的秘钥
+    user-secret-key: 48E61cUFc5I2SdUSisWz4D0iQHIxDf07tFxZXWrdPTbAn8zcEtD6YkHV3t1xbQUm
+    # 设置jwt过期时间
+    user-ttl: 7200
+    # 设置前端传递过来的令牌名称
+    user-token-name: authentication
+    # 设置最小刷新间隔(S)
+    user-refresh-time: 300
+  thread-pool:
+    business:
+      core-pool-size: 10
+      max-pool-size: 50
+      queue-capacity: 200
+      keep-alive-seconds: 60
+      thread-name-prefix: "business-"
+      rejected-execution-handler: "CallerRunsPolicy"
+      wait-for-tasks-to-complete-on-shutdown: true
+      await-termination-seconds: 60
+    common:
+      core-pool-size: 5
+      max-pool-size: 20
+      queue-capacity: 100
+      keep-alive-seconds: 30
+      thread-name-prefix: "common-"
+      rejected-execution-handler: "DiscardPolicy"
+      wait-for-tasks-to-complete-on-shutdown: true
+      await-termination-seconds: 30
+    message:
+      core-pool-size: 8
+      max-pool-size: 30
+      queue-capacity: 500
+      keep-alive-seconds: 30
+      thread-name-prefix: "message-"
+      rejected-execution-handler: "DiscardOldestPolicy"
+      wait-for-tasks-to-complete-on-shutdown: true
+      await-termination-seconds: 30
+  gateway:
+    white-list:
+      - /aggregate/**
+      - /swagger-resources/**
+      - /*/swagger-resources/**
+      - /webjars/**
+      - /*/webjars/**
+      - /api/v1/*/user/*/login/**
+      - /swagger-ui/**
+      - /*/swagger-ui/**
+      - /*/v3/api-docs/**
+      - /*/v3/api-docs
+      - /v3/api-docs
+      - /webjars
+      - /*/webjars
+      - /*/doc.html
+      - /doc.html
+      - /knife4j/**
+      - /actuator
+      - /actuator/**
+    auth-matrix:
+      - pattern: /**
+        roles: "*"
+  wechat:
+    appid: wxef4d9c3d26dea975
+    secret: b4829614df9edef6aebd669c62e8a48d

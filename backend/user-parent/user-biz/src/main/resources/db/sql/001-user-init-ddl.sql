@@ -1,3 +1,5 @@
+CREATE DATABASE IF NOT EXISTS `hcd_user`;
+USE `hcd_user`;
 CREATE TABLE IF NOT EXISTS `hcd_user` (
   `id` bigint NOT NULL COMMENT '用户id',
   `username` varchar(30) NOT NULL COMMENT '用户名',

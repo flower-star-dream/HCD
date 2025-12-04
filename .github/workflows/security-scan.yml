@@ -1,0 +1,258 @@
+name: Security Scan
+
+on:
+  schedule:
+    - cron: '0 2 * * 1' # 每周一凌晨2点运行
+  workflow_dispatch:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - 'docker-compose*.yml'
+      - 'Dockerfile*'
+
+jobs:
+  # 依赖漏洞扫描
+  dependency-scan:
+    name: Dependency Vulnerability Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Run OWASP Dependency Check
+        run: |
+          cd backend
+          mvn org.owasp:dependency-check-maven:check -DfailBuildOnCVSS=7
+
+      - name: Upload OWASP results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dependency-check-report
+          path: backend/target/dependency-check-report.html
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/hcd-mgmt/package-lock.json
+
+      - name: Run npm audit
+        run: |
+          cd frontend/hcd-mgmt
+          npm audit --audit-level=high
+
+  # 容器镜像安全扫描
+  container-scan:
+    name: Container Image Security Scan
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image: [gateway-service, user-service, trainseat-service, ticket-service, order-service, system-service, hcd-mgmt, nginx]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          if [[ "${{ matrix.image }}" == "hcd-mgmt" ]]; then
+            docker build -t ${{ matrix.image }}:scan ./frontend/hcd-mgmt
+          elif [[ "${{ matrix.image }}" == "nginx" ]]; then
+            docker build -t ${{ matrix.image }}:scan ./frontend/nginx
+          else
+            docker build -t ${{ matrix.image }}:scan -f backend/Dockerfile.${{ matrix.image }} ./backend
+          fi
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: '${{ matrix.image }}:scan'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/docker@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          image: ${{ matrix.image }}:scan
+          args: --severity-threshold=high
+        continue-on-error: true
+
+  # 代码安全扫描
+  code-security-scan:
+    name: Code Security Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: java, javascript
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Build backend
+        run: |
+          cd backend
+          mvn clean compile -B -q
+
+      - name: Build frontend
+        run: |
+          cd frontend/hcd-mgmt
+          npm ci
+          npm run build
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+
+      - name: Run Semgrep
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/security-audit
+            p/secrets
+            p/ci
+            p/docker
+            p/kubernetes
+        continue-on-error: true
+
+  # 密钥扫描
+  secret-scan:
+    name: Secret Detection
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run GitLeaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+
+      - name: Run TruffleHog
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: main
+          head: HEAD
+          extra_args: --debug --only-verified
+
+  # 基础设施即代码扫描
+  iac-scan:
+    name: Infrastructure as Code Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: .
+          framework: dockerfile,docker_compose
+          output_format: sarif
+          output_file_path: checkov.sarif
+
+      - name: Upload Checkov results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: checkov.sarif
+
+      - name: Run tfsec
+        uses: aquasecurity/tfsec-action@v1.0.0
+        with:
+          soft_fail: true
+
+  # 生成安全报告
+  security-report:
+    name: Generate Security Report
+    runs-on: ubuntu-latest
+    needs: [dependency-scan, container-scan, code-security-scan, secret-scan, iac-scan]
+    if: always()
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Generate Security Report
+        run: |
+          cat > security-report.md << 'EOF'
+          # HCD项目安全扫描报告
+
+          ## 扫描时间
+          $(date '+%Y-%m-%d %H:%M:%S')
+
+          ## 扫描结果汇总
+          - 依赖漏洞扫描: ${{ needs.dependency-scan.result }}
+          - 容器镜像扫描: ${{ needs.container-scan.result }}
+          - 代码安全扫描: ${{ needs.code-security-scan.result }}
+          - 密钥扫描: ${{ needs.secret-scan.result }}
+          - 基础设施扫描: ${{ needs.iac-scan.result }}
+
+          ## 详细报告
+          请查看对应的GitHub Actions运行结果获取详细信息。
+
+          ## 建议
+          1. 及时修复发现的高危漏洞
+          2. 定期更新依赖包
+          3. 加强代码审查
+          4. 使用安全的编码实践
+          EOF
+
+      - name: Upload Security Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-report
+          path: security-report.md
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('security-report.md', 'utf8');
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: report
+            });

@@ -1,5 +1,6 @@
+CREATE DATABASE IF NOT EXISTS `hcd_train_seat`;
+USE `hcd_train_seat`;
 -- hcd_train_seat.hcd_route definition
-
 CREATE TABLE IF NOT EXISTS  `hcd_route` (
   `id` bigint NOT NULL COMMENT '线路号',
   `route_name` varchar(20) NOT NULL COMMENT '线路名',

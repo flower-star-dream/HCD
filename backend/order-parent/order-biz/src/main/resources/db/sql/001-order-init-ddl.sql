@@ -1,3 +1,5 @@
+CREATE DATABASE IF NOT EXISTS `hcd_order`;
+USE `hcd_order`;
 CREATE TABLE IF NOT EXISTS `hcd_order` (
   `id` bigint NOT NULL COMMENT '订单编号',
   `user_id` bigint NOT NULL COMMENT '订购用户id',

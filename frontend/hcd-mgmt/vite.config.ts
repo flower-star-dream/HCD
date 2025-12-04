@@ -22,7 +22,7 @@ export default defineConfig({
     }
   },
   server: {
-    port: 3001,
+    port: 3000,
     allowedHosts: ['hcd.flower-star-dream.top'],
     open: true,
     proxy: {
@@ -37,7 +37,7 @@ export default defineConfig({
       }
     },
     '/hcd/assets': {
-        target: 'https://hcd.flower-star-dream.top',
+        target: 'https://hcd.flower-star-dream.top/hcd',
         changeOrigin: true,
         rewrite: path => path.replace(/^\/hcd\/assets/, '/hcd/assets'),
         configure: (proxy, options) => {

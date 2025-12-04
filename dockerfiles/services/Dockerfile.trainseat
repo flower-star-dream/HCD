@@ -1,0 +1,66 @@
+# 座位服务 - 使用多阶段构建，包含SQL初始化
+FROM maven:3.9-eclipse-temurin-17-alpine AS builder
+
+# 设置工作目录
+WORKDIR /app
+
+# 复制pom.xml和源码
+COPY pom.xml .
+COPY trainSeat-parent/pom.xml ./trainSeat-parent/
+COPY hcd-base/pom.xml ./hcd-base/
+COPY hcd-tools/pom.xml ./hcd-tools/
+COPY trainSeat-parent/trainSeat-boot/pom.xml ./trainSeat-parent/trainSeat-boot/
+
+# 下载依赖
+RUN mvn dependency:go-offline -B
+
+# 复制源码
+COPY . .
+
+# 构建项目
+RUN mvn clean package -DskipTests -pl trainSeat-parent/trainSeat-boot -am
+
+# 运行时镜像
+FROM eclipse-temurin:17-jre-alpine
+
+# 安装必要的工具
+RUN apk add --no-cache curl mysql-client bash
+
+# 创建应用目录
+WORKDIR /app
+
+# 复制构建的jar包
+COPY --from=builder /app/trainSeat-parent/trainSeat-boot/target/*.jar app.jar
+
+# 复制SQL文件用于运行时初始化
+COPY --from=builder /app/trainSeat-parent/trainSeat-biz/src/main/resources/db/sql /app/sql
+
+# 创建初始化脚本
+RUN echo '#!/bin/bash\n\
+echo "等待MySQL服务启动..."\n\
+while ! mysqladmin ping -h"${DB_HOST:-hcd-mysql}" -u"${DB_USER:-root}" -p"${DB_PASSWORD:-root123}" --silent; do\n\
+    sleep 1\n\
+done\n\
+\n\
+echo "开始执行数据库初始化..."\n\
+if [ -d "/app/sql" ]; then\n\
+    for sql_file in /app/sql/*.sql; do\n\
+        if [ -f "$sql_file" ]; then\n\
+            echo "执行SQL文件: $sql_file"\n\
+            mysql -h"${DB_HOST:-hcd-mysql}" -u"${DB_USER:-root}" -p"${DB_PASSWORD:-root123}" < "$sql_file"\n\
+        fi\n\
+    done\n\
+fi\n\
+\n\
+echo "数据库初始化完成"\n\
+exec java -Djava.security.egd=file:/dev/./urandom -jar -Dspring.profiles.active=${SPRING_PROFILES_ACTIVE:-docker} -Dserver.port=8082 app.jar' > /app/entrypoint.sh \
+    && chmod +x /app/entrypoint.sh
+
+# 创建日志目录
+RUN mkdir -p /app/logs
+
+# 暴露端口
+EXPOSE 8082
+
+# 启动命令
+ENTRYPOINT ["/app/entrypoint.sh"]

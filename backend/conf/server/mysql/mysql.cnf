@@ -1,0 +1,43 @@
+[mysqld]
+# 基本配置
+port=3306
+datadir=/var/lib/mysql
+socket=/var/run/mysqld/mysqld.sock
+pid-file=/var/run/mysqld/mysqld.pid
+
+# 字符集配置
+character-set-server=utf8mb4
+collation-server=utf8mb4_unicode_ci
+
+# 连接配置
+max_connections=200
+max_connect_errors=1000
+wait_timeout=28800
+interactive_timeout=28800
+
+# 内存配置
+innodb_buffer_pool_size=256M
+innodb_log_file_size=64M
+innodb_log_buffer_size=16M
+
+# 日志配置
+log-error=/var/log/mysql/error.log
+slow_query_log=1
+slow_query_log_file=/var/log/mysql/slow.log
+long_query_time=2
+
+# 二进制日志
+server-id=1
+log-bin=mysql-bin
+binlog_format=ROW
+expire_logs_days=7
+
+# Nacos需要的配置
+default_authentication_plugin=mysql_native_password
+
+[client]
+default-character-set=utf8mb4
+socket=/var/run/mysqld/mysqld.sock
+
+[mysql]
+default-character-set=utf8mb4

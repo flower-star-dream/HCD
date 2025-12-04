@@ -5,8 +5,8 @@ spring:
     active: dev
   config:
     import:
-      - nacos:${spring.application.name}
       - nacos:hcd-common
+      - nacos:${spring.application.name}
   cloud:
     nacos:
       server-addr: localhost:8847

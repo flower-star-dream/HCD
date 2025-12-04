@@ -1,0 +1,251 @@
+version: '3.8'
+
+services:
+  # Nacos Service Discovery
+  hcd-nacos:
+    image: nacos/nacos-server:v2.4.3
+    container_name: hcd-nacos
+    ports:
+      - "8848:8848"
+      - "9848:9848"
+    environment:
+      - PREFER_HOST_MODE=hostname
+      - MODE=standalone
+      - SPRING_DATASOURCE_PLATFORM=mysql
+      - MYSQL_SERVICE_HOST=hcd-mysql
+      - MYSQL_SERVICE_PORT=3306
+      - MYSQL_SERVICE_DB_NAME=nacos
+      - MYSQL_SERVICE_USER=root
+      - MYSQL_SERVICE_PASSWORD=root123
+      - MYSQL_SERVICE_DB_PARAM=characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useSSL=false&serverTimezone=Asia/Shanghai
+    volumes:
+      - ./backend/conf/server/nacos:/home/nacos/conf
+      - ./backend/conf/client/nacos:/home/nacos/data/config-data
+      - hcd-nacos-logs:/home/nacos/logs
+    depends_on:
+      - hcd-mysql
+    networks:
+      - hcd-network
+    restart: unless-stopped
+
+  # MySQL Database
+  hcd-mysql:
+    image: mysql:8.0.33
+    container_name: hcd-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root123
+      - MYSQL_DATABASE=nacos
+      - TZ=Asia/Shanghai
+    volumes:
+      - hcd-mysql-data:/var/lib/mysql
+      - ./backend/conf/server/mysql:/etc/mysql/conf.d
+    networks:
+      - hcd-network
+    restart: unless-stopped
+
+  # Redis Cache
+  hcd-redis:
+    image: redis:7.2-alpine
+    container_name: hcd-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./backend/conf/server/redis:/usr/local/etc/redis
+      - hcd-redis-data:/data
+    command: redis-server /usr/local/etc/redis/redis.conf
+    networks:
+      - hcd-network
+    restart: unless-stopped
+
+  # Seata Distributed Transaction
+  hcd-seata:
+    image: seataio/seata-server:2.0.0
+    container_name: hcd-seata
+    ports:
+      - "7091:7091"
+      - "8091:8091"
+    environment:
+      - SEATA_PORT=8091
+      - STORE_MODE=db
+      - SEATA_CONFIG_NAME=file:/root/seata-config/registry.conf
+    volumes:
+      - ./backend/conf/server/seata:/root/seata-config
+      - hcd-seata-logs:/root/logs
+    depends_on:
+      - hcd-mysql
+      - hcd-nacos
+    networks:
+      - hcd-network
+    restart: unless-stopped
+
+  # Nginx Reverse Proxy
+  hcd-nginx:
+    build:
+      context: ./frontend/nginx
+      dockerfile: Dockerfile
+    container_name: hcd-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./frontend/nginx/conf:/etc/nginx/conf.d
+      - ./frontend/nginx/logs:/var/log/nginx
+      - hcd-nginx-data:/usr/share/nginx/html
+    depends_on:
+      - hcd-frontend-mgmt
+    networks:
+      - hcd-network
+    restart: unless-stopped
+
+  # Backend Gateway Service
+  hcd-gateway:
+    build:
+      context: ./backend
+      dockerfile: ../dockerfiles/services/Dockerfile.gateway
+    container_name: hcd-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - NACOS_SERVER_ADDR=hcd-nacos:8847
+      - NACOS_NAMESPACE=8a19b7dd-7c6e-4a98-8bcf-b81ebd4aad2c
+    volumes:
+      - ./backend/logs:/app/logs
+      - ./backend/conf/client:/app/conf
+    depends_on:
+      - hcd-nacos
+      - hcd-mysql
+      - hcd-redis
+    networks:
+      - hcd-network
+    restart: unless-stopped
+
+  # User Service
+  hcd-user:
+    build:
+      context: ./backend
+      dockerfile: ../dockerfiles/services/Dockerfile.user
+    container_name: hcd-user
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - NACOS_SERVER_ADDR=hcd-nacos:8848
+      - NACOS_NAMESPACE=8a19b7dd-7c6e-4a98-8bcf-b81ebd4aad2c
+      - DB_HOST=hcd-mysql
+      - DB_USER=root
+      - DB_PASSWORD=root123
+    volumes:
+      - ./backend/logs:/app/logs
+      - ./backend/conf/client:/app/conf
+    depends_on:
+      - hcd-nacos
+      - hcd-mysql
+      - hcd-redis
+    networks:
+      - hcd-network
+    restart: unless-stopped
+
+  # Train Seat Service
+  hcd-trainseat:
+    build:
+      context: ./backend
+      dockerfile: ../dockerfiles/services/Dockerfile.trainseat
+    container_name: hcd-trainseat
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - NACOS_SERVER_ADDR=hcd-nacos:8848
+      - NACOS_NAMESPACE=8a19b7dd-7c6e-4a98-8bcf-b81ebd4aad2c
+      - DB_HOST=hcd-mysql
+      - DB_USER=root
+      - DB_PASSWORD=root123
+    volumes:
+      - ./backend/logs:/app/logs
+      - ./backend/conf/client:/app/conf
+    depends_on:
+      - hcd-nacos
+      - hcd-mysql
+      - hcd-redis
+    networks:
+      - hcd-network
+    restart: unless-stopped
+
+  # Ticket Service
+  hcd-ticket:
+    build:
+      context: ./backend
+      dockerfile: ../dockerfiles/services/Dockerfile.ticket
+    container_name: hcd-ticket
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - NACOS_SERVER_ADDR=hcd-nacos:8848
+      - NACOS_NAMESPACE=8a19b7dd-7c6e-4a98-8bcf-b81ebd4aad2c
+      - DB_HOST=hcd-mysql
+      - DB_USER=root
+      - DB_PASSWORD=root123
+    volumes:
+      - ./backend/logs:/app/logs
+      - ./backend/conf/client:/app/conf
+    depends_on:
+      - hcd-nacos
+      - hcd-mysql
+      - hcd-redis
+    networks:
+      - hcd-network
+    restart: unless-stopped
+
+  # Order Service
+  hcd-order:
+    build:
+      context: ./backend
+      dockerfile: ../dockerfiles/services/Dockerfile.order
+    container_name: hcd-order
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - NACOS_SERVER_ADDR=hcd-nacos:8848
+      - NACOS_NAMESPACE=8a19b7dd-7c6e-4a98-8bcf-b81ebd4aad2c
+      - DB_HOST=hcd-mysql
+      - DB_USER=root
+      - DB_PASSWORD=root123
+    volumes:
+      - ./backend/logs:/app/logs
+      - ./backend/conf/client:/app/conf
+    depends_on:
+      - hcd-nacos
+      - hcd-mysql
+      - hcd-redis
+      - hcd-seata
+    networks:
+      - hcd-network
+    restart: unless-stopped
+
+  # Frontend Management UI
+  hcd-frontend-mgmt:
+    build:
+      context: ./frontend/hcd-mgmt
+      dockerfile: ../../dockerfiles/frontend/Dockerfile.mgmt
+    container_name: hcd-frontend-mgmt
+    ports:
+      - "3000:80"
+    networks:
+      - hcd-network
+    restart: unless-stopped
+
+volumes:
+  hcd-mysql-data:
+  hcd-redis-data:
+  hcd-nacos-logs:
+  hcd-seata-logs:
+  hcd-nginx-data:
+
+networks:
+  hcd-network:
+    driver: bridge

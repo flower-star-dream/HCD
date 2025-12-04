@@ -1,0 +1,352 @@
+version: '3.8'
+
+services:
+  # Nacos Service Discovery
+  nacos:
+    image: nacos/nacos-server:v2.4.3
+    container_name: hcd-nacos-prod
+    ports:
+      - "8848:8848"
+      - "9848:9848"
+    environment:
+      - PREFER_HOST_MODE=hostname
+      - MODE=standalone
+      - SPRING_DATASOURCE_PLATFORM=mysql
+      - MYSQL_SERVICE_HOST=mysql
+      - MYSQL_SERVICE_PORT=3306
+      - MYSQL_SERVICE_DB_NAME=nacos_prod
+      - MYSQL_SERVICE_USER=root
+      - MYSQL_SERVICE_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_SERVICE_DB_PARAM=characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useSSL=false&serverTimezone=Asia/Shanghai
+    volumes:
+      - ./backend/conf/server/nacos:/home/nacos/conf
+      - ./backend/conf/client/nacos:/home/nacos/data/config-data
+      - nacos-logs-prod:/home/nacos/logs
+    depends_on:
+      - mysql
+    networks:
+      - hcd-network-prod
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+        reservations:
+          memory: 512M
+          cpus: '0.25'
+
+  # MySQL Database
+  mysql:
+    image: mysql:8.0.33
+    container_name: hcd-mysql-prod
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=nacos_prod
+      - TZ=Asia/Shanghai
+    volumes:
+      - mysql-data-prod:/var/lib/mysql
+      - ./backend/conf/server/mysql:/etc/mysql/conf.d
+      - ./backups/mysql:/backup
+    networks:
+      - hcd-network-prod
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+  # Redis Cache
+  redis:
+    image: redis:7.2-alpine
+    container_name: hcd-redis-prod
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./backend/conf/server/redis:/usr/local/etc/redis
+      - redis-data-prod:/data
+    command: redis-server /usr/local/etc/redis/redis.conf
+    networks:
+      - hcd-network-prod
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+
+  # Seata Distributed Transaction
+  seata:
+    image: seataio/seata-server:2.0.0
+    container_name: hcd-seata-prod
+    ports:
+      - "7091:7091"
+      - "8091:8091"
+    environment:
+      - SEATA_PORT=8091
+      - STORE_MODE=db
+      - SEATA_CONFIG_NAME=file:/root/seata-config/registry.conf
+    volumes:
+      - ./backend/conf/server/seata:/root/seata-config
+      - seata-logs-prod:/root/logs
+    depends_on:
+      - mysql
+      - nacos
+    networks:
+      - hcd-network-prod
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+        reservations:
+          memory: 512M
+          cpus: '0.25'
+
+  # Nginx Reverse Proxy and Frontend (Load Balancer)
+  nginx:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/hcd-nginx:${GITHUB_SHA}
+    container_name: hcd-nginx-prod
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./frontend/nginx/conf:/etc/nginx/conf.d
+      - ./frontend/nginx/logs:/var/log/nginx
+      - ./frontend/nginx/ssl:/etc/nginx/ssl
+      - nginx-data-prod:/usr/share/nginx/html
+    depends_on:
+      - backend-gateway
+      - frontend-mgmt
+    networks:
+      - hcd-network-prod
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+        reservations:
+          memory: 128M
+          cpus: '0.125'
+
+  # Backend Gateway Service (High Availability)
+  backend-gateway:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/hcd-gateway-service:${GITHUB_SHA}
+    container_name: hcd-gateway-prod
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - NACOS_SERVER_ADDR=nacos:8848
+      - NACOS_NAMESPACE=8a19b7dd-7c6e-4a98-8bcf-b81ebd4aad2c
+    volumes:
+      - ./backend/logs:/app/logs
+      - ./backend/conf/client:/app/conf
+    depends_on:
+      - nacos
+      - mysql
+      - redis
+    networks:
+      - hcd-network-prod
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+        reservations:
+          memory: 512M
+          cpus: '0.25'
+
+  # User Service
+  user-service:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/hcd-user-service:${GITHUB_SHA}
+    container_name: hcd-user-service-prod
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - NACOS_SERVER_ADDR=nacos:8848
+      - NACOS_NAMESPACE=8a19b7dd-7c6e-4a98-8bcf-b81ebd4aad2c
+    volumes:
+      - ./backend/logs:/app/logs
+      - ./backend/conf/client:/app/conf
+    depends_on:
+      - nacos
+      - mysql
+      - redis
+    networks:
+      - hcd-network-prod
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+        reservations:
+          memory: 512M
+          cpus: '0.25'
+
+  # Train Seat Service
+  trainseat-service:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/hcd-trainseat-service:${GITHUB_SHA}
+    container_name: hcd-trainseat-service-prod
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - NACOS_SERVER_ADDR=nacos:8848
+      - NACOS_NAMESPACE=8a19b7dd-7c6e-4a98-8bcf-b81ebd4aad2c
+    volumes:
+      - ./backend/logs:/app/logs
+      - ./backend/conf/client:/app/conf
+    depends_on:
+      - nacos
+      - mysql
+      - redis
+    networks:
+      - hcd-network-prod
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+        reservations:
+          memory: 512M
+          cpus: '0.25'
+
+  # Ticket Service
+  ticket-service:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/hcd-ticket-service:${GITHUB_SHA}
+    container_name: hcd-ticket-service-prod
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - NACOS_SERVER_ADDR=nacos:8848
+      - NACOS_NAMESPACE=8a19b7dd-7c6e-4a98-8bcf-b81ebd4aad2c
+    volumes:
+      - ./backend/logs:/app/logs
+      - ./backend/conf/client:/app/conf
+    depends_on:
+      - nacos
+      - mysql
+      - redis
+    networks:
+      - hcd-network-prod
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+        reservations:
+          memory: 512M
+          cpus: '0.25'
+
+  # Order Service
+  order-service:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/hcd-order-service:${GITHUB_SHA}
+    container_name: hcd-order-service-prod
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - NACOS_SERVER_ADDR=nacos:8848
+      - NACOS_NAMESPACE=8a19b7dd-7c6e-4a98-8bcf-b81ebd4aad2c
+    volumes:
+      - ./backend/logs:/app/logs
+      - ./backend/conf/client:/app/conf
+    depends_on:
+      - nacos
+      - mysql
+      - redis
+      - seata
+    networks:
+      - hcd-network-prod
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+        reservations:
+          memory: 512M
+          cpus: '0.25'
+
+  # System Service
+  system-service:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/hcd-system-service:${GITHUB_SHA}
+    container_name: hcd-system-service-prod
+    ports:
+      - "8085:8085"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - NACOS_SERVER_ADDR=nacos:8848
+      - NACOS_NAMESPACE=8a19b7dd-7c6e-4a98-8bcf-b81ebd4aad2c
+    volumes:
+      - ./backend/logs:/app/logs
+      - ./backend/conf/client:/app/conf
+    depends_on:
+      - nacos
+      - mysql
+      - redis
+    networks:
+      - hcd-network-prod
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+        reservations:
+          memory: 512M
+          cpus: '0.25'
+
+  # Frontend Management UI
+  frontend-mgmt:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/hcd-hcd-mgmt:${GITHUB_SHA}
+    container_name: hcd-frontend-mgmt-prod
+    ports:
+      - "3000:80"
+    networks:
+      - hcd-network-prod
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 128M
+          cpus: '0.125'
+        reservations:
+          memory: 64M
+          cpus: '0.0625'
+
+volumes:
+  mysql-data-prod:
+  redis-data-prod:
+  nacos-logs-prod:
+  seata-logs-prod:
+  nginx-data-prod:
+
+networks:
+  hcd-network-prod:
+    driver: bridge

@@ -17,6 +17,7 @@ HCD项目后端采用微服务架构，基于Spring Cloud Alibaba技术栈构建
 - **缓存**: Redis 7.x
 - **消息队列**: RocketMQ 5.3.2
 - **分布式事务**: Seata 2.5.0
+- **存储**: Minio 8.5.10
 - **文档**: Knife4j 4.5.0 (Swagger UI)
 - **API文档**: SpringDoc OpenAPI 3
 - **监控**: Micrometer + Prometheus + Grafana
@@ -343,7 +344,6 @@ CREATE TABLE `hcd_xxx` (
 
 - 敏感数据加密存储（AES加密）
 - SQL注入防护（MyBatis参数化查询）
-- XSS攻击防护（Spring Security过滤器）
 - 接口防重放攻击（Token + 时间戳）
 - 密码加密（BCrypt）
 

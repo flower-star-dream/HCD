@@ -1,0 +1,41 @@
+# 网关服务 - 使用多阶段构建
+FROM maven:3.9-eclipse-temurin-17-alpine AS builder
+
+# 设置工作目录
+WORKDIR /app
+
+# 复制pom.xml和源码
+COPY pom.xml .
+COPY hcd-gateway/pom.xml ./hcd-gateway/
+COPY hcd-base/pom.xml ./hcd-base/
+COPY hcd-tools/pom.xml ./hcd-tools/
+
+# 下载依赖
+RUN mvn dependency:go-offline -B
+
+# 复制源码
+COPY . .
+
+# 构建项目
+RUN mvn clean package -DskipTests -pl hcd-gateway -am
+
+# 运行时镜像
+FROM eclipse-temurin:17-jre-alpine
+
+# 安装必要的工具
+RUN apk add --no-cache curl
+
+# 创建应用目录
+WORKDIR /app
+
+# 复制构建的jar包
+COPY --from=builder /app/hcd-gateway/target/*.jar app.jar
+
+# 创建日志目录
+RUN mkdir -p /app/logs
+
+# 暴露端口
+EXPOSE 8080
+
+# 启动命令
+ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom", "-jar", "-Dspring.profiles.active=${SPRING_PROFILES_ACTIVE:-docker}", "-Dserver.port=8080", "app.jar"]
