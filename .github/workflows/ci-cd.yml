@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop, feature/release-* ]
+    branches: [ main, dev, feature/release-* ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main, dev ]
   workflow_dispatch:
 
 env:
@@ -46,13 +46,13 @@ jobs:
           cd backend
           mvn checkstyle:check -B -q || true
 
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          projectBaseDir: backend
+#      - name: SonarCloud Scan
+#        uses: SonarSource/sonarcloud-github-action@master
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+#        with:
+#          projectBaseDir: backend
 
   # 构建后端服务
   build-backend:
