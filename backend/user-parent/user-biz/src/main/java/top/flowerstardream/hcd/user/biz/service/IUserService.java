@@ -63,4 +63,12 @@ public interface IUserService {
      * @return 用户状态列表
      */
     List<StatusRES> getStatus();
+
+    /**
+     * 根据用户名获取用户ID列表
+     *
+     * @param name 用户名
+     * @return 用户ID列表
+     */
+    List<Long> getUserIdsByName(String name);
 }

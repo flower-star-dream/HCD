@@ -5,10 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import top.flowerstardream.hcd.tools.result.Result;
 import top.flowerstardream.hcd.user.ao.dto.UserDTO;
 import top.flowerstardream.hcd.user.biz.service.IUserService;
@@ -34,11 +31,23 @@ public class UserController {
 
     @PostMapping("/")
     @Operation(summary = "获取用户信息", description = "获取用户信息")
-    Result<List<UserDTO>> getUserById(@RequestParam List<Long> userIds){
+    Result<List<UserDTO>> getUserById(@RequestParam("userIds") List<Long> userIds){
         log.info("【用户-服务】traceId:{}, 获取用户信息, 用户id：{}", getTraceId(), userIds);
-        List<UserDTO> userDTO = new ArrayList<>();
         List<UserEO> userEO = userService.getUserInfo(userIds);
-        BeanUtils.copyProperties(userEO, userDTO);
-        return Result.successResult(userDTO);
+        List<UserDTO> userDTOs = new ArrayList<>();
+        for (UserEO user : userEO) {
+            UserDTO userDTO = new UserDTO();
+            BeanUtils.copyProperties(user, userDTO);
+            userDTOs.add(userDTO);
+        }
+        BeanUtils.copyProperties(userEO, userDTOs);
+        return Result.successResult(userDTOs);
+    }
+
+    @PostMapping("/by-name")
+    Result<List<Long>> getUserIdsByName(@RequestParam("name") String name){
+        log.info("【用户-服务】traceId:{}, 获取用户id, 用户名：{}", getTraceId(), name);
+        List<Long> userIds = userService.getUserIdsByName(name);
+        return Result.successResult(userIds);
     }
 }

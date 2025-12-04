@@ -79,4 +79,13 @@ public interface ITicketService extends IService<TicketEO> {
      * @return 车票状态列表
      */
     List<StatusRES> getStatus();
+
+    /**
+     * 根据车票ID查询车票信息
+     * @param id 车票ID
+     * @return 车票信息
+     */
+    TicketRES getByTicketId(Long id);
+
+    List<TicketRES> getByOrderId(Long id);
 }

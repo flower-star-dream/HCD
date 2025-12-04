@@ -4,7 +4,7 @@
       <el-aside :width="sidebarCollapsed ? '64px' : '200px'" class="sidebar">
         <div class="sidebar-header">
           <div class="logo">
-            <img :src="`${ossUrl}/assets/hcd/logo.png`" alt="logo" />
+            <img :src="logoUrl" alt="logo" />
             <span v-if="!sidebarCollapsed">火车订票系统</span>
           </div>
         </div>
@@ -102,7 +102,7 @@
           <div class="header-right">
             <el-dropdown @command="handleCommand">
               <span class="employee-info">
-                <el-avatar :size="32" :src="employeeInfo?.avatar" />
+                <el-avatar :size="32" :src="avatarUrl" />
                 <span class="username">{{ employeeInfo?.nickname || employeeInfo?.username }}</span>
                 <el-icon class="el-icon--right"><arrow-down /></el-icon>
               </span>
@@ -141,6 +141,10 @@ const appStore = useAppStore()
 const employeeInfo = computed(() => (employeeStore.employeeInfo || {}) as EmployeeInfo)
 const sidebarCollapsed = computed(() => appStore.sidebarCollapsed)
 const menuList = computed(() => appStore.menuList)
+import { loadAsset } from '@/utils/loadAsset';
+
+const logoUrl = ref('');
+const avatarUrl = ref('');
 
 // 定义一个标志变量，用于标记是否是第一次加载
 const isFirstLoad = ref(true);
@@ -189,6 +193,8 @@ onMounted(async () => {
         console.error('获取员工信息失败:', error)
         ElMessage.error('获取员工信息失败，请重新登录')
     }
+    logoUrl.value = await loadAsset(`${ossUrl}/assets/hcd/logo.png`, '@/assets/hcd/logo.png');
+    avatarUrl.value = await loadAsset(employeeInfo.value?.avatar, '@/assets/hcd/Avatar.png');
 })
 </script>
 

@@ -41,12 +41,12 @@
 
     <!-- 自定义出发时间列 -->
     <template #column-startTime="{ row }">
-      {{ formatDateTime(row.startTime) }}
+      {{ formatDate(row.startTime) }}
     </template>
 
     <!-- 自定义结束时间列 -->
     <template #column-endTime="{ row }">
-      {{ formatDateTime(row.endTime) }}
+      {{ formatDate(row.endTime) }}
     </template>
 
     <!-- 自定义余票列 -->
@@ -61,10 +61,10 @@
 
     <!-- 自定义创建时间列 -->
     <template #column-createTime="{ row }">
-      {{ formatDateTime(row.createTime) }}
+      {{ formatDate(row.createTime) }}
     </template>
     <template #column-updateTime="{ row }">
-      {{ formatDateTime(row.updateTime) }}
+      {{ formatDate(row.updateTime) }}
     </template>
 
     <!-- 自定义操作列 -->
@@ -120,6 +120,7 @@ import { getRouteList } from '@/api/route'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useEmployeeStore } from '@/stores'
 import DialogForm from '@/components/DialogForm/DialogForm.vue'
+import { formatDate } from '@/utils/formatDate'
 
 const employeeStore = useEmployeeStore()
 const employeeInfo = computed(() => employeeStore.employeeInfo)
@@ -448,23 +449,6 @@ const initialSearchForm = computed(() => searchFields.value.reduce((acc, field) 
   acc[field.prop] = ''
   return acc
 }, {}))
-
-/**
- * 格式化日期时间
- * @param {string|number|Date} dateTime - 日期时间对象或时间戳
- * @returns {string} 格式化后的日期时间字符串
- */
-const formatDateTime = (dateTime) => {
-  if (!dateTime) return '-'
-  const d = new Date(dateTime)
-  const year = d.getFullYear()
-  const month = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  const hours = String(d.getHours()).padStart(2, '0')
-  const minutes = String(d.getMinutes()).padStart(2, '0')
-  const seconds = String(d.getSeconds()).padStart(2, '0')
-  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
-}
 
 /**
  * 获取余票状态标签类型

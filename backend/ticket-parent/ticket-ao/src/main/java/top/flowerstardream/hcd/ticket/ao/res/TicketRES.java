@@ -32,6 +32,12 @@ public class TicketRES implements Serializable {
     private Long id;
 
     /**
+     * 班次号
+     */
+    @Schema(description = "班次号")
+    private Long scheduleId;
+
+    /**
      * 订单ID
      */
     @Schema(description = "订单ID")
@@ -86,10 +92,21 @@ public class TicketRES implements Serializable {
     private LocalDateTime endTime;
 
     /**
+     * 出发站id
+     */
+    @Schema(description = "出发站id")
+    private Long startStationId;
+    /**
      * 出发站
      */
     @Schema(description = "出发站")
     private String startStation;
+
+    /**
+     * 到达站id
+     */
+    @Schema(description = "到达站id")
+    private Long endStationId;
 
     /**
      * 到达站

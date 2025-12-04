@@ -40,6 +40,15 @@ export interface ScheduleQuery extends PageQuery {
   availableTicketsMin?: number // 最小余票数
   availableTicketsMax?: number // 最大余票数
 }
+export interface RealTimeSchedulePageQueryREQ extends PageQuery {
+  nowTime?: string
+  startStationId?: string
+  endStationId?: string
+}
+
+export interface RealTimeScheduleRES extends Schedule {
+  
+}
 
 /**
  * 班次表单数据类型（用于新增/编辑）

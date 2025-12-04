@@ -166,6 +166,7 @@ import {
   BOOKING_STATUS_TYPES,
   BookingStatus 
 } from '@/types/seat-reservation'
+import { formatDate } from '@/utils/formatDate'
 
 // Props定义
 const props = defineProps({

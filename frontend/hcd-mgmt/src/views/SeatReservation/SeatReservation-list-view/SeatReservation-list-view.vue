@@ -72,11 +72,11 @@
 
     <!-- 自定义创建时间列 -->
     <template #column-createTime="{ row }">
-      {{ formatDateTime(row.createTime) }}
+      {{ formatDate(row.createTime) }}
     </template>
 
     <template #column-updateTime="{ row }">
-      {{ formatDateTime(row.updateTime) }}
+      {{ formatDate(row.updateTime) }}
     </template>
 
     <!-- 自定义创建人列 -->
@@ -122,6 +122,7 @@ import {
   BOOKING_STATUS_LABELS,
   BOOKING_STATUS_TYPES,
 } from "@/types/seat-reservation";
+import { formatDate } from "@/utils/formatDate";
 
 // 下拉框选项相关响应式数据 - 仅保留搜索所需的部分
 const scheduleOptions = ref([]);
@@ -302,24 +303,6 @@ const initialSearchForm = searchFields.reduce((acc, field) => {
   acc[field.prop] = "";
   return acc;
 }, {});
-
-/**
- * 格式化日期时间
- * @param {string|number|Date} dateTime - 日期时间对象或时间戳
- * @returns {string} 格式化后的日期时间字符串
- */
-const formatDateTime = (dateTime) => {
-  if (!dateTime) return "-";
-  const d = new Date(dateTime);
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  const hours = String(d.getHours()).padStart(2, "0");
-  const minutes = String(d.getMinutes()).padStart(2, "0");
-  const seconds = String(d.getSeconds()).padStart(2, "0");
-  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-};
-
 
 
 /**

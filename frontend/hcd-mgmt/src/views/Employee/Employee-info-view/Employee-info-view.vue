@@ -13,18 +13,14 @@
                         <el-icon v-else class="avatar-uploader-icon">
                             <Plus />
                         </el-icon>
-                        <el-upload 
-                            class="avatar-uploader" 
-                            :show-file-list="false" 
-                            :auto-upload="true"
-                            action="/api/v1/common/user/upload" 
-                            name="file"
+                        <el-upload class="avatar-uploader" :show-file-list="false" :auto-upload="true"
+                            action="/api/v1/common/user/upload" name="file"
                             :headers="{ 'Authorization': employeeStore.token, 'X-Biz-Side': 'admin' }"
-                            :on-success="uploadSuccess"
-                            accept=".jpg,.jpeg,.png,.gif"
-                            :before-upload="beforeUpload">
+                            :on-success="uploadSuccess" accept=".jpg,.jpeg,.png,.gif" :before-upload="beforeUpload">
                             <div class="avatar-upload-overlay">
-                                <el-icon class="upload-icon"><Camera /></el-icon>
+                                <el-icon class="upload-icon">
+                                    <Camera />
+                                </el-icon>
                                 <span class="upload-text">更换头像</span>
                             </div>
                         </el-upload>
@@ -35,17 +31,18 @@
                         <div class="nickname-value">{{ employeeInfo.nickname || '未设置昵称' }}</div>
                     </div>
                 </div>
-                
+
                 <!-- 表单部分 - 在右侧 -->
                 <div class="form-section">
-                    <el-form :model="employeeInfo" label-width="120px" size="large" class="form-container" :rules="rules" ref="formRef">
+                    <el-form :model="employeeInfo" label-width="120px" size="large" class="form-container"
+                        :rules="rules" ref="formRef">
                         <el-form-item label="用户名" prop="username">
                             <el-input v-model="employeeInfo.username" disabled></el-input>
                         </el-form-item>
                         <el-form-item label="员工昵称" prop="nickname">
-          <el-input v-model="employeeInfo.nickname" placeholder="请输入员工昵称"></el-input>
-        </el-form-item>
-        <el-form-item label="员工手机号" prop="phone">
+                            <el-input v-model="employeeInfo.nickname" placeholder="请输入员工昵称"></el-input>
+                        </el-form-item>
+                        <el-form-item label="员工手机号" prop="phone">
                             <el-input v-model="employeeInfo.phone" placeholder="请输入手机号" type="tel"></el-input>
                         </el-form-item>
                         <el-form-item label="所属站点" prop="affiliatedSite">
@@ -69,7 +66,7 @@
 // 引入 Vue 相关 API
 import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { updateEmployeeInfoService } from '@/api/employee'
-import { useEmployeeStore, ossUrl } from '@/stores'
+import { useEmployeeStore } from '@/stores'
 import type { EmployeeInfo } from '@/types'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Camera } from '@element-plus/icons-vue'
@@ -89,7 +86,7 @@ const employeeInfo = ref<EmployeeInfo>(employeeStore.employeeInfo || {
 })
 
 // 存储原始员工信息，用于取消操作
-  const originalEmployeeInfo = ref<EmployeeInfo>({ ...employeeInfo.value })
+const originalEmployeeInfo = ref<EmployeeInfo>({ ...employeeInfo.value })
 
 // 表单验证规则
 const rules = {
@@ -148,7 +145,7 @@ const cancelEdit = () => {
     }).then(() => {
         employeeInfo.value = { ...originalEmployeeInfo.value }
         formRef.value?.resetFields()
-    }).catch(() => {})
+    }).catch(() => { })
 }
 
 /**
@@ -158,7 +155,7 @@ const updateEmployeeInfo = async () => {
     try {
         // 表单验证
         await formRef.value.validate()
-        
+
         // 确保employeeInfo.value存在
         if (!employeeInfo.value) {
             ElMessage.error('员工信息不存在')

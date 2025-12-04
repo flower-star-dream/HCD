@@ -160,6 +160,14 @@ public class ITicketServiceImpl extends ServiceImpl<TicketMapper, TicketEO> impl
         if (req.getOrderId() != null) {
             queryWrapper.eq(TicketEO::getOrderId, req.getOrderId());
         }
+        if (req.getScheduleId() != null) {
+            List<Long> seatReservationIds = trainSeatClient.getSeatReservationIdsByScheduleId(req.getScheduleId()).getData();
+            if (CollUtil.isNotEmpty(seatReservationIds)) {
+                queryWrapper.in(TicketEO::getSeatReservationId, seatReservationIds);
+            } else {
+                queryWrapper.eq(TicketEO::getSeatReservationId, -1L);
+            }
+        }
         // 根据乘车人姓名查询
         if (StringUtils.isNotBlank((req.getPassengerName()))) {
             List<Long> passengerIds = userClient.getPassengerIdsByName(req.getPassengerName()).getData();
@@ -240,6 +248,7 @@ public class ITicketServiceImpl extends ServiceImpl<TicketMapper, TicketEO> impl
                         .endStationId(req.getEndStationId())
                         .build();
                 BigDecimal newPrice = trainSeatClient.calcTicketPrice(calcTicketPriceDTO).getData();
+                ticketDTO.setMoney(newPrice);
                 createTickets(ticketDTO);
                 BigDecimal newTotalPrice = newPrice.subtract(oldTicket.getMoney());
                 orderClient.updateTotalPrice(oldTicket.getOrderId(), newTotalPrice);
@@ -401,11 +410,14 @@ public class ITicketServiceImpl extends ServiceImpl<TicketMapper, TicketEO> impl
                              // 2.2 座位号
                              SeatReservationDTO seat = seatNumMap.get(ticket.getSeatReservationId());
                              res.setSeatNumber(seat.getSeatNum());
+                             res.setScheduleId(seat.getScheduleId());
 
                              // 2.3 起终站
                              StationsDTO startStation = stationNameMap.get(ticket.getStartStationId());
                              StationsDTO endStation = stationNameMap.get(ticket.getEndStationId());
+                             res.setStartStationId(startStation.getId());
                              res.setStartStation(startStation.getName());
+                             res.setEndStationId(endStation.getId());
                              res.setEndStation(endStation.getName());
 
                              return res;
@@ -447,6 +459,37 @@ public class ITicketServiceImpl extends ServiceImpl<TicketMapper, TicketEO> impl
                 return statusRES;
             })
             .collect(Collectors.toList());
+    }
+
+    /**
+     * 根据车票ID查询车票信息
+     *
+     * @param id 车票ID
+     * @return 车票信息
+     */
+    @Override
+    public TicketRES getByTicketId(Long id) {
+        TicketEO ticketEO = ticketMapper.selectById(id);
+        if (ticketEO != null) {
+            return convertToRES(Collections.singletonList(ticketEO)).get(0);
+        }
+        return null;
+    }
+
+    /**
+     * @param id
+     * @return
+     */
+    @Override
+    public List<TicketRES> getByOrderId(Long id) {
+        if (id == null || id <= 0) {
+            PARAM_ERROR.throwException();
+        }
+        LambdaQueryWrapper<TicketEO> queryWrapper = Wrappers.lambdaQuery();
+        queryWrapper.eq(TicketEO::getOrderId, id);
+        queryWrapper.orderByAsc(TicketEO::getId);
+        List<TicketEO> ticketList = ticketMapper.selectList(queryWrapper);
+        return convertToRES(ticketList);
     }
 
     private String getStatusDescription(Integer status) {

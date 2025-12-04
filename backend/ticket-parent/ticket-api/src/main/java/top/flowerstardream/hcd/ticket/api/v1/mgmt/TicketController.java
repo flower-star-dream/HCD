@@ -6,6 +6,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import top.flowerstardream.hcd.base.ao.res.StatusRES;
+import top.flowerstardream.hcd.ticket.ao.dto.TicketDTO;
 import top.flowerstardream.hcd.ticket.ao.req.TicketPageQueryREQ;
 import top.flowerstardream.hcd.ticket.ao.req.TicketStatusChangeREQ;
 import top.flowerstardream.hcd.ticket.ao.res.TicketRES;
@@ -64,15 +65,29 @@ public class TicketController {
      */
     @Operation(summary = "查询车票详情", description = "B端根据ID查询车票详情")
     @GetMapping("/{id}")
-    public Result<TicketRES> getById(@PathVariable("id") Long id) {
+    public Result<TicketRES> getByTicketId(@PathVariable("id") Long id) {
         log.info("【车票-后管】traceId:{}, 查询车票详情，车票ID: {}", getTraceId(), id);
-
-        // 这里需要实现根据ID查询详情的方法
-        // TicketDTO ticketDTO = ticketService.getById(id);
-        // return Result.successResult(ticketDTO);
-        return Result.successResult();
+        TicketRES ticketRES = ticketService.getByTicketId(id);
+        return Result.successResult(ticketRES);
     }
 
+    /**
+     * 通过订单号查询车票详情
+     * @param id 订单号
+     * @return 车票详情
+     */
+    @Operation(summary = "通过订单号查询车票详情", description = "B端根据orderID查询车票详情")
+    @GetMapping("/order/{orderId}")
+    public Result<List<TicketRES>> getByOrderId(@PathVariable("orderId") Long id) {
+        log.info("【车票-后管】traceId:{}, 查询车票详情，订单ID: {}", getTraceId(), id);
+        List<TicketRES> ticketRES = ticketService.getByOrderId(id);
+        return Result.successResult(ticketRES);
+    }
+
+    /**
+     * 获取车票状态
+     * @return 车票状态列表
+     */
     @Operation(summary = "获取车票状态", description = "B端获取车票状态")
     @GetMapping("/getStatus")
     public Result<List<StatusRES>> getStatus() {

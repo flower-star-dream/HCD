@@ -1,5 +1,5 @@
 import { trainSeatRequest } from '@/utils/request'
-import type { Schedule, ScheduleList, ScheduleQuery, ApiResponse, PageResult } from '@/types'
+import type { Schedule, ScheduleList, ScheduleQuery, RealTimeSchedulePageQueryREQ, RealTimeScheduleRES, ApiResponse, PageResult } from '@/types'
 
 /**
  * 获取班次列表
@@ -8,6 +8,14 @@ import type { Schedule, ScheduleList, ScheduleQuery, ApiResponse, PageResult } f
  */
 export const getScheduleList = (params: ScheduleQuery): Promise<PageResult<ScheduleList>> => {
   return trainSeatRequest.get('/schedule/getSchedules', { params })
+}
+/**
+ * 获取实时班次列表
+ * @param params 分页查询参数
+ * @returns 班次分页列表
+ */
+export const getRealTimeSchedule = (params: RealTimeSchedulePageQueryREQ): Promise<PageResult<RealTimeScheduleRES>> => {
+  return trainSeatRequest.get('/schedule/realTimeSchedule', { params })
 }
 
 /**

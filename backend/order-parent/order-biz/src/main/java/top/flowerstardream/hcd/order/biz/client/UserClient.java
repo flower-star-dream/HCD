@@ -2,6 +2,7 @@ package top.flowerstardream.hcd.order.biz.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import top.flowerstardream.hcd.order.ao.dto.UserDTO;
@@ -19,5 +20,8 @@ import java.util.List;
 public interface UserClient {
 
     @PostMapping("/user/")
-    Result<List<UserDTO>> getUserByIds(@RequestParam List<Long> userIds);
+    Result<List<UserDTO>> getUserByIds(@RequestParam("userIds") List<Long> userIds);
+
+    @PostMapping("/user/by-name")
+    Result<List<Long>> getUserIdsByName(@RequestParam("name") String name);
 }

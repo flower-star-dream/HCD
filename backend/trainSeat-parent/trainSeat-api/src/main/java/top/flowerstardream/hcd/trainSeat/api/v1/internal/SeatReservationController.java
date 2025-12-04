@@ -39,7 +39,7 @@ public class SeatReservationController {
      * @return 是否成功
      */
     @PostMapping("/release")
-    public Result<Void> releaseSeat(@RequestParam("seatReservationIds") List<Long> seatReservationIds){
+    public Result<Void> releaseSeat(@RequestParam List<Long> seatReservationIds){
         log.info("【班次接口服务】释放座位，座位预订号列表: {}", seatReservationIds);
         seatReservationService.releaseSeat(seatReservationIds);
         return Result.successResult();
@@ -56,4 +56,11 @@ public class SeatReservationController {
         ReserveSeatResultDTO reserveSeatResultDTO = seatReservationService.reserveSeat(reserveSeatDTO);
         return Result.successResult(reserveSeatResultDTO);
     };
+
+    @GetMapping("/by-schedule-id")
+    public Result<List<Long>> getSeatReservationIdsByScheduleId(@RequestParam Long scheduleId){
+        log.info("【班次接口服务】根据班次ID获取座位预订号列表，班次ID: {}", scheduleId);
+        List<Long> seatReservationIds = seatReservationService.getSeatReservationIdsByScheduleId(scheduleId);
+        return Result.successResult(seatReservationIds);
+    }
 }

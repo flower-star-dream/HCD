@@ -1,10 +1,7 @@
 package top.flowerstardream.hcd.ticket.biz.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import top.flowerstardream.hcd.ticket.ao.dto.PassengerDTO;
 import top.flowerstardream.hcd.tools.result.Result;
 

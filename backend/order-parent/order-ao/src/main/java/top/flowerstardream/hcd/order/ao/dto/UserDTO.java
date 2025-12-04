@@ -1,7 +1,10 @@
 package top.flowerstardream.hcd.order.ao.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
@@ -11,6 +14,9 @@ import java.io.Serializable;
  * @description 用户数据传输对象
  */
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Schema(description = "用户数据传输对象")
 public class UserDTO implements Serializable {
 
