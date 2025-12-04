@@ -195,5 +195,5 @@ hcd:
       - pattern: /**
         roles: "*"
   wechat:
-    appid: wxef4d9c3d26dea975
-    secret: b4829614df9edef6aebd669c62e8a48d
+    appid: ''
+    secret: ''
