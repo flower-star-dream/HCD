@@ -154,6 +154,7 @@ services:
       - ./backend/logs:/app/logs
       - ./backend/conf/client:/app/conf
     depends_on:
+      - backend-gateway
       - nacos
       - mysql
       - redis
@@ -184,6 +185,7 @@ services:
       - ./backend/logs:/app/logs
       - ./backend/conf/client:/app/conf
     depends_on:
+      - backend-gateway
       - nacos
       - mysql
       - redis
@@ -214,6 +216,7 @@ services:
       - ./backend/logs:/app/logs
       - ./backend/conf/client:/app/conf
     depends_on:
+      - backend-gateway
       - nacos
       - mysql
       - redis
@@ -244,6 +247,7 @@ services:
       - ./backend/logs:/app/logs
       - ./backend/conf/client:/app/conf
     depends_on:
+      - backend-gateway
       - nacos
       - mysql
       - redis
@@ -274,6 +278,7 @@ services:
       - ./backend/logs:/app/logs
       - ./backend/conf/client:/app/conf
     depends_on:
+      - backend-gateway
       - nacos
       - mysql
       - redis
@@ -305,6 +310,7 @@ services:
       - ./backend/logs:/app/logs
       - ./backend/conf/client:/app/conf
     depends_on:
+      - backend-gateway
       - nacos
       - mysql
       - redis

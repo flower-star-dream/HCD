@@ -114,6 +114,7 @@ services:
       - ./backend/logs:/app/logs
       - ./backend/conf/client:/app/conf
     depends_on:
+      - hcd-gateway
       - hcd-nacos
       - hcd-mysql
       - hcd-redis
@@ -138,6 +139,7 @@ services:
       - ./backend/logs:/app/logs
       - ./backend/conf/client:/app/conf
     depends_on:
+      - hcd-gateway
       - hcd-nacos
       - hcd-mysql
       - hcd-redis
@@ -162,6 +164,7 @@ services:
       - ./backend/logs:/app/logs
       - ./backend/conf/client:/app/conf
     depends_on:
+      - hcd-gateway
       - hcd-nacos
       - hcd-mysql
       - hcd-redis
@@ -186,6 +189,7 @@ services:
       - ./backend/logs:/app/logs
       - ./backend/conf/client:/app/conf
     depends_on:
+      - hcd-gateway
       - hcd-nacos
       - hcd-mysql
       - hcd-redis
@@ -210,6 +214,7 @@ services:
       - ./backend/logs:/app/logs
       - ./backend/conf/client:/app/conf
     depends_on:
+      - hcd-gateway
       - hcd-nacos
       - hcd-mysql
       - hcd-redis
