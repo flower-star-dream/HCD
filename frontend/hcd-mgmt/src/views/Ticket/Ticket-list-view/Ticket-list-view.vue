@@ -34,18 +34,18 @@
       </el-tag>
     </template>
 
-    <!-- 自定义创建时间列 -->
+    <!-- 自定义时间列 -->
+    <template #column-startTime="{ row }">
+      {{ formatDate(row.startTime) }}
+    </template>
+    <template #column-endTime="{ row }">
+      {{ formatDate(row.endTime) }}
+    </template>
     <template #column-createTime="{ row }">
       {{ formatDate(row.createTime) }}
     </template>
     <template #column-updateTime="{ row }">
       {{ formatDate(row.updateTime) }}
-    </template>
-    <template #column-departureTime="{ row }">
-      {{ formatDate(row.departureTime) }}
-    </template>
-    <template #column-arrivalTime="{ row }">
-      {{ formatDate(row.arrivalTime) }}
     </template>
 
     <!-- 自定义证件类型列 -->
@@ -55,7 +55,12 @@
 
     <!-- 自定义票价列 -->
     <template #column-price="{ row }">
-      <span style="color: #f56c6c; font-weight: bold;">¥{{ row.price.toFixed(2) }}</span>
+      <span style="color: #f56c6c; font-weight: bold;">¥{{ row.money ? row.money.toFixed(2) : '0.00' }}</span>
+    </template>
+
+    <!-- 自定义行程时长列 -->
+    <template #column-duration="{ row }">
+      {{ calculateDuration(row.startTime, row.endTime) }}
     </template>
 
     <!-- 自定义操作列 -->
@@ -70,50 +75,138 @@
       >
         {{ row.status === TICKET_STATUS.CANCELLED ? '已取消' : '取消车票' }}
       </el-button>
+      <el-button 
+        type="warning" 
+        text 
+        size="small" 
+        @click="handleChangeTicket(row)"
+        :disabled="row.status !== TICKET_STATUS.NORMAL"
+      >
+        改签
+      </el-button>
     </template>
   </ListPage>
 
   <!-- 车票详情弹窗 -->
   <el-dialog
     v-model="detailDialogVisible"
-    :title="'车票详情 - ' + currentTicket.trainNumber"
+    :title="'车票详情 - ' + currentTicket?.id"
     width="900px"
     :close-on-click-modal="false"
   >
     <el-descriptions :column="2" border>
-      <el-descriptions-item label="车票ID">{{ currentTicket.id }}</el-descriptions-item>
-      <el-descriptions-item label="订单号">{{ currentTicket.orderNumber }}</el-descriptions-item>
-      <el-descriptions-item label="车次号">{{ currentTicket.trainNumber }}</el-descriptions-item>
-      <el-descriptions-item label="座位号">{{ currentTicket.seatNumber }}</el-descriptions-item>
-      <el-descriptions-item label="座位类型">{{ currentTicket.seatType }}</el-descriptions-item>
+      <el-descriptions-item label="车票ID">{{ currentTicket?.id }}</el-descriptions-item>
+      <el-descriptions-item label="班次号">{{ currentTicket?.scheduleId }}</el-descriptions-item>
+      <el-descriptions-item label="订单号">{{ currentTicket?.orderId }}</el-descriptions-item>
+      <el-descriptions-item label="座位号">{{ currentTicket?.seatNumber }}</el-descriptions-item>
       <el-descriptions-item label="车票状态">
-        <el-tag :type="getStatusTagType(currentTicket.status)" size="small">
-          {{ getStatusText(currentTicket.status) }}
+        <el-tag :type="getStatusTagType(currentTicket?.status)" size="small">
+          {{ getStatusText(currentTicket?.status) }}
         </el-tag>
       </el-descriptions-item>
       <el-descriptions-item label="票价">
-        <span style="color: #f56c6c; font-weight: bold;">¥{{ currentTicket.price?.toFixed(2) }}</span>
+        <span style="color: #f56c6c; font-weight: bold;">¥{{ currentTicket?.money?.toFixed(2) }}</span>
       </el-descriptions-item>
-      <el-descriptions-item label="乘车人">{{ currentTicket.realName }}</el-descriptions-item>
-      <el-descriptions-item label="证件类型">{{ getCardTypeText(currentTicket.cardType) }}</el-descriptions-item>
-      <el-descriptions-item label="证件号码" :span="1">{{ currentTicket.idCard }}</el-descriptions-item>
-      <el-descriptions-item label="出发站">{{ currentTicket.startStation }}</el-descriptions-item>
-      <el-descriptions-item label="到达站">{{ currentTicket.endStation }}</el-descriptions-item>
-      <el-descriptions-item label="出发时间">{{ formatDate(currentTicket.startTime) }}</el-descriptions-item>
-      <el-descriptions-item label="到达时间">{{ formatDate(currentTicket.endTime) }}</el-descriptions-item>
-      <el-descriptions-item label="行程时长">{{ currentTicket.duration }}</el-descriptions-item>
-      <el-descriptions-item label="创建时间">{{ formatDate(currentTicket.createTime) }}</el-descriptions-item>
-      <el-descriptions-item label="更新时间">{{ formatDate(currentTicket.updateTime) }}</el-descriptions-item>
-      <el-descriptions-item label="创建人">{{ currentTicket.createPerson }}</el-descriptions-item>
-      <el-descriptions-item label="更新人">{{ currentTicket.updatePerson }}</el-descriptions-item>
+      <el-descriptions-item label="乘车人">{{ currentTicket?.realName }}</el-descriptions-item>
+      <el-descriptions-item label="证件类型">{{ getCardTypeText(currentTicket?.cardType) }}</el-descriptions-item>
+      <el-descriptions-item label="证件号码" :span="1">{{ currentTicket?.idCard }}</el-descriptions-item>
+      <el-descriptions-item label="出发站">{{ currentTicket?.startStation }}</el-descriptions-item>
+      <el-descriptions-item label="到达站">{{ currentTicket?.endStation }}</el-descriptions-item>
+      <el-descriptions-item label="出发时间">{{ formatDate(currentTicket?.startTime) }}</el-descriptions-item>
+      <el-descriptions-item label="到达时间">{{ formatDate(currentTicket?.endTime) }}</el-descriptions-item>
+      <el-descriptions-item label="行程时长">{{ calculateDuration(currentTicket?.startTime, currentTicket?.endTime) }}</el-descriptions-item>
+      <el-descriptions-item label="创建时间">{{ formatDate(currentTicket?.createTime) }}</el-descriptions-item>
+      <el-descriptions-item label="更新时间">{{ formatDate(currentTicket?.updateTime) }}</el-descriptions-item>
+      <el-descriptions-item label="创建人">{{ currentTicket?.createPerson }}</el-descriptions-item>
+      <el-descriptions-item label="更新人">{{ currentTicket?.updatePerson }}</el-descriptions-item>
     </el-descriptions>
+  </el-dialog>
+
+  <!-- 改签弹窗 -->
+  <el-dialog
+    v-model="changeTicketDialogVisible"
+    title="车票改签"
+    width="800px"
+    :close-on-click-modal="false"
+    @close="handleChangeTicketDialogClose"
+  >
+    <el-form ref="changeTicketFormRef" :model="changeTicketForm" label-width="100px" style="margin-bottom: 20px;">
+      <el-form-item label="原车票信息">
+        <el-descriptions :column="2" size="small" :border="false" style="width: 100%">
+          <el-descriptions-item label="班次号" style="padding: 8px 12px; margin: 5px; background-color: #f5f7fa; border-radius: 4px;">{{ currentChangeTicket?.scheduleId }}</el-descriptions-item>
+          <el-descriptions-item label="出发站" style="padding: 8px 12px; margin: 5px; background-color: #f5f7fa; border-radius: 4px;">{{ currentChangeTicket?.startStation }}</el-descriptions-item>
+          <el-descriptions-item label="到达站" style="padding: 8px 12px; margin: 5px; background-color: #f5f7fa; border-radius: 4px;">{{ currentChangeTicket?.endStation }}</el-descriptions-item>
+          <el-descriptions-item label="出发时间" style="padding: 8px 12px; margin: 5px; background-color: #f5f7fa; border-radius: 4px;">{{ formatDate(currentChangeTicket?.startTime) }}</el-descriptions-item>
+        </el-descriptions>
+      </el-form-item>
+      
+      <el-form-item label="改签日期" prop="changeDate" required>
+        <el-date-picker
+          v-model="changeTicketForm.changeDate"
+          type="date"
+          placeholder="选择改签日期"
+          style="width: 100%;"
+          :disabled-date="disabledDate"
+        />
+      </el-form-item>
+      
+
+    </el-form>
+    
+    <div v-if="!searchScheduleLoading && scheduleList.length > 0" style="margin-bottom: 20px;">
+      <h4 style="margin: 20px 0 10px 0;">可选班次</h4>
+      <el-table ref="scheduleTableRef" :data="scheduleList" style="width: 100%;" border @selection-change="handleScheduleSelectionChange" :row-key="(row) => row.id">
+          <el-table-column type="selection" width="50" align="center" :reserve-selection="false" />
+          <el-table-column prop="scheduleId" label="班次号" width="100" align="center" />
+          <el-table-column prop="startStation" label="出发站" width="100" align="center" />
+          <el-table-column prop="endStation" label="到达站" width="100" align="center" />
+        <el-table-column prop="startTime" label="出发时间" width="180" align="center">
+          <template #default="{ row }">
+            {{ formatDate(row.startTime) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="endTime" label="到达时间" width="180" align="center">
+          <template #default="{ row }">
+            {{ formatDate(row.endTime) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="duration" label="行程时长" width="120" align="center">
+          <template #default="{ row }">
+            {{ calculateDuration(row.startTime, row.endTime) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="price" label="票价" width="100" align="center">
+          <template #default="{ row }">
+            ¥{{ row.price?.toFixed(2) || '0.00' }}
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+    
+    <div v-if="searchScheduleLoading" style="text-align: center; padding: 40px;">
+      <el-icon class="is-loading"><Loading /></el-icon>
+      <span style="margin-left: 10px;">正在查询班次数据...</span>
+    </div>
+    
+    <div v-if="!searchScheduleLoading && scheduleList.length === 0" style="text-align: center; padding: 40px;">
+      <el-empty description="暂无符合条件的班次" />
+    </div>
+    
+    <template #footer>
+      <el-button @click="changeTicketDialogVisible = false">取消</el-button>
+      <el-button type="primary" @click="handleSearchSchedule" :loading="searchScheduleLoading">查询班次</el-button>
+      <el-button type="success" @click="handleConfirmChangeTicket" :disabled="!selectedSchedule || searchScheduleLoading">确认改签</el-button>
+    </template>
   </el-dialog>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { getTicketListService, getTicketDetailService, updateTicketStatusService } from '@/api/ticket'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { getRealTimeSchedule } from '@/api/schedule'
+import { ElMessage, ElMessageBox, ElEmpty } from 'element-plus'
+import { Loading } from '@element-plus/icons-vue'
+import { formatDate, formatReverseDate } from '@/utils/formatDate'
 
 // 车票状态枚举常量
 const TICKET_STATUS = {
@@ -148,8 +241,8 @@ const TICKET_STATUS = {
 
 // 证件类型常量
 const CARD_TYPE = {
-  ID_CARD: 'ID_CARD',
-  PASSPORT: 'PASSPORT',
+  ID_CARD: '身份证',
+  PASSPORT: '护照',
   // 获取证件类型文本
   getText: (type) => {
     const typeMap = {
@@ -170,6 +263,19 @@ const selectedRows = ref([])
 const statusFilter = ref('all')
 const detailDialogVisible = ref(false)
 const currentTicket = ref({})
+const scheduleTableRef = ref(null)
+
+// 改签相关响应式数据
+const changeTicketDialogVisible = ref(false)
+const currentChangeTicket = ref({})
+const changeTicketForm = ref({
+  changeDate: ''
+})
+const changeTicketFormRef = ref()
+const scheduleList = ref([])
+const searchScheduleLoading = ref(false)
+const selectedSchedule = ref({})
+const selectedRowsChange = ref([])
 
 // 状态数量统计
 const statusCounts = ref({
@@ -230,9 +336,16 @@ const tableColumns = [
     align: 'center'
   },
   {
-    prop: 'trainNumber',
-    label: '车次号',
-    width: 100,
+    prop: 'orderId',
+    label: '订单号',
+    width: 180,
+    align: 'center',
+    showOverflowTooltip: true
+  },
+  {
+    prop: 'scheduleId',
+    label: '班次号',
+    width: 120,
     align: 'center'
   },
   {
@@ -266,12 +379,6 @@ const tableColumns = [
     align: 'center'
   },
   {
-    prop: 'seatType',
-    label: '座位类型',
-    width: 100,
-    align: 'center'
-  },
-  {
     prop: 'realName',
     label: '乘车人',
     width: 100,
@@ -297,9 +404,15 @@ const tableColumns = [
     align: 'center'
   },
   {
-    prop: 'price',
+    prop: 'money',
     label: '票价',
     width: 100,
+    align: 'center'
+  },
+  {
+    prop: 'duration',
+    label: '行程时长',
+    width: 120,
     align: 'center'
   },
   {
@@ -309,9 +422,27 @@ const tableColumns = [
     align: 'center'
   },
   {
+    prop: 'updateTime',
+    label: '更新时间',
+    minWidth: 160,
+    align: 'center'
+  },
+  {
+    prop: 'createPerson',
+    label: '创建人',
+    width: 100,
+    align: 'center'
+  },
+  {
+    prop: 'updatePerson',
+    label: '更新人',
+    width: 100,
+    align: 'center'
+  },
+  {
     prop: 'action',
     label: '操作',
-    width: 150,
+    width: 250,
     align: 'center',
     fixed: 'right'
   }
@@ -324,6 +455,13 @@ const searchFields = [
     label: '订单ID',
     type: 'input',
     placeholder: '请输入订单ID',
+    clearable: true
+  },
+  {
+    prop: 'scheduleId',
+    label: '班次号',
+    type: 'input',
+    placeholder: '请输入班次号',
     clearable: true
   },
   {
@@ -348,20 +486,6 @@ const searchFields = [
     clearable: true
   },
   {
-    prop: 'status',
-    label: '车票状态',
-    type: 'select',
-    placeholder: '请选择车票状态',
-    clearable: true,
-    options: [
-      { label: '正常', value: TICKET_STATUS.NORMAL },
-      { label: '已使用', value: TICKET_STATUS.USED },
-      { label: '已取消', value: TICKET_STATUS.CANCELLED },
-      { label: '已改签', value: TICKET_STATUS.CHANGED },
-      { label: '已退票', value: TICKET_STATUS.REFUNDED }
-    ]
-  },
-  {
     prop: 'rideDateStart',
     label: '乘车开始日期',
     type: 'date',
@@ -384,20 +508,34 @@ const initialSearchForm = searchFields.reduce((acc, field) => {
 }, {})
 
 /**
- * 格式化日期时间
- * @param {string|number|Date} date - 日期对象或时间戳
- * @returns {string} 格式化后的日期字符串
+ * 计算行程时长
+ * @param {string|Date} startTime - 出发时间
+ * @param {string|Date} endTime - 到达时间
+ * @returns {string} 格式化的行程时长（如：2小时30分钟）
  */
-const formatDate = (date) => {
-  if (!date) return ''
-  const d = new Date(date)
-  const year = d.getFullYear()
-  const month = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  const hours = String(d.getHours()).padStart(2, '0')
-  const minutes = String(d.getMinutes()).padStart(2, '0')
-  const seconds = String(d.getSeconds()).padStart(2, '0')
-  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+const calculateDuration = (startTime, endTime) => {
+  if (!startTime || !endTime) return '-'
+  
+  const start = new Date(startTime)
+  const end = new Date(endTime)
+  
+  // 计算时间差（毫秒）
+  const diffMs = end.getTime() - start.getTime()
+  
+  // 转换为小时和分钟
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+  const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60))
+  
+  // 格式化输出
+  if (diffHours > 0 && diffMinutes > 0) {
+    return `${diffHours}小时${diffMinutes}分钟`
+  } else if (diffHours > 0) {
+    return `${diffHours}小时`
+  } else if (diffMinutes > 0) {
+    return `${diffMinutes}分钟`
+  } else {
+    return '0分钟'
+  }
 }
 
 /**
@@ -410,7 +548,9 @@ const fetchTicketList = async (searchParams = {}) => {
     const params = {
       page: currentPage.value,
       pageSize: pageSize.value,
-      ...searchParams
+      ...searchParams,
+      rideDateStart: formatReverseDate(searchParams.rideDateStart),
+      rideDateEnd: formatReverseDate(searchParams.rideDateEnd),
     }
     
     // API调用
@@ -420,15 +560,12 @@ const fetchTicketList = async (searchParams = {}) => {
     // 按状态筛选
     let filteredData = filterDataByStatus(data)
     
-    // 模拟分页
-    const start = (currentPage.value - 1) * pageSize.value
-    const end = start + pageSize.value
-    const paginatedData = filteredData.slice(start, end)
+    // 直接使用后端返回的分页数据，不再进行前端slice
+    ticketList.value = filteredData
+    total.value = Number(response.total)
     
-    ticketList.value = paginatedData
-    total.value = filteredData.length
-    
-    // 更新状态数量统计
+    // 更新状态数量统计 - 注意：这里使用的是当前页数据进行统计
+    // 如果需要完整统计，建议后端返回各状态总数
     updateStatusCounts(data)
   } catch (error) {
     ticketList.value = []
@@ -437,10 +574,10 @@ const fetchTicketList = async (searchParams = {}) => {
     // 重置状态统计
     statusCounts.value = {
       all: 0,
-      valid: 0,
+      normal: 0,
       used: 0,
       cancelled: 0,
-      expired: 0,
+      changed: 0,
       refunded: 0
     }
   } finally {
@@ -564,6 +701,27 @@ const handleSelectionChange = (selection) => {
 }
 
 /**
+ * 处理改签班次复选框选择变化（只允许选中一个）
+ */
+const handleScheduleSelectionChange = (selection) => {
+  // 如果选中的数量超过1个，只保留最后一个
+  if (selection.length > 1) {
+    const lastSelection = selection[selection.length - 1]
+    // 清空选择并重新选择最后一个
+    selectedRowsChange.value = []
+    if (scheduleTableRef.value) {
+      scheduleTableRef.value.clearSelection()
+      scheduleTableRef.value.toggleRowSelection(lastSelection, true)
+    }
+    selectedRowsChange.value = [lastSelection]
+    selectedSchedule.value = lastSelection
+  } else {
+    selectedRowsChange.value = selection
+    selectedSchedule.value = selection[0] || {}
+  }
+}
+
+/**
  * 分页大小变化
  * @param {number} size - 每页条数
  */
@@ -640,6 +798,138 @@ const handleStatusChange = async (row) => {
       ElMessage.error('车票取消失败')
     }
   }
+}
+
+/**
+ * 处理改签操作
+ * @param {Object} row - 车票数据
+ */
+const handleChangeTicket = (row) => {
+  if (row.status !== TICKET_STATUS.NORMAL) {
+    ElMessage.warning('只有正常状态的车票可以改签')
+    return
+  }
+  
+  // 初始化改签表单数据
+  currentChangeTicket.value = row
+  changeTicketForm.value = {
+    changeDate: '',
+    remarks: ''
+  }
+  scheduleList.value = []
+  selectedSchedule.value = {}
+  
+  // 打开改签弹窗
+  changeTicketDialogVisible.value = true
+}
+
+/**
+ * 查询可改签的班次
+ */
+const handleSearchSchedule = async () => {
+  if (!changeTicketForm.value.changeDate) {
+    ElMessage.warning('请选择改签日期')
+    return
+  }
+
+  searchScheduleLoading.value = true
+  scheduleList.value = []
+  selectedSchedule.value = {}
+  try {
+    // 调用真实的API获取班次列表
+    // 从原车票数据中获取出发和到达站点信息
+    // 使用formatDate工具函数格式化日期为API要求的格式：YYYY-MM-DDTHH:mm:ss
+    const formattedDate = formatReverseDate(changeTicketForm.value.changeDate)
+    
+    const params = {
+      nowTime: formattedDate,
+      startStationId: currentChangeTicket.value.startStationId,
+      endStationId: currentChangeTicket.value.endStationId
+    }
+    
+    const response = await getRealTimeSchedule(params)
+    scheduleList.value = response.records || []
+  } catch (error) {
+    ElMessage.error('查询班次失败：' + (error.message || '未知错误'))
+    scheduleList.value = []
+  } finally {
+    searchScheduleLoading.value = false
+  }
+}
+
+/**
+ * 选择班次
+ * @param {Object} row - 选择的班次数据
+ */
+const handleScheduleSelect = (row) => {
+  selectedSchedule.value = row
+}
+
+/**
+ * 确认改签
+ */
+const handleConfirmChangeTicket = async () => {
+  if (!selectedSchedule.value.scheduleId) {
+    ElMessage.warning('请选择要改签的班次')
+    return
+  }
+  
+  try {
+    await ElMessageBox.confirm(
+      `确定要将车票改签为「${selectedSchedule.value.scheduleId} - ${formatDate(selectedSchedule.value.startTime)}」吗？`,
+      '操作确认',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+    
+    const data = {
+      id: currentChangeTicket.value.id,
+      status: TICKET_STATUS.CHANGED,
+      // 改签相关信息
+      scheduleId: selectedSchedule.value.scheduleId,
+      startStationId: currentChangeTicket.value.startStationId,
+      endStationId: currentChangeTicket.value.endStationId,
+    }
+    
+    await updateTicketStatusService(data)
+    ElMessage.success('车票改签成功')
+    
+    // 关闭弹窗并刷新列表
+    changeTicketDialogVisible.value = false
+    fetchTicketList()
+  } catch (error) {
+    // 用户取消操作或发生错误
+    if (error !== 'cancel') {
+      ElMessage.error('车票改签失败')
+    }
+  }
+}
+
+/**
+ * 关闭改签弹窗
+ */
+const handleChangeTicketDialogClose = () => {
+  // 重置表单数据
+  changeTicketForm.value = {
+    changeDate: '',
+    remarks: ''
+  }
+  scheduleList.value = []
+  selectedSchedule.value = {}
+}
+
+/**
+ * 禁用日期
+ * @param {Date} time - 日期
+ * @returns {boolean} 是否禁用
+ */
+const disabledDate = (time) => {
+  // 只能选择今天及以后的日期
+  // return time.getTime() < Date.now() - 8.64e7
+  return false;
 }
 
 // 组件挂载后加载数据

@@ -1,7 +1,10 @@
 package top.flowerstardream.hcd.user.ao.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
@@ -12,6 +15,9 @@ import java.io.Serializable;
  * @date 2025-11-10
  */
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Schema(description = "乘车人数据传输对象")
 public class PassengerDTO implements Serializable {
 

@@ -23,7 +23,7 @@ import java.time.LocalDateTime;
 public class RealTimeSchedulePageQueryREQ extends BasePageQueryREQ implements Serializable {
 
     @Schema(description = "用户出发时间")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-ddTHH:mm:ss")
     private LocalDateTime nowTime;
 
     @Schema(description = "用户出发站ID")

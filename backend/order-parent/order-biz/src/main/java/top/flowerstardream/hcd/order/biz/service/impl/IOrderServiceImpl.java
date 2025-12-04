@@ -1,6 +1,7 @@
 package top.flowerstardream.hcd.order.biz.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -175,6 +176,13 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
                 Objects.equals(orderEO.getStatus(), ORDER_STATUS_REFUNDED) ||
                 Objects.equals(orderEO.getStatus(), ORDER_STATUS_CANCELLED)) {
             ORDER_STATUS_INVALID.throwException();
+            return;
+        }
+        
+        if (Objects.equals(req.getStatus(), ORDER_STATUS_PAID)) {
+            // 直接支付成功
+            paySuccess(orderEO.getId(), orderEO.getTotalPrice());
+            return;
         }
 
         if (Objects.equals(req.getStatus(), ORDER_STATUS_REFUNDED) ||
@@ -184,7 +192,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
         }
 
         orderEO.setStatus(req.getStatus());
-        if (req.getRemarks() != null) {
+        if (StrUtil.isNotBlank(req.getRemarks())) {
             orderEO.setRemarks(req.getRemarks());
         }
 
@@ -220,14 +228,14 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
                 Objects.equals(orderEO.getStatus(), ORDER_STATUS_REFUNDED)) {
             ORDER_STATUS_INVALID.throwException();
         }
-        // 更新订单状态为已取消
-        orderEO.setStatus(ORDER_STATUS_CANCELLED);
-
-        // 订单状态处于待支付或已出票时，调用服务取消车票并退款
+        // 订单状态处于已支付或已出票时，调用服务取消车票并退款
         if (Objects.equals(orderEO.getStatus(), ORDER_STATUS_PAID) ||
                 Objects.equals(orderEO.getStatus(), ORDER_STATUS_TICKETED)) {
             orderEO = refund(orderEO, orderEO.getTotalPrice(), orderEO.getTotalPrice());
             orderEO.setStatus(ORDER_STATUS_REFUNDED);
+        } else {
+            // 更新订单状态为已取消
+            orderEO.setStatus(ORDER_STATUS_CANCELLED);
         }
 
         // 调用票务服务取消车票
@@ -270,6 +278,14 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
          LambdaQueryWrapper<OrderEO> queryWrapper = Wrappers.lambdaQuery();
          if (req.getUserId() != null) {
              queryWrapper.eq(OrderEO::getUserId, req.getUserId());
+         }
+         if (StrUtil.isNotBlank(req.getUsername())) {
+             List<Long> userIds = userClient.getUserIdsByName(req.getUsername()).getData();
+             if (CollUtil.isNotEmpty(userIds)) {
+                 queryWrapper.in(OrderEO::getUserId, userIds);
+             } else {
+                 queryWrapper.eq(OrderEO::getUserId, -1);
+             }
          }
          if (req.getId() != null) {
              queryWrapper.eq(OrderEO::getId, req.getId());
@@ -447,7 +463,9 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, OrderEO> impleme
                 .amountPaid(amount)
                 .build();
 
-        self.updateById(orders);
+        if (!self.updateById(orders)) {
+            ORDER_UPDATE_FAILED.throwException();
+        }
     }
 
     public OrderEO refund(OrderEO ordersDB, BigDecimal orderMoney, BigDecimal originalOrderMoney) throws Exception {

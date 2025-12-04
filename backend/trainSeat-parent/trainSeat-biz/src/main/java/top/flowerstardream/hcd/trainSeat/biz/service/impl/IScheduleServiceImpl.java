@@ -313,6 +313,10 @@ public class IScheduleServiceImpl extends ServiceImpl<ScheduleMapper, ScheduleEO
             THE_QUERY_PARAMETER_CANNOT_BE_EMPTY.throwException();
             return null;
         }
+        if (realTimeSchedulePageQueryREQ.getNowTime() == null) {
+            PARAM_ERROR.throwException();
+        }
+
         //设置分页参数默认值
         if (realTimeSchedulePageQueryREQ.getPage() <= 0) {
             realTimeSchedulePageQueryREQ.setPage(1);

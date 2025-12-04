@@ -259,6 +259,7 @@ public class ISeatReservationServiceImpl extends ServiceImpl<SeatReservationMapp
 
         return seatReservationEOs.stream().map(seatReservationEO -> SeatReservationDTO.builder()
                 .id(seatReservationEO.getId())
+                .scheduleId(seatReservationEO.getScheduleId())
                 .seatNum(seatReservationEO.getSeatNum())
                 .build()).toList();
     }
@@ -279,7 +280,7 @@ public class ISeatReservationServiceImpl extends ServiceImpl<SeatReservationMapp
         // 对每个 scheduleId 更新对应的余票数
         scheduleTicketCountMap.forEach((scheduleId, ticketCount) -> {
             LambdaUpdateWrapper<ScheduleEO> updateWrapper = new LambdaUpdateWrapper<>();
-            updateWrapper.setSql("available_tickets", "available_tickets + " + ticketCount)
+            updateWrapper.setSql("available_tickets = available_tickets + {0}", ticketCount)
                          .eq(ScheduleEO::getId, scheduleId);
             scheduleMapper.update(updateWrapper);
         });
@@ -313,7 +314,7 @@ public class ISeatReservationServiceImpl extends ServiceImpl<SeatReservationMapp
             NOT_ENOUGH_TICKETS.throwException();
         }
         LambdaUpdateWrapper<ScheduleEO> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.setSql("available_tickets", "available_tickets - " + reserveSeatDTO.getTicketCount())
+        updateWrapper.setSql("available_tickets = available_tickets - {0}", reserveSeatDTO.getTicketCount())
                     .eq(ScheduleEO::getId, reserveSeatDTO.getScheduleId())
                     .gt(ScheduleEO::getAvailableTickets, 0);
         int update = scheduleMapper.update(updateWrapper);
@@ -407,6 +408,22 @@ public class ISeatReservationServiceImpl extends ServiceImpl<SeatReservationMapp
         if (!updateResult) {
             MODIFICATION_FAILED.throwException();
         }
+    }
+
+    /**
+     * 根据班次ID获取座位预约ID列表
+     *
+     * @param scheduleId 班次ID
+     * @return 座位预约ID列表
+     */
+    @Override
+    public List<Long> getSeatReservationIdsByScheduleId(Long scheduleId) {
+        if (scheduleId == null) {
+            return List.of();
+        }
+        LambdaQueryWrapper<SeatReservationEO> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SeatReservationEO::getScheduleId, scheduleId);
+        return seatReservationMapper.selectList(queryWrapper).stream().map(SeatReservationEO::getId).toList();
     }
 
     /**

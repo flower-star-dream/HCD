@@ -78,4 +78,12 @@ public interface ISeatReservationService {
      * @param seatReservationChangeStatusREQ 批量更新座位预约状态参数
      */
     void batchUpdateStatus(SeatReservationChangeStatusREQ seatReservationChangeStatusREQ);
+
+    /**
+     * 根据班次ID获取座位预约ID列表
+     *
+     * @param scheduleId 班次ID
+     * @return 座位预约ID列表
+     */
+    List<Long> getSeatReservationIdsByScheduleId(Long scheduleId);
 }

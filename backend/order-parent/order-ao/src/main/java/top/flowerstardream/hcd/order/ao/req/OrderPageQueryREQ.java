@@ -30,6 +30,12 @@ public class OrderPageQueryREQ extends BasePageQueryREQ implements Serializable 
     private Long userId;
 
     /**
+     * 用户名
+     */
+    @Schema(description = "用户名")
+    private String username;
+
+    /**
      * 订单状态
      */
     @Schema(description = "订单号")

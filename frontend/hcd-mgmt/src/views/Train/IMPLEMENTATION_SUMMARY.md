@@ -7,9 +7,11 @@
 ## 实现组件
 
 ### 1. 列车列表页面 (TrainList.vue)
+
 **路径**: `src/views/Train/Train-list-view/Train-list-view.vue`
 
 **核心功能**:
+
 - ✅ 分页展示列车数据
 - ✅ 多条件搜索（列车名、列车型号）
 - ✅ 状态筛选标签页（全部/已启用/已禁用）
@@ -19,15 +21,18 @@
 - ✅ 响应式布局适配
 
 **技术特点**:
+
 - 使用ListPage通用组件，统一UI风格
 - 支持多选和批量操作
 - 状态标签动态样式
 - 完整的表单验证
 
 ### 2. 表单弹窗组件
+
 **实现方式**: 使用通用DialogForm组件
 
 **核心功能**:
+
 - ✅ 新增/编辑列车信息
 - ✅ 动态表单字段验证
 - ✅ 状态切换开关
@@ -35,6 +40,7 @@
 - ✅ 数字输入范围控制
 
 **表单字段**:
+
 - 列车名（2-10字符，编辑时不可修改）
 - 列车型号（最多50字符）
 - 座位数（1-2000）
@@ -42,9 +48,11 @@
 - 状态开关（编辑时显示）
 
 ### 3. 类型定义更新
+
 **路径**: `src/types/train.d.ts`
 
 **新增接口**:
+
 ```typescript
 interface Train {
   id: number              // 列车号
@@ -61,9 +69,11 @@ interface Train {
 ```
 
 ### 4. API接口扩展
+
 **路径**: `src/api/train.ts`
 
 **新增接口**:
+
 - `getTrainList()` - 获取列车列表
 - `createTrain()` - 创建列车
 - `updateTrain()` - 更新列车
@@ -71,9 +81,11 @@ interface Train {
 - `updateTrainStatus()` - 更新列车状态
 
 ### 5. 路由配置
+
 **路径**: `src/router/index.ts`
 
 **新增路由**:
+
 ```javascript
 {
   path: '/train',
@@ -93,6 +105,7 @@ interface Train {
 ## 数据库设计
 
 ### hcd_train表结构
+
 ```sql
 CREATE TABLE `hcd_train` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '列车号',
@@ -114,6 +127,7 @@ CREATE TABLE `hcd_train` (
 ## 页面布局
 
 ### 列表页面布局
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │ 列车列表                                      [新增][批量删除] │
@@ -134,6 +148,7 @@ CREATE TABLE `hcd_train` (
 ```
 
 ### 表单弹窗布局
+
 ```
 ┌─────────────────────────────────────┐
 │ 新增列车/编辑列车            [X]    │
@@ -153,6 +168,7 @@ CREATE TABLE `hcd_train` (
 ## 核心功能实现
 
 ### 1. 状态管理
+
 ```javascript
 const TRAIN_STATUS = {
   ENABLED: 1,
@@ -175,6 +191,7 @@ const TRAIN_STATUS = {
 ```
 
 ### 2. 表单验证规则
+
 ```javascript
 const formRules = computed(() => ({
   trainName: [
@@ -197,6 +214,7 @@ const formRules = computed(() => ({
 ```
 
 ### 3. 数据获取与处理
+
 ```javascript
 const fetchTrainList = async (searchParams = {}) => {
   loading.value = true
@@ -206,21 +224,16 @@ const fetchTrainList = async (searchParams = {}) => {
       pageSize: pageSize.value,
       ...searchParams
     }
-    
+  
     const response = await getTrainList(params)
     const data = response.records
-    
+  
     // 按状态筛选
     let filteredData = filterDataByStatus(data)
-    
-    // 模拟分页
-    const start = (currentPage.value - 1) * pageSize.value
-    const end = start + pageSize.value
-    const paginatedData = filteredData.slice(start, end)
-    
-    trainList.value = paginatedData
-    total.value = filteredData.length
-    
+  
+    trainList.value = filteredData 
+    total.value = Number(response.total)
+  
     // 更新状态数量统计
     updateStatusCounts(data)
   } catch (error) {
@@ -236,6 +249,7 @@ const fetchTrainList = async (searchParams = {}) => {
 ## 样式设计
 
 ### 列表页面样式特色
+
 - 现代化的卡片式布局
 - 状态标签颜色区分（绿色-启用，红色-禁用）
 - 响应式设计，适配移动端
@@ -243,6 +257,7 @@ const fetchTrainList = async (searchParams = {}) => {
 - 分页组件样式统一
 
 ### 弹窗样式特色
+
 - 圆角边框设计
 - 渐变背景头部
 - 表单字段间距优化
@@ -252,18 +267,21 @@ const fetchTrainList = async (searchParams = {}) => {
 ## 用户体验优化
 
 ### 1. 交互反馈
+
 - 操作成功/失败消息提示
 - 加载状态显示
 - 表单验证实时反馈
 - 确认对话框防止误操作
 
 ### 2. 操作便捷性
+
 - 批量操作支持
 - 快速搜索功能
 - 状态筛选标签页
 - 表格排序和分页
 
 ### 3. 数据展示
+
 - 时间格式化显示
 - 状态标签直观展示
 - 关键信息突出显示
@@ -272,18 +290,21 @@ const fetchTrainList = async (searchParams = {}) => {
 ## 安全性考虑
 
 ### 1. 数据验证
+
 - 前端表单验证
 - 后端数据校验
 - SQL注入防护
 - XSS攻击防护
 
 ### 2. 权限控制
+
 - 操作权限验证
 - 数据访问控制
 - 用户身份认证
 - 操作日志记录
 
 ### 3. 数据保护
+
 - 敏感信息脱敏
 - 数据传输加密
 - 操作审计日志
@@ -292,18 +313,21 @@ const fetchTrainList = async (searchParams = {}) => {
 ## 性能优化
 
 ### 1. 数据加载
+
 - 分页加载减少数据传输
 - 搜索防抖避免频繁请求
 - 数据缓存机制
 - 懒加载策略
 
 ### 2. 前端优化
+
 - 组件按需加载
 - 虚拟滚动优化
 - 图片懒加载
 - CDN资源加速
 
 ### 3. 后端优化
+
 - 数据库索引优化
 - 查询语句优化
 - 缓存策略实施
@@ -312,18 +336,21 @@ const fetchTrainList = async (searchParams = {}) => {
 ## 扩展功能建议
 
 ### 1. 高级功能
+
 - 列车座位类型管理
 - 列车运行时刻表
 - 列车维护记录
 - 列车故障报告
 
 ### 2. 数据分析
+
 - 列车使用率统计
 - 列车故障率分析
 - 列车维护成本分析
 - 列车生命周期管理
 
 ### 3. 集成扩展
+
 - 与票务系统集成
 - 与调度系统集成
 - 与维修系统集成
@@ -332,18 +359,21 @@ const fetchTrainList = async (searchParams = {}) => {
 ## 部署说明
 
 ### 1. 前端部署
+
 - 构建生产版本：`npm run build`
 - 部署到静态服务器
 - 配置CDN加速
 - 设置HTTPS证书
 
 ### 2. 后端部署
+
 - 数据库初始化脚本
 - API服务部署
 - 负载均衡配置
 - 监控告警设置
 
 ### 3. 环境配置
+
 - 开发环境配置
 - 测试环境配置
 - 预生产环境配置
@@ -352,18 +382,21 @@ const fetchTrainList = async (searchParams = {}) => {
 ## 维护建议
 
 ### 1. 代码维护
+
 - 定期代码重构
 - 依赖库版本更新
 - 安全漏洞修复
 - 性能瓶颈优化
 
 ### 2. 数据维护
+
 - 定期数据备份
 - 数据清理策略
 - 数据一致性检查
 - 数据归档处理
 
 ### 3. 监控运维
+
 - 系统性能监控
 - 错误日志分析
 - 用户行为分析
@@ -374,6 +407,7 @@ const fetchTrainList = async (searchParams = {}) => {
 本列车管理系统完整实现了基于hcd_train表的CRUD操作，采用现代化的前端技术栈，提供了良好的用户体验和系统性能。系统设计遵循高内聚低耦合原则，便于后续维护和扩展。通过组件化开发模式，提高了代码复用率和开发效率。
 
 系统具有以下特点：
+
 1. **功能完整**：涵盖列车管理的所有核心功能
 2. **界面美观**：现代化的UI设计和交互体验
 3. **性能优异**：优化的数据加载和处理机制

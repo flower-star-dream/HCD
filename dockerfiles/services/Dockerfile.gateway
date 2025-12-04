@@ -4,19 +4,13 @@ FROM maven:3.9-eclipse-temurin-17-alpine AS builder
 # 设置工作目录
 WORKDIR /app
 
-# 复制pom.xml和源码
-COPY pom.xml .
-COPY hcd-gateway/pom.xml ./hcd-gateway/
-COPY hcd-base/pom.xml ./hcd-base/
-COPY hcd-tools/pom.xml ./hcd-tools/
-
-# 下载依赖
-RUN mvn dependency:go-offline -B
-
-# 复制源码
+# 复制所有源码（Maven需要完整的模块结构）
 COPY . .
 
-# 构建项目
+# 下载所有依赖（确保Maven可以解析完整项目结构）
+RUN mvn dependency:go-offline -B
+
+# 仅构建gateway及其依赖
 RUN mvn clean package -DskipTests -pl hcd-gateway -am
 
 # 运行时镜像

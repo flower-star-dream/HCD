@@ -19,6 +19,10 @@ export const getTicketDetailService = (id: string): Promise<T.ApiResponse<T.Tick
   return ticketRequest.get(`/ticket/${id}`)
 }
 
+export const getTicketDetailByOrderIdService = (id: string): Promise<T.ApiResponse<T.TicketDetail>> => {
+  return ticketRequest.get(`/ticket/order/${id}`)
+}
+
 /**
  * 更新车票状态
  * @param data 状态更新数据

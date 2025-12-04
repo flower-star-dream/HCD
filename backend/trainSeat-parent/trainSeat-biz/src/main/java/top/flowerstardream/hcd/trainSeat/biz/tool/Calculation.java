@@ -62,11 +62,13 @@ public class Calculation {
         Integer totalStationsNum = totalStations.intValue();
         //获取起点站点数
         LambdaQueryWrapper<RouteStationsEO> queryWrapper3 = new LambdaQueryWrapper<>();
+        queryWrapper3.eq(RouteStationsEO::getRouteId, routeEO.getId());
         queryWrapper3.eq(RouteStationsEO::getStationId, reserveSeatDTO.getStartStationId());
         RouteStationsEO routeStationsEO = routeStationsMapper.selectOne(queryWrapper3);
         Integer startStationSorting = routeStationsEO.getStationSorting();
         //获取终点站点数
         LambdaQueryWrapper<RouteStationsEO> queryWrapper4 = new LambdaQueryWrapper<>();
+        queryWrapper4.eq(RouteStationsEO::getRouteId, routeEO.getId());
         queryWrapper4.eq(RouteStationsEO::getStationId, reserveSeatDTO.getEndStationId());
         RouteStationsEO routeStationsEO1 = routeStationsMapper.selectOne(queryWrapper4);
         Integer endStationSorting = routeStationsEO1.getStationSorting();

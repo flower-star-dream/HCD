@@ -1,27 +1,11 @@
 <template>
   <!-- 使用增强的ListPage组件，通过配置实现动态列和搜索条件 -->
-  <ListPage
-    title="订单列表"
-    :show-tabs="true"
-    :tabs="tabs"
-    :active-tab="statusFilter"
-    :total="total"
-    :current-page="currentPage"
-    :page-size="pageSize"
-    :selected-count="selectedRows.length"
-    :loading="loading"
-    :show-selection="true"
-    :table-data="orderList"
-    :table-columns="tableColumns"
-    :search-fields="searchFields"
-    :initial-search-form="initialSearchForm"
-    @tab-click="handleStatusTabChange"
-    @size-change="handleSizeChange"
-    @current-change="handlePageChange"
-    @search="handleSearch"
-    @reset="handleReset"
-    @selection-change="handleSelectionChange"
-  >
+  <ListPage title="订单列表" :show-tabs="true" :tabs="tabs" :active-tab="statusFilter" :total="total"
+    :current-page="currentPage" :page-size="pageSize" :selected-count="selectedRows.length" :loading="loading"
+    :show-selection="true" :table-data="orderList" :table-columns="tableColumns" :search-fields="searchFields"
+    :initial-search-form="initialSearchForm" @tab-click="handleStatusTabChange" @size-change="handleSizeChange"
+    @current-change="handlePageChange" @search="handleSearch" @reset="handleReset"
+    @selection-change="handleSelectionChange">
     <!-- 操作按钮区域 -->
     <template #actions>
       <!-- 订单列表暂不提供批量操作 -->
@@ -50,46 +34,81 @@
       <span style="color: #f56c6c; font-weight: bold;">¥{{ row.totalPrice.toFixed(2) }}</span>
     </template>
 
+    <!-- 自定义已付金额列 -->
+    <template #column-amountPaid="{ row }">
+      <span style="color: #f56c6c; font-weight: bold;">¥{{ row.amountPaid?.toFixed(2) || '0.00' }}</span>
+    </template>
+
     <!-- 自定义操作列 -->
     <template #column-action="{ row }">
       <el-button type="primary" text size="small" @click="handleViewDetail(row)">查看详情</el-button>
-      <el-button 
-        type="primary" 
-        text 
-        size="small" 
-        @click="handleStatusChange(row)"
-        :disabled="row.status === ORDER_STATUS.CANCELLED || row.status === ORDER_STATUS.REFUNDED"
-      >
-        {{ row.status === ORDER_STATUS.CANCELLED ? '已取消' : '取消订单' }}
-      </el-button>
+      <template v-if="row.status === ORDER_STATUS.PENDING">
+        <el-button type="primary" text size="small" @click="handleStatusChange(row, ORDER_STATUS.CANCELLED)">
+          取消订单
+        </el-button>
+        <el-button type="success" text size="small" @click="handleStatusChange(row, ORDER_STATUS.PAID)">
+          标记已支付
+        </el-button>
+      </template>
+      <template v-else-if="row.status === ORDER_STATUS.PAID">
+        <el-button type="success" text size="small" @click="handleStatusChange(row, ORDER_STATUS.TICKETED)">
+          标记已出票
+        </el-button>
+        <el-button type="danger" text size="small" @click="handleStatusChange(row, ORDER_STATUS.REFUNDED)">
+          退款
+        </el-button>
+      </template>
+      <template v-else-if="row.status === ORDER_STATUS.TICKETED">
+        <el-button type="success" text size="small" @click="handleStatusChange(row, ORDER_STATUS.COMPLETED)">
+          标记已完成
+        </el-button>
+        <el-button type="danger" text size="small" @click="handleStatusChange(row, ORDER_STATUS.REFUNDED)">
+          退款
+        </el-button>
+      </template>
+      <template v-else-if="row.status === ORDER_STATUS.COMPLETED">
+        <el-button type="primary" text size="small" disabled>
+          已完成
+        </el-button>
+      </template>
+      <template v-else-if="row.status === ORDER_STATUS.CANCELLED">
+        <el-button type="primary" text size="small" disabled>
+          已取消
+        </el-button>
+      </template>
+      <template v-else-if="row.status === ORDER_STATUS.REFUNDED">
+        <el-button type="primary" text size="small" disabled>
+          已退款
+        </el-button>
+      </template>
     </template>
   </ListPage>
 
   <!-- 订单详情弹窗 -->
-  <el-dialog
-    v-model="detailDialogVisible"
-    :title="'订单详情 - ' + currentOrder.orderNumber"
-    width="800px"
-    :close-on-click-modal="false"
-  >
+  <el-dialog v-model="detailDialogVisible" :title="'订单详情 - ' + currentOrder.order.id" width="800px"
+    :close-on-click-modal="false">
     <el-descriptions :column="2" border>
-      <el-descriptions-item label="订单号">{{ currentOrder.orderNumber }}</el-descriptions-item>
-      <el-descriptions-item label="用户名">{{ currentOrder.username }}</el-descriptions-item>
+      <el-descriptions-item label="订单号">{{ currentOrder.order.id }}</el-descriptions-item>
+      <el-descriptions-item label="用户名">{{ currentOrder.order.username }}</el-descriptions-item>
       <el-descriptions-item label="订单状态">
-        <el-tag :type="getStatusTagType(currentOrder.status)" size="small">
-          {{ getStatusText(currentOrder.status) }}
+        <el-tag :type="getStatusTagType(currentOrder.order.status)" size="small">
+          {{ getStatusText(currentOrder.order.status) }}
         </el-tag>
       </el-descriptions-item>
       <el-descriptions-item label="订单总价">
-        <span style="color: #f56c6c; font-weight: bold;">¥{{ currentOrder.totalPrice?.toFixed(2) }}</span>
+        <span style="color: #f56c6c; font-weight: bold;">¥{{ currentOrder.order.totalPrice?.toFixed(2) }}</span>
       </el-descriptions-item>
-      <el-descriptions-item label="支付时间">{{ formatDate(currentOrder.payTime) || '-' }}</el-descriptions-item>
-      <el-descriptions-item label="创建时间">{{ formatDate(currentOrder.createTime) }}</el-descriptions-item>
-      <el-descriptions-item label="订单备注" :span="2">{{ currentOrder.remarks || '-' }}</el-descriptions-item>
+      <el-descriptions-item label="已付金额">
+        <span style="color: #f56c6c; font-weight: bold;">¥{{ currentOrder.order.amountPaid?.toFixed(2) || '0.00'
+        }}</span>
+      </el-descriptions-item>
+      <el-descriptions-item label="支付时间">{{ formatDate(currentOrder.order.payTime) || '-' }}</el-descriptions-item>
+      <el-descriptions-item label="创建时间">{{ formatDate(currentOrder.order.createTime) }}</el-descriptions-item>
+      <el-descriptions-item label="订单备注" :span="2">{{ currentOrder.order.remarks || '-' }}</el-descriptions-item>
     </el-descriptions>
 
     <el-divider />
-    
+
     <h4>车票信息</h4>
     <el-table :data="currentOrder.tickets" border style="width: 100%">
       <el-table-column prop="trainNumber" label="车次号" width="100" />
@@ -98,17 +117,23 @@
       <el-table-column prop="departureTime" label="出发时间" width="160" />
       <el-table-column prop="arrivalTime" label="到达时间" width="160" />
       <el-table-column prop="seatNumber" label="座位号" width="80" />
-      <el-table-column prop="seatType" label="座位类型" width="100" />
       <el-table-column prop="price" label="票价" width="80">
         <template #default="{ row }">
           ¥{{ row.price.toFixed(2) }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="status" label="车票状态" width="120">
+        <template #default="{ row }">
+          <el-tag :type="TicketStatusMap[row.status]?.type" size="small">
+            {{ TicketStatusMap[row.status]?.text }}
+          </el-tag>
         </template>
       </el-table-column>
       <el-table-column prop="passengerName" label="乘客姓名" width="100" />
     </el-table>
 
     <el-divider />
-    
+
     <h4>乘客信息</h4>
     <el-table :data="currentOrder.passengers" border style="width: 100%">
       <el-table-column prop="realName" label="姓名" width="120" />
@@ -121,7 +146,10 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { getOrderListService, getOrderDetailService, updateOrderStatusService } from '@/api/order'
+import { getTicketDetailByOrderIdService } from '@/api/ticket'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { formatDate } from '@/utils/formatDate'
+import { TicketStatus, TicketStatusMap } from '@/types/ticket'
 
 // 订单状态枚举常量
 const ORDER_STATUS = {
@@ -167,7 +195,9 @@ const selectedRows = ref([])
 const statusFilter = ref('all')
 const detailDialogVisible = ref(false)
 const currentOrder = ref({
-  orderNumber: '',
+  order: {
+    id: '',
+  },
   tickets: [],
   passengers: []
 })
@@ -233,12 +263,6 @@ const tabs = computed(() => [
 const tableColumns = [
   {
     prop: 'id',
-    label: '订单ID',
-    width: 80,
-    align: 'center'
-  },
-  {
-    prop: 'orderNumber',
     label: '订单号',
     width: 200,
     align: 'center',
@@ -256,24 +280,9 @@ const tableColumns = [
     width: 100,
     align: 'center'
   },
-  {
-    prop: 'totalPrice',
-    label: '订单总价',
-    width: 120,
-    align: 'center'
-  },
-  {
-    prop: 'payTime',
-    label: '支付时间',
-    minWidth: 160,
-    align: 'center'
-  },
-  {
-    prop: 'createTime',
-    label: '创建时间',
-    minWidth: 160,
-    align: 'center'
-  },
+  { prop: 'totalPrice', label: '订单总价', width: 120, align: 'center' }, 
+  { prop: 'amountPaid', label: '已付金额', width: 120, align: 'center' }, 
+  { prop: 'payTime', label: '支付时间', minWidth: 160, align: 'center' },
   {
     prop: 'remarks',
     label: '备注',
@@ -282,9 +291,33 @@ const tableColumns = [
     showOverflowTooltip: true
   },
   {
+    prop: 'createTime',
+    label: '创建时间',
+    minWidth: 160,
+    align: 'center'
+  },
+  {
+    prop: 'updateTime',
+    label: '更新时间',
+    minWidth: 160,
+    align: 'center'
+  },
+  {
+    prop: 'createPerson',
+    label: '创建人',
+    minWidth: 160,
+    align: 'center'
+  },
+  {
+    prop: 'updatePerson',
+    label: '更新人',
+    minWidth: 160,
+    align: 'center'
+  },
+  {
     prop: 'action',
     label: '操作',
-    width: 150,
+    width: 300,
     align: 'center',
     fixed: 'right'
   }
@@ -312,21 +345,6 @@ const searchFields = [
     type: 'input',
     placeholder: '请输入用户名',
     clearable: true
-  },
-  {
-    prop: 'status',
-    label: '订单状态',
-    type: 'select',
-    placeholder: '请选择订单状态',
-    clearable: true,
-    options: [
-      { label: '待支付', value: ORDER_STATUS.PENDING },
-      { label: '已支付', value: ORDER_STATUS.PAID },
-      { label: '已出票', value: ORDER_STATUS.TICKETED },
-      { label: '已完成', value: ORDER_STATUS.COMPLETED },
-      { label: '已取消', value: ORDER_STATUS.CANCELLED },
-      { label: '已退款', value: ORDER_STATUS.REFUNDED }
-    ]
   }
 ]
 
@@ -336,22 +354,7 @@ const initialSearchForm = searchFields.reduce((acc, field) => {
   return acc
 }, {})
 
-/**
- * 格式化日期时间
- * @param {string|number|Date} date - 日期对象或时间戳
- * @returns {string} 格式化后的日期字符串
- */
-const formatDate = (date) => {
-  if (!date) return ''
-  const d = new Date(date)
-  const year = d.getFullYear()
-  const month = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  const hours = String(d.getHours()).padStart(2, '0')
-  const minutes = String(d.getMinutes()).padStart(2, '0')
-  const seconds = String(d.getSeconds()).padStart(2, '0')
-  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
-}
+
 
 /**
  * 获取订单列表
@@ -365,28 +368,22 @@ const fetchOrderList = async (searchParams = {}) => {
       pageSize: pageSize.value,
       ...searchParams
     }
-    
+
     // API调用
     const response = await getOrderListService(params)
     const data = response.records
-    
+
     // 按状态筛选
     let filteredData = filterDataByStatus(data)
-    
-    // 模拟分页
-    const start = (currentPage.value - 1) * pageSize.value
-    const end = start + pageSize.value
-    const paginatedData = filteredData.slice(start, end)
-    
-    orderList.value = paginatedData
-    total.value = filteredData.length
-    
+    orderList.value = filteredData
+    total.value = Number(response.total)
+
     // 更新状态数量统计
     updateStatusCounts(filteredData)
   } catch (error) {
     orderList.value = []
     total.value = 0
-    
+
     // 重置状态统计
     statusCounts.value = {
       all: 0,
@@ -443,7 +440,7 @@ const updateStatusCounts = (list) => {
   const completedCount = list.filter(item => item.status === ORDER_STATUS.COMPLETED).length
   const cancelledCount = list.filter(item => item.status === ORDER_STATUS.CANCELLED).length
   const refundedCount = list.filter(item => item.status === ORDER_STATUS.REFUNDED).length
-  
+
   statusCounts.value = {
     all: list.length,
     pending: pendingCount,
@@ -539,11 +536,34 @@ const handleViewDetail = async (row) => {
     ElMessage.warning('请选择订单查看详情')
     return
   }
-  
+
   try {
     loading.value = true
     const detail = await getOrderDetailService(row.id)
-    currentOrder.value = detail
+    const ticketDetail = await getTicketDetailByOrderIdService(row.id)
+
+    // 处理ticket数据，映射字段名
+    const formattedTickets = Array.isArray(ticketDetail) ? ticketDetail.map(ticket => ({
+      ...ticket,
+      trainNumber: ticket.id, // 车次号使用id
+      departure: ticket.startStation,
+      arrival: ticket.endStation,
+      departureTime: formatDate(ticket.startTime),
+      arrivalTime: formatDate(ticket.endTime),
+      price: ticket.money,
+      status: ticket.status, // 车票状态
+      passengerName: ticket.realName
+      // 删除座位类型字段，因为列车没有这个字段
+    })) : []
+
+    currentOrder.value.order = detail
+    currentOrder.value.tickets = formattedTickets
+    currentOrder.value.passengers = Array.isArray(ticketDetail) ? ticketDetail.map(ticket => ({
+      realName: ticket.realName,
+      cardType: ticket.cardType,
+      idCard: ticket.idCard
+    })) : []
+
     detailDialogVisible.value = true
   } catch (error) {
     ElMessage.error('获取订单详情失败')
@@ -553,17 +573,24 @@ const handleViewDetail = async (row) => {
 }
 
 /**
- * 取消订单
+ * 修改订单状态
  * @param {Object} row - 订单数据
+ * @param {number} newStatus - 新的状态值
  */
-const handleStatusChange = async (row) => {
-  if (row.status === ORDER_STATUS.CANCELLED || row.status === ORDER_STATUS.REFUNDED || row.status === ORDER_STATUS.COMPLETED) {
+const handleStatusChange = async (row, newStatus) => {
+  // 检查状态是否允许变更
+  const allowChange = checkStatusChangeAllowed(row.status, newStatus)
+  if (!allowChange) {
+    ElMessage.warning('不允许的状态变更')
     return
   }
-  
+
   try {
+    // 根据新状态生成确认消息
+    const confirmMsg = getConfirmMessage(row.id, newStatus)
+
     await ElMessageBox.confirm(
-      `确定要取消订单「${row.orderNumber}」吗？`,
+      confirmMsg,
       '操作确认',
       {
         confirmButtonText: '确定',
@@ -571,24 +598,89 @@ const handleStatusChange = async (row) => {
         type: 'warning'
       }
     )
-    
-    const data = { 
-      id: row.id, 
-      status: ORDER_STATUS.CANCELLED,
-      remarks: '后台管理员取消订单'
+
+    const data = {
+      id: row.id,
+      status: newStatus,
+      remarks: getRemarks(newStatus)
     }
-    
+
     await updateOrderStatusService(data)
-    ElMessage.success('订单取消成功')
-    
+    ElMessage.success(getSuccessMessage(newStatus))
+
     // 刷新列表
     fetchOrderList()
   } catch (error) {
     // 用户取消操作或发生错误
     if (error !== 'cancel') {
-      ElMessage.error('订单取消失败')
+      ElMessage.error('订单状态修改失败')
     }
   }
+}
+
+/**
+ * 检查状态变更是否允许
+ * @param {number} currentStatus - 当前状态
+ * @param {number} newStatus - 新状态
+ * @returns {boolean} 是否允许变更
+ */
+const checkStatusChangeAllowed = (currentStatus, newStatus) => {
+  const allowedTransitions = {
+    [ORDER_STATUS.PENDING]: [ORDER_STATUS.CANCELLED, ORDER_STATUS.PAID], // 待支付 -> 已取消/已支付
+    [ORDER_STATUS.PAID]: [ORDER_STATUS.REFUNDED, ORDER_STATUS.TICKETED], // 已支付 -> 已退款/已出票
+    [ORDER_STATUS.TICKETED]: [ORDER_STATUS.REFUNDED, ORDER_STATUS.COMPLETED] // 已出票 -> 已退款/已完成
+  }
+
+  return allowedTransitions[currentStatus]?.includes(newStatus) || false
+}
+
+/**
+ * 获取确认消息
+ * @param {string} orderId - 订单号
+ * @param {number} newStatus - 新状态
+ * @returns {string} 确认消息
+ */
+const getConfirmMessage = (orderId, newStatus) => {
+  const messageMap = {
+    [ORDER_STATUS.PAID]: `确定要将订单「${orderId}」标记为已支付吗？`,
+    [ORDER_STATUS.TICKETED]: `确定要将订单「${orderId}」标记为已出票吗？`,
+    [ORDER_STATUS.COMPLETED]: `确定要将订单「${orderId}」标记为已完成吗？`,
+    [ORDER_STATUS.CANCELLED]: `确定要取消订单「${orderId}」吗？`,
+    [ORDER_STATUS.REFUNDED]: `确定要将订单「${orderId}」退款吗？`
+  }
+  return messageMap[newStatus] || `确定要修改订单「${orderId}」的状态吗？`
+}
+
+/**
+ * 获取操作备注
+ * @param {number} newStatus - 新状态
+ * @returns {string} 操作备注
+ */
+const getRemarks = (newStatus) => {
+  const remarksMap = {
+    [ORDER_STATUS.PAID]: '后台管理员标记已支付',
+    [ORDER_STATUS.TICKETED]: '后台管理员标记已出票',
+    [ORDER_STATUS.COMPLETED]: '后台管理员标记已完成',
+    [ORDER_STATUS.CANCELLED]: '后台管理员取消订单',
+    [ORDER_STATUS.REFUNDED]: '后台管理员发起退款'
+  }
+  return remarksMap[newStatus] || '后台管理员修改订单状态'
+}
+
+/**
+ * 获取成功消息
+ * @param {number} newStatus - 新状态
+ * @returns {string} 成功消息
+ */
+const getSuccessMessage = (newStatus) => {
+  const messageMap = {
+    [ORDER_STATUS.PAID]: '订单标记已支付成功',
+    [ORDER_STATUS.TICKETED]: '订单标记已出票成功',
+    [ORDER_STATUS.COMPLETED]: '订单标记已完成成功',
+    [ORDER_STATUS.CANCELLED]: '订单取消成功',
+    [ORDER_STATUS.REFUNDED]: '订单退款成功'
+  }
+  return messageMap[newStatus] || '订单状态修改成功'
 }
 
 // 组件挂载后加载数据

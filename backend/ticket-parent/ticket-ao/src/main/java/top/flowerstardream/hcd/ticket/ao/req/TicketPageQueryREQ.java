@@ -1,5 +1,6 @@
 package top.flowerstardream.hcd.ticket.ao.req;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,6 +33,12 @@ public class TicketPageQueryREQ extends BasePageQueryREQ implements Serializable
     private Long orderId;
 
     /**
+     * 班次ID
+     */
+    @Schema(description = "班次ID")
+    private Long scheduleId;
+
+    /**
      * 乘车人ID
      */
     @Schema(description = "乘车人姓名")
@@ -54,11 +61,13 @@ public class TicketPageQueryREQ extends BasePageQueryREQ implements Serializable
      * 乘车日期范围-开始
      */
     @Schema(description = "乘车日期范围-开始")
+    @JsonFormat(pattern = "yyyy-MM-ddTHH:mm:ss")
     private LocalDateTime rideDateStart;
 
     /**
      * 乘车日期范围-结束
      */
     @Schema(description = "乘车日期范围-结束")
+    @JsonFormat(pattern = "yyyy-MM-ddTHH:mm:ss")
     private LocalDateTime rideDateEnd;
 }

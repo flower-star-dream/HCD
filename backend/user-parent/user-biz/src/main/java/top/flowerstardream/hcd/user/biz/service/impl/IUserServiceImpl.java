@@ -31,6 +31,7 @@ import top.flowerstardream.hcd.user.biz.mapper.UserMapper;
 import top.flowerstardream.hcd.user.biz.service.IUserService;
 import top.flowerstardream.hcd.user.bo.eo.UserEO;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -205,6 +206,24 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, UserEO> implements
                 return statusRES;
             })
             .collect(Collectors.toList());
+    }
+
+    /**
+     * 根据用户名获取用户ID列表
+     *
+     * @param name 用户名
+     * @return 用户ID列表
+     */
+    @Override
+    public List<Long> getUserIdsByName(String name) {
+        if (name == null || name.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return userMapper.selectList(new LambdaQueryWrapper<UserEO>()
+            .like(UserEO::getUsername, name))
+            .stream()
+            .map(UserEO::getId)
+            .toList();
     }
 
     private String getStatusDescription(Integer status) {

@@ -32,7 +32,7 @@ public interface TrainSeatClient {
      * @return 是否成功
      */
     @PostMapping("/seatReservation/release")
-    Result<Void> releaseSeat(@RequestParam("seatReservationIds") List<Long> seatReservationIds);
+    Result<Void> releaseSeat(@RequestParam List<Long> seatReservationIds);
 
     /**
      * 查询余票数量
@@ -47,8 +47,8 @@ public interface TrainSeatClient {
      * @param reserveSeatDTO
      * @return
      */
-    @GetMapping("/routeStations/calc")
-    Result<BigDecimal> calcTicketPrice(CalcTicketPriceDTO reserveSeatDTO);
+    @PostMapping("/routeStations/calc")
+    Result<BigDecimal> calcTicketPrice(@RequestBody CalcTicketPriceDTO reserveSeatDTO);
 
     /**
      * 根据站名获取站ID
@@ -73,4 +73,12 @@ public interface TrainSeatClient {
      */
     @PostMapping("/station/by-ids")
     Result<List<StationsDTO>> getStationNamesByStationIds(@RequestParam List<Long> stationIds);
+
+    /**
+     * 根据班次ID获取站ID
+     * @param scheduleId
+     * @return
+     */
+    @GetMapping("/seatReservation/by-schedule-id")
+    Result<List<Long>> getSeatReservationIdsByScheduleId(@RequestParam Long scheduleId);
 }

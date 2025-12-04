@@ -53,6 +53,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { getUserListService, updateUserStatusService } from '@/api/user'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { formatDate } from '@/utils/formatDate'
 
 // 用户状态枚举常量
 const USER_STATUS = {
@@ -220,23 +221,6 @@ const initialSearchForm = searchFields.reduce((acc, field) => {
 }, {})
 
 /**
- * 格式化日期时间
- * @param {string|number|Date} date - 日期对象或时间戳
- * @returns {string} 格式化后的日期字符串
- */
-const formatDate = (date) => {
-  if (!date) return ''
-  const d = new Date(date)
-  const year = d.getFullYear()
-  const month = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  const hours = String(d.getHours()).padStart(2, '0')
-  const minutes = String(d.getMinutes()).padStart(2, '0')
-  const seconds = String(d.getSeconds()).padStart(2, '0')
-  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
-}
-
-/**
  * 获取用户列表
  * @param {Object} searchParams - 搜索参数
  */
@@ -255,14 +239,8 @@ const fetchUserList = async (searchParams = {}) => {
     
     // 按状态筛选
     let filteredData = filterDataByStatus(data)
-    
-    // 模拟分页
-    const start = (currentPage.value - 1) * pageSize.value
-    const end = start + pageSize.value
-    const paginatedData = filteredData.slice(start, end)
-    
-    userList.value = paginatedData
-    total.value = filteredData.length
+    userList.value = filteredData
+    total.value = Number(response.total)
     
     // 更新状态数量统计
     updateStatusCounts(data)
