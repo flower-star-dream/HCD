@@ -29,7 +29,7 @@ import static top.flowerstardream.hcd.tools.utils.GetInfoUtil.getTraceId;
 @Slf4j
 @RestController("mgmtUserController")
 @RequestMapping("/api/v1/mgmt/user/user")
-@Tag(name = "B端用户管理接口", description = "后管端用户管理相关接口")
+@Tag(name = "B端用户管理接口", description = "B端用户管理相关接口")
 public class UserController {
 
     @Resource
